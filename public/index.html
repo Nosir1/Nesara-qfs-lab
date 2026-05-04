@@ -1842,6 +1842,80 @@
     </div>
   </section>
 
+
+  <!-- DEPOSIT SECTION -->
+  <section class="section" id="deposit" style="background:var(--navy-mid);border-top:1px solid rgba(200,169,110,0.1);border-bottom:1px solid rgba(200,169,110,0.1);padding:100px 40px">
+    <div style="max-width:1280px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:60px">
+        <div class="section-tag">Fund Your Account</div>
+        <h2 class="section-title">Deposit to Your QFS Wallet</h2>
+        <p class="section-sub" style="margin:0 auto">Send XLM or XRP directly to our secure deposit addresses. Your balance will be updated within 30 minutes of confirmation.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:900px;margin:0 auto">
+
+        <!-- XLM -->
+        <div style="background:var(--navy);border:1px solid rgba(200,169,110,0.2);border-radius:16px;padding:36px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#0070f3,#00D4C8)"></div>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">
+            <div style="width:52px;height:52px;background:rgba(0,112,243,0.12);border:1px solid rgba(0,112,243,0.3);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem">⭐</div>
+            <div>
+              <div style="font-family:Syne,sans-serif;font-size:1.2rem;font-weight:800">Stellar (XLM)</div>
+              <div style="font-size:0.75rem;color:var(--teal);font-family:Space Mono,monospace;letter-spacing:0.1em">STELLAR NETWORK</div>
+            </div>
+          </div>
+          <div style="background:rgba(8,12,24,0.8);border:1px solid rgba(200,169,110,0.2);border-radius:10px;padding:16px;margin-bottom:16px">
+            <div style="font-size:0.68rem;font-family:Space Mono,monospace;color:var(--gray);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Deposit Address</div>
+            <div id="xlm-addr" style="font-family:Space Mono,monospace;font-size:0.78rem;color:var(--gold);word-break:break-all;line-height:1.6">GARYAMRNNLJEPV2Z2RTSGIKQGMBE2Q5EETNSRHIPUZ3KT5OV6HXAPWTX</div>
+          </div>
+          <button onclick="copyAddr('GARYAMRNNLJEPV2Z2RTSGIKQGMBE2Q5EETNSRHIPUZ3KT5OV6HXAPWTX','xlm-copy')" id="xlm-copy" style="width:100%;padding:12px;background:linear-gradient(135deg,#0050b3,#0070f3);border:none;color:white;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;font-size:0.875rem;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em">📋 Copy XLM Address</button>
+          <div style="margin-top:16px;padding:12px;background:rgba(0,212,200,0.06);border:1px solid rgba(0,212,200,0.15);border-radius:8px;font-size:0.78rem;color:var(--gray2);line-height:1.6">
+            ⚠️ Only send <strong style="color:var(--white)">XLM</strong> to this address. Sending other assets may result in permanent loss.
+          </div>
+        </div>
+
+        <!-- XRP -->
+        <div style="background:var(--navy);border:1px solid rgba(200,169,110,0.2);border-radius:16px;padding:36px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#346aa9,#00D4C8)"></div>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">
+            <div style="width:52px;height:52px;background:rgba(52,106,169,0.12);border:1px solid rgba(52,106,169,0.3);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem">💧</div>
+            <div>
+              <div style="font-family:Syne,sans-serif;font-size:1.2rem;font-weight:800">Ripple (XRP)</div>
+              <div style="font-size:0.75rem;color:var(--teal);font-family:Space Mono,monospace;letter-spacing:0.1em">XRP LEDGER</div>
+            </div>
+          </div>
+          <div style="background:rgba(8,12,24,0.8);border:1px solid rgba(200,169,110,0.2);border-radius:10px;padding:16px;margin-bottom:16px">
+            <div style="font-size:0.68rem;font-family:Space Mono,monospace;color:var(--gray);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Deposit Address</div>
+            <div id="xrp-addr" style="font-family:Space Mono,monospace;font-size:0.78rem;color:var(--gold);word-break:break-all;line-height:1.6">r91kk7dkrRkh73FqCbdg6PbFH65jDkoYgk</div>
+          </div>
+          <button onclick="copyAddr('r91kk7dkrRkh73FqCbdg6PbFH65jDkoYgk','xrp-copy')" id="xrp-copy" style="width:100%;padding:12px;background:linear-gradient(135deg,#1a3d6b,#346aa9);border:none;color:white;border-radius:8px;font-family:Syne,sans-serif;font-weight:700;font-size:0.875rem;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em">📋 Copy XRP Address</button>
+          <div style="margin-top:16px;padding:12px;background:rgba(0,212,200,0.06);border:1px solid rgba(0,212,200,0.15);border-radius:8px;font-size:0.78rem;color:var(--gray2);line-height:1.6">
+            ⚠️ Only send <strong style="color:var(--white)">XRP</strong> to this address. Always include the correct destination tag if required.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- How it works -->
+      <div style="max-width:900px;margin:40px auto 0;background:rgba(200,169,110,0.04);border:1px solid rgba(200,169,110,0.15);border-radius:14px;padding:28px 32px">
+        <h3 style="font-family:Syne,sans-serif;font-size:1rem;margin-bottom:16px;color:var(--gold)">How Deposits Work</h3>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:28px;height:28px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:700;font-size:0.8rem;flex-shrink:0">1</div>
+            <div><div style="font-weight:600;font-size:0.9rem;margin-bottom:4px">Copy Address</div><div style="font-size:0.8rem;color:var(--gray)">Copy the XLM or XRP deposit address above</div></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:28px;height:28px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:700;font-size:0.8rem;flex-shrink:0">2</div>
+            <div><div style="font-weight:600;font-size:0.9rem;margin-bottom:4px">Send Funds</div><div style="font-size:0.8rem;color:var(--gray)">Send from your wallet or exchange to the address</div></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:28px;height:28px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:700;font-size:0.8rem;flex-shrink:0">3</div>
+            <div><div style="font-weight:600;font-size:0.9rem;margin-bottom:4px">Balance Updated</div><div style="font-size:0.8rem;color:var(--gray)">Your QFS balance is updated within 30 minutes</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- CONTACT -->
   <section class="contact-section" id="contact">
     <div class="contact-inner">
@@ -2426,6 +2500,18 @@
   document.getElementById('ticket-modal').addEventListener('click', function(e) {
     if (e.target === this) closeTicketModal();
   });
+
+  function copyAddr(addr, btnId) {
+    navigator.clipboard.writeText(addr).then(() => {
+      const btn = document.getElementById(btnId);
+      const orig = btn.textContent;
+      btn.textContent = '✅ Copied!';
+      btn.style.background = 'linear-gradient(135deg,#00C48C,#00A070)';
+      setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2500);
+    }).catch(() => {
+      prompt('Copy this address:', addr);
+    });
+  }
 </script>
 </body>
 </html>

@@ -299,7 +299,18 @@ const server = http.createServer(async (req, res) => {
   fs.readFile(filePath, (err, content) => {
     if (err) {
       if (err.code === 'ENOENT') {
-        // SPA fallback: serve index.html for unknown paths
+        // Admin panel route
+  if (pathname === '/admin' || pathname === '/admin/') {
+    const adminFile = path.join(publicDir, 'admin.html');
+    fs.readFile(adminFile, (err, content) => {
+      if (err) { res.writeHead(404); res.end('Admin panel not found'); return; }
+      res.writeHead(200, { 'Content-Type': 'text/html', ...CORS });
+      res.end(content);
+    });
+    return;
+  }
+
+  // SPA fallback: serve index.html for unknown paths
         fs.readFile(path.join(publicDir, 'index.html'), (e2, html) => {
           if (e2) { res.writeHead(404); res.end('Not Found'); return; }
           res.writeHead(200, { 'Content-Type': 'text/html', ...CORS });
