@@ -1,0 +1,16 @@
+{
+  "name": "nesaraqfs-lab-backend",
+  "version": "1.0.0",
+  "description": "NesaraQFS Lab — Quantum Financial System Backend Server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "keywords": ["qfs", "quantum", "finance", "nesara"],
+  "author": "NesaraQFS Lab <info@nesaraqfslab.com>",
+  "license": "UNLICENSED"
+}

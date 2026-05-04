@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NesaraQFS Lab | Quantum Financial System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Ticket Widget -->
+<div id="ticket-widget" class="ticket-widget">
+  <div class="ticket-bubble" id="ticket-bubble" onclick="toggleTicket()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    <span class="ticket-badge">1</span>
+  </div>
+  <div class="ticket-panel hidden" id="ticket-panel">
+    <div class="ticket-header">
+      <div class="ticket-header-info">
+        <div class="ticket-avatar">NQ</div>
+        <div>
+          <h4>NesaraQFS Support</h4>
+          <span class="ticket-online"><span></span> Online now</span>
+        </div>
+      </div>
+      <button onclick="toggleTicket()" class="ticket-close">✕</button>
+    </div>
+    <div class="ticket-messages" id="ticket-messages">
+      <div class="ticket-msg agent">
+        <div class="ticket-msg-avatar">NQ</div>
+        <div class="ticket-msg-bubble">
+          <p>Hello! Welcome to NesaraQFS Lab. How can we assist you today?</p>
+          <span>Support Team • just now</span>
+        </div>
+      </div>
+    </div>
+    <div class="ticket-footer">
+      <div class="ticket-contact-links">
+        <a href="mailto:info@nesaraqfslab.com" class="ticket-contact-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          info@nesaraqfslab.com
+        </a>
+        <a href="tel:+12062517105" class="ticket-contact-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          +1 (206) 251-7105
+        </a>
+      </div>
+      <form class="ticket-form" onsubmit="sendTicketMessage(event)">
+        <input type="text" id="ticket-input" placeholder="Type your message..." autocomplete="off">
+        <button type="submit">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="logo" onclick="if(currentUser){showDashboard();return false;}">
+      <div class="logo-mark">
+        <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4L36 13V27L20 36L4 27V13L20 4Z" fill="url(#logoGrad)" opacity="0.15"/>
+          <path d="M20 4L36 13V27L20 36L4 27V13L20 4Z" stroke="url(#logoGrad)" stroke-width="1.5"/>
+          <path d="M12 20H28M20 12V28M15 15L25 25M25 15L15 25" stroke="url(#logoGrad)" stroke-width="1.5" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="logoGrad" x1="4" y1="4" x2="36" y2="36">
+              <stop offset="0%" stop-color="#00D4AA"/>
+              <stop offset="100%" stop-color="#0099FF"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-primary">NESARA</span><span class="logo-accent">QFS</span>
+        <span class="logo-sub">LAB</span>
+      </div>
+    </a>
+
+    <div class="nav-links" id="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">Protocol</a>
+      <a href="#tech">Technology</a>
+      <a href="#faq">FAQ</a>
+    </div>
+
+    <div class="nav-actions" id="auth-buttons">
+      <button class="btn-ghost" onclick="showAuth('login')">Sign In</button>
+      <button class="btn-primary" onclick="showAuth('register')">Get Access →</button>
+    </div>
+    <div class="nav-actions hidden" id="user-menu">
+      <div class="user-pill">
+        <div class="user-avatar-sm" id="user-avatar-sm">U</div>
+        <span id="user-name-nav"></span>
+      </div>
+      <button class="btn-ghost" onclick="logout()">Sign Out</button>
+    </div>
+
+    <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="mobile-nav hidden" id="mobile-nav">
+    <a href="#features" onclick="closeMobileMenu()">Features</a>
+    <a href="#how-it-works" onclick="closeMobileMenu()">Protocol</a>
+    <a href="#tech" onclick="closeMobileMenu()">Technology</a>
+    <a href="#faq" onclick="closeMobileMenu()">FAQ</a>
+    <div class="mobile-nav-btns">
+      <button class="btn-ghost" onclick="showAuth('login');closeMobileMenu()">Sign In</button>
+      <button class="btn-primary" onclick="showAuth('register');closeMobileMenu()">Get Access →</button>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN SITE -->
+<main id="main-content">
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-noise"></div>
+    <div class="hero-grid-bg"></div>
+    <div class="hero-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+    <div class="hero-inner">
+      <div class="hero-badge">
+        <span class="badge-pulse"></span>
+        NESARA/GESARA Protocol Active — Global Reset In Progress
+      </div>
+      <h1 class="hero-title">
+        <span class="title-line">The Sovereign</span>
+        <span class="title-line gradient-text">Financial Grid</span>
+        <span class="title-line">Has Arrived</span>
+      </h1>
+      <p class="hero-sub">NesaraQFS Lab powers the world's most advanced quantum-secured financial infrastructure. Decentralized. Asset-backed. Unstoppable.</p>
+      <div class="hero-cta">
+        <button class="cta-main" onclick="showAuth('register')">
+          <span>Activate Your Account</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+        <button class="cta-secondary" onclick="scrollTo('features')">Explore System</button>
+      </div>
+      <div class="hero-metrics">
+        <div class="metric">
+          <div class="metric-value counter" data-target="2400000000000">$2.4T+</div>
+          <div class="metric-label">Assets Secured</div>
+        </div>
+        <div class="metric-div"></div>
+        <div class="metric">
+          <div class="metric-value">156</div>
+          <div class="metric-label">Nations Onboarded</div>
+        </div>
+        <div class="metric-div"></div>
+        <div class="metric">
+          <div class="metric-value">12.4M+</div>
+          <div class="metric-label">Active Accounts</div>
+        </div>
+        <div class="metric-div"></div>
+        <div class="metric">
+          <div class="metric-value">99.997%</div>
+          <div class="metric-label">Network Uptime</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">
+      <div class="scroll-line"></div>
+      <span>Scroll to explore</span>
+    </div>
+  </section>
+
+  <!-- TICKER BAR -->
+  <div class="ticker-wrap">
+    <div class="ticker-track">
+      <span>⚡ QFS NODE STATUS: OPERATIONAL</span>
+      <span>◆ QUANTUM-256 ENCRYPTION: ACTIVE</span>
+      <span>⚡ ASSET BACKING: 100% GOLD/ISO</span>
+      <span>◆ SWIFT REPLACEMENT: LIVE</span>
+      <span>⚡ GLOBAL DEBT RESET: IN PROGRESS</span>
+      <span>◆ ISO 20022 COMPLIANT</span>
+      <span>⚡ QFS NODE STATUS: OPERATIONAL</span>
+      <span>◆ QUANTUM-256 ENCRYPTION: ACTIVE</span>
+      <span>⚡ ASSET BACKING: 100% GOLD/ISO</span>
+      <span>◆ SWIFT REPLACEMENT: LIVE</span>
+      <span>⚡ GLOBAL DEBT RESET: IN PROGRESS</span>
+      <span>◆ ISO 20022 COMPLIANT</span>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <div class="section-tag">Core Infrastructure</div>
+    <div class="section-header">
+      <h2>Built for the <span class="gradient-text">New Financial Era</span></h2>
+      <p>Every component of NesaraQFS Lab is engineered for the post-SWIFT world.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feat-card feat-large">
+        <div class="feat-icon-wrap">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        </div>
+        <h3>Quantum-256 Encryption</h3>
+        <p>Military-grade quantum key distribution renders every transaction mathematically unbreakable. No supercomputer can crack it — not even in a billion years.</p>
+        <div class="feat-stat">
+          <span class="feat-stat-num">256-qubit</span>
+          <span>Encryption Layer</span>
+        </div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        </div>
+        <h3>Wallet Sync Protocol</h3>
+        <p>Zero-knowledge handshake between your wallet and the QFS backbone.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        </div>
+        <h3>QFS Debit Card</h3>
+        <p>Physical & virtual cards accepted across 120+ nations with real-time settlement.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <h3>Debt Cancellation Engine</h3>
+        <p>NESARA-integrated protocols for sovereign debt relief and personal debt reset programs.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Instant Settlement</h3>
+        <p>Sub-second cross-border transfers — no correspondent banks, no 3-day delays.</p>
+      </div>
+      <div class="feat-card feat-large feat-right">
+        <div class="feat-icon-wrap">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4.03 3-9 3S3 13.66 3 12"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/></svg>
+        </div>
+        <h3>Asset-Backed Ledger</h3>
+        <p>Every digital unit in NesaraQFS Lab is backed 1:1 by physical gold, silver, and ISO 20022-compliant commodities. The old fiat system dies here.</p>
+        <div class="feat-stat">
+          <span class="feat-stat-num">100%</span>
+          <span>Asset-Backed Reserve</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-section" id="how-it-works">
+    <div class="how-inner">
+      <div class="section-tag">Activation Protocol</div>
+      <div class="section-header">
+        <h2>Four Steps to <span class="gradient-text">Financial Sovereignty</span></h2>
+      </div>
+      <div class="steps-list">
+        <div class="step-row">
+          <div class="step-num">01</div>
+          <div class="step-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div class="step-content">
+            <h3>Register Sovereign Identity</h3>
+            <p>Create your account in under 60 seconds. No bank approval required. Your identity, your sovereignty.</p>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">02</div>
+          <div class="step-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="step-content">
+            <h3>Complete KYC Verification</h3>
+            <p>AI-powered identity verification with government-issued ID. Full compliance, zero friction.</p>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">03</div>
+          <div class="step-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <div class="step-content">
+            <h3>Sync Your Quantum Wallet</h3>
+            <p>Connect existing wallets or create a new QFS-native wallet with full quantum encryption.</p>
+          </div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">04</div>
+          <div class="step-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div class="step-content">
+            <h3>Transact Without Limits</h3>
+            <p>Send, receive, and store assets globally. Activate your QFS card and access the new economy.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH SECTION -->
+  <section class="tech-section" id="tech">
+    <div class="tech-inner">
+      <div class="tech-left">
+        <div class="section-tag light">Quantum Infrastructure</div>
+        <h2>Technology That <span class="gradient-text">Makes Hacking<br>Impossible</span></h2>
+        <p>NesaraQFS Lab is built on post-quantum cryptographic architecture that no classical or quantum computer can penetrate.</p>
+        <div class="tech-items">
+          <div class="tech-item">
+            <div class="tech-item-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <h4>Quantum Key Distribution</h4>
+              <p>Unbreakable encryption using quantum entanglement principles</p>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div class="tech-item-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+              <h4>AI Threat Detection</h4>
+              <p>Real-time 24/7 neural network monitoring across all nodes</p>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div class="tech-item-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div>
+              <h4>Distributed Node Architecture</h4>
+              <p>No single point of failure across 2,400+ global nodes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tech-right">
+        <div class="tech-card">
+          <div class="tech-card-header">
+            <div class="status-dot"></div>
+            <span>System Status Dashboard</span>
+            <span class="status-live">LIVE</span>
+          </div>
+          <div class="tech-metrics">
+            <div class="tech-metric-row">
+              <span>Encryption Layer</span>
+              <div class="tech-bar-wrap">
+                <div class="tech-bar"><div class="tech-bar-fill" style="width:100%"></div></div>
+              </div>
+              <code>Q-256</code>
+            </div>
+            <div class="tech-metric-row">
+              <span>Network Security</span>
+              <div class="tech-bar-wrap">
+                <div class="tech-bar"><div class="tech-bar-fill" style="width:99.99%"></div></div>
+              </div>
+              <code>99.99%</code>
+            </div>
+            <div class="tech-metric-row">
+              <span>Threat Detection</span>
+              <div class="tech-bar-wrap">
+                <div class="tech-bar"><div class="tech-bar-fill" style="width:100%"></div></div>
+              </div>
+              <code>ACTIVE</code>
+            </div>
+            <div class="tech-metric-row">
+              <span>Node Uptime</span>
+              <div class="tech-bar-wrap">
+                <div class="tech-bar"><div class="tech-bar-fill" style="width:99.997%"></div></div>
+              </div>
+              <code>99.997%</code>
+            </div>
+            <div class="tech-metric-row">
+              <span>Asset Backing</span>
+              <div class="tech-bar-wrap">
+                <div class="tech-bar"><div class="tech-bar-fill" style="width:100%"></div></div>
+              </div>
+              <code>FULL</code>
+            </div>
+          </div>
+          <div class="tech-card-footer">
+            <div class="node-grid" id="node-grid"></div>
+            <span>2,400+ active nodes globally</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div class="section-tag">Knowledge Base</div>
+    <div class="section-header">
+      <h2>Frequently Asked <span class="gradient-text">Questions</span></h2>
+    </div>
+    <div class="faq-grid">
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>What is NesaraQFS Lab?</span>
+            <div class="faq-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-ans"><p>NesaraQFS Lab is the world's premier Quantum Financial System infrastructure platform, built on NESARA/GESARA principles. We provide quantum-encrypted financial services, wallet synchronization, and access to the new asset-backed global economy.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>How does QFS differ from traditional banking?</span>
+            <div class="faq-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-ans"><p>Traditional banks are fiat-based, centralized, and subject to government control. QFS eliminates intermediaries, uses quantum encryption, settles instantly 24/7, and every asset is backed by physical commodities — not debt instruments.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>What is Wallet Synchronization?</span>
+            <div class="faq-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-ans"><p>Wallet synchronization creates a secure quantum-handshake between your personal wallet and the QFS backbone network. This adds an extra layer of cryptographic protection and enables real-time balance updates across all devices.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>What is the KYC process?</span>
+            <div class="faq-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-ans"><p>Our AI-powered KYC (Know Your Customer) process verifies your government-issued ID in minutes. This is required to activate your QFS card and access full transaction capabilities.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>How do I contact support?</span>
+            <div class="faq-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-ans"><p>You can reach our support team via email at <a href="mailto:info@nesaraqfslab.com" style="color:var(--accent)">info@nesaraqfslab.com</a>, by phone at <a href="tel:+12062517105" style="color:var(--accent)">+1 (206) 251-7105</a>, or use the live chat widget in the bottom right corner.</p></div>
+        </div>
+      </div>
+      <div class="faq-contact-card">
+        <h3>Still have questions?</h3>
+        <p>Our expert team is available around the clock to help you navigate the new financial system.</p>
+        <a href="mailto:info@nesaraqfslab.com" class="faq-contact-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          info@nesaraqfslab.com
+        </a>
+        <a href="tel:+12062517105" class="faq-contact-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          +1 (206) 251-7105
+        </a>
+        <button class="faq-chat-btn" onclick="toggleTicket()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Open Live Chat
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <section class="cta-banner">
+    <div class="cta-banner-noise"></div>
+    <div class="cta-banner-inner">
+      <h2>Join 12.4 Million Accounts<br><span class="gradient-text">Already in the New System</span></h2>
+      <p>The global financial reset is not coming — it's here. Secure your position now.</p>
+      <button class="cta-main" onclick="showAuth('register')">
+        <span>Activate Your Account</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="logo">
+            <div class="logo-mark">
+              <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+                <path d="M20 4L36 13V27L20 36L4 27V13L20 4Z" fill="url(#footerLogoGrad)" opacity="0.15"/>
+                <path d="M20 4L36 13V27L20 36L4 27V13L20 4Z" stroke="url(#footerLogoGrad)" stroke-width="1.5"/>
+                <path d="M12 20H28M20 12V28M15 15L25 25M25 15L15 25" stroke="url(#footerLogoGrad)" stroke-width="1.5" stroke-linecap="round"/>
+                <defs>
+                  <linearGradient id="footerLogoGrad" x1="4" y1="4" x2="36" y2="36">
+                    <stop offset="0%" stop-color="#00D4AA"/>
+                    <stop offset="100%" stop-color="#0099FF"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="logo-text">
+              <span class="logo-primary">NESARA</span><span class="logo-accent">QFS</span>
+              <span class="logo-sub">LAB</span>
+            </div>
+          </div>
+          <p>The sovereign financial infrastructure for the new global economy. Quantum-secured. Asset-backed. Globally accessible.</p>
+          <div class="footer-contact">
+            <a href="mailto:info@nesaraqfslab.com">info@nesaraqfslab.com</a>
+            <a href="tel:+12062517105">+1 (206) 251-7105</a>
+          </div>
+        </div>
+        <div class="footer-links-group">
+          <h4>Platform</h4>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how-it-works">Protocol</a></li>
+            <li><a href="#tech">Technology</a></li>
+            <li><a href="#">API Access</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-group">
+          <h4>Support</h4>
+          <ul>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="mailto:info@nesaraqfslab.com">Contact Us</a></li>
+            <li><a href="#">Documentation</a></li>
+            <li><a href="#" onclick="toggleTicket()">Live Chat</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-group">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Compliance</a></li>
+            <li><a href="#">AML Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 NesaraQFS Lab. All rights reserved. Secured by Quantum Encryption.</p>
+        <div class="footer-badges">
+          <span class="footer-badge">ISO 20022</span>
+          <span class="footer-badge">Q-256 Secured</span>
+          <span class="footer-badge">SSL Protected</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</main>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="dashboard hidden">
+  <div class="dash-sidebar">
+    <div class="dash-logo">
+      <div class="logo-mark sm">
+        <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4L36 13V27L20 36L4 27V13L20 4Z" stroke="url(#sideLogoGrad)" stroke-width="2"/>
+          <path d="M12 20H28M20 12V28" stroke="url(#sideLogoGrad)" stroke-width="2" stroke-linecap="round"/>
+          <defs><linearGradient id="sideLogoGrad" x1="4" y1="4" x2="36" y2="36"><stop offset="0%" stop-color="#00D4AA"/><stop offset="100%" stop-color="#0099FF"/></linearGradient></defs>
+        </svg>
+      </div>
+      <span>NesaraQFS</span>
+    </div>
+    <nav class="dash-nav">
+      <a class="dash-nav-item active" onclick="switchDashTab('overview',this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </a>
+      <a class="dash-nav-item" onclick="switchDashTab('wallet',this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
+        Wallet
+      </a>
+      <a class="dash-nav-item" onclick="switchDashTab('transactions',this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        Transactions
+      </a>
+      <a class="dash-nav-item" onclick="switchDashTab('kyc',this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 11l2 2 4-4" stroke-width="2"/></svg>
+        KYC & ID
+      </a>
+      <a class="dash-nav-item" onclick="switchDashTab('projects',this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Humanitarian
+      </a>
+    </nav>
+    <div class="dash-sidebar-bottom">
+      <a class="dash-nav-item" onclick="toggleTicket()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Support
+      </a>
+      <a class="dash-nav-item" onclick="logout()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </a>
+    </div>
+  </div>
+
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div class="dash-topbar-left">
+        <button class="dash-mobile-menu-btn" onclick="toggleDashMobileMenu()">☰</button>
+        <h2 id="dash-page-title">Overview</h2>
+      </div>
+      <div class="dash-topbar-right">
+        <div class="dash-user-info">
+          <div class="user-avatar" id="dash-user-avatar">U</div>
+          <div>
+            <div class="user-name" id="dash-user-name">User</div>
+            <div class="user-status">Quantum Secured</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overview Tab -->
+    <div id="dash-overview" class="dash-tab-content">
+      <div class="dash-welcome">
+        <div>
+          <h3>Welcome back, <span id="dash-first-name">User</span> 👋</h3>
+          <p>Your quantum-secured account is active and protected.</p>
+        </div>
+        <button class="btn-primary" onclick="syncWallet()" id="sync-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Sync Wallet
+        </button>
+      </div>
+
+      <div class="dash-cards">
+        <div class="dash-card accent-card">
+          <div class="dash-card-label">Total Balance</div>
+          <div class="dash-card-value" id="dash-balance">$0</div>
+          <div class="dash-card-sub">≈ <span id="dash-qfs-coins">0</span> QFS Coins</div>
+          <div class="dash-card-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
+          </div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">KYC Status</div>
+          <div class="dash-card-value" id="dash-kyc-status">Unverified</div>
+          <div class="kyc-action-row">
+            <button onclick="switchDashTab('kyc',document.querySelector('[onclick*=\"kyc\"]'))" id="kyc-cta-btn" class="dash-small-btn">Complete KYC →</button>
+          </div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">QFS Card</div>
+          <div class="dash-card-value" id="dash-card-status">Pending KYC</div>
+          <div class="dash-card-sub" id="dash-card-sub">Complete KYC to activate</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-label">Network Security</div>
+          <div class="dash-card-value green">Quantum-256</div>
+          <div class="dash-card-sub">Active Protection</div>
+        </div>
+      </div>
+
+      <div class="dash-section-title">Recent Activity</div>
+      <div class="activity-feed" id="activity-feed">
+        <div class="activity-row">
+          <div class="activity-icon login-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          </div>
+          <div class="activity-info">
+            <span class="activity-title">Secure login detected</span>
+            <span class="activity-time">Just now</span>
+          </div>
+          <span class="activity-badge success">Verified</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wallet Tab -->
+    <div id="dash-wallet" class="dash-tab-content hidden">
+      <div class="wallet-hero-card">
+        <div class="wallet-card-graphic">
+          <div class="wallet-card-chip"></div>
+          <div class="wallet-card-logo">NesaraQFS Lab</div>
+          <div class="wallet-card-num">**** **** **** <span id="wallet-card-num">----</span></div>
+          <div class="wallet-card-row">
+            <div><div class="wallet-card-label">Balance</div><div class="wallet-card-val" id="wallet-card-balance">$0.00</div></div>
+            <div><div class="wallet-card-label">Network</div><div class="wallet-card-val">QFS-LIVE</div></div>
+          </div>
+        </div>
+        <div class="wallet-actions">
+          <button class="wallet-action-btn" onclick="syncWallet()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Sync
+          </button>
+          <button class="wallet-action-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send
+          </button>
+          <button class="wallet-action-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+            Receive
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transactions Tab -->
+    <div id="dash-transactions" class="dash-tab-content hidden">
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+        </div>
+        <h4>No transactions yet</h4>
+        <p>Your transaction history will appear here once you start transacting.</p>
+        <button class="btn-primary" onclick="syncWallet()">Sync Wallet to Begin</button>
+      </div>
+    </div>
+
+    <!-- KYC Tab -->
+    <div id="dash-kyc" class="dash-tab-content hidden">
+      <div class="kyc-container">
+        <div class="kyc-status-banner" id="kyc-banner">
+          <div class="kyc-status-icon" id="kyc-status-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div>
+            <h4 id="kyc-banner-title">Identity Verification Required</h4>
+            <p id="kyc-banner-desc">Complete KYC to unlock full QFS capabilities and your physical card.</p>
+          </div>
+        </div>
+        <div class="kyc-steps-card">
+          <h3>Verification Process</h3>
+          <div class="kyc-step-list">
+            <div class="kyc-step-item" id="kyc-step-1">
+              <div class="kyc-step-num">1</div>
+              <div><h4>Government ID Upload</h4><p>Passport, driver's license, or national ID</p></div>
+            </div>
+            <div class="kyc-step-item" id="kyc-step-2">
+              <div class="kyc-step-num">2</div>
+              <div><h4>Biometric Selfie</h4><p>AI-powered liveness detection</p></div>
+            </div>
+            <div class="kyc-step-item" id="kyc-step-3">
+              <div class="kyc-step-num">3</div>
+              <div><h4>Address Verification</h4><p>Utility bill or bank statement (last 90 days)</p></div>
+            </div>
+          </div>
+          <button class="btn-primary btn-full-w" onclick="submitKYC()" id="kyc-submit-btn">
+            Begin Verification Process →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Humanitarian Tab -->
+    <div id="dash-projects" class="dash-tab-content hidden">
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <h4>Humanitarian Projects</h4>
+        <p>Submit projects for GESARA-funded humanitarian initiatives through the QFS network.</p>
+        <button class="btn-primary">Submit a Project</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div id="auth-modal" class="modal-overlay hidden" onclick="handleModalBackdrop(event)">
+  <div class="modal-box">
+    <button class="modal-x" onclick="closeAuth()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-logo">
+      <div class="logo-mark">
+        <svg width="24" height="24" viewBox="0 0 40 40" fill="none">
+          <path d="M20 4L36 13V27L20 36L4 27V13L20 4Z" stroke="url(#modalLogoGrad)" stroke-width="1.5"/>
+          <path d="M12 20H28M20 12V28M15 15L25 25M25 15L15 25" stroke="url(#modalLogoGrad)" stroke-width="1.5" stroke-linecap="round"/>
+          <defs><linearGradient id="modalLogoGrad" x1="4" y1="4" x2="36" y2="36"><stop offset="0%" stop-color="#00D4AA"/><stop offset="100%" stop-color="#0099FF"/></linearGradient></defs>
+        </svg>
+      </div>
+    </div>
+    <h2 id="modal-title">Welcome Back</h2>
+    <p id="modal-sub">Sign in to your quantum-secured account</p>
+    <div id="auth-error-box" class="auth-error hidden"></div>
+    <form id="auth-form" onsubmit="handleAuth(event)">
+      <div class="form-field hidden" id="field-name">
+        <label>Full Name</label>
+        <input type="text" id="auth-name" placeholder="John Doe">
+      </div>
+      <div class="form-field">
+        <label>Email Address</label>
+        <input type="email" id="auth-email" placeholder="you@example.com" required>
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input type="password" id="auth-password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn-primary btn-full-w modal-submit" id="auth-submit">Sign In</button>
+    </form>
+    <div class="modal-switch">
+      <span id="modal-switch-text">Don't have an account?</span>
+      <button onclick="toggleAuthMode()" id="modal-switch-btn">Sign up</button>
+    </div>
+    <div class="modal-footer-note">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Protected by Quantum-256 Encryption
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
