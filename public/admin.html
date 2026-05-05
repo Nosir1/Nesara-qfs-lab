@@ -193,6 +193,7 @@
     <div class="ssec">Support</div>
     <button class="ni" onclick="show('tickets',this)"><span class="ico">🎫</span>Tickets<span class="badge" id="b-tickets">0</span></button>
     <button class="ni" onclick="show('proofs',this)"><span class="ico">📤</span>Deposit Proofs<span class="badge" id="b-proofs">0</span></button>
+    <button class="ni" onclick="show('withdrawals',this)"><span class="ico">💸</span>Withdrawals<span class="badge" id="b-withdrawals">0</span></button>
     <div class="ssec">Finance</div>
     <button class="ni" onclick="show('deposits',this)"><span class="ico">📥</span>Deposit Addresses</button>
     <button class="ni" onclick="show('prices',this)"><span class="ico">📈</span>Live Prices</button>
@@ -294,6 +295,18 @@
               </tr>
             </thead>
             <tbody id="t-proofs"></tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <!-- WITHDRAWALS PANEL -->
+      <div class="panel" id="p-withdrawals">
+        <div class="twrap">
+          <div class="thead"><h3>💸 Withdrawal Requests</h3></div>
+          <table>
+            <thead><tr><th>User</th><th>Coin</th><th>Amount</th><th>To Address</th><th>Note</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="t-withdrawals"></tbody>
           </table>
         </div>
       </div>
@@ -418,6 +431,15 @@
 
 <script>
 let ADMIN_PASS = localStorage.getItem('nqfs_admin_pass')||'Claude0511@';
+
+// Auto-restore session on refresh
+window.addEventListener('load', function() {
+  if (sessionStorage.getItem('nqfs_admin_logged_in') === 'true') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-wrap').classList.add('active');
+    initAdmin();
+  }
+});
 let prices = {XLM:0,XRP:0,BTC:0,USDC:1};
 
 function getUsers(){try{return JSON.parse(localStorage.getItem('nqfs_users')||'[]');}catch(e){return[];}}
@@ -428,6 +450,7 @@ function doLogin(e){
   e.preventDefault();
   const p=document.getElementById('apass').value;
   if(p===ADMIN_PASS){
+    sessionStorage.setItem('nqfs_admin_logged_in','true');
     document.getElementById('login-screen').style.display='none';
     document.getElementById('admin-wrap').classList.add('active');
     initAdmin();
@@ -438,6 +461,7 @@ function doLogin(e){
 }
 
 function doLogout(){
+  sessionStorage.removeItem('nqfs_admin_logged_in');
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('admin-wrap').classList.remove('active');
   document.getElementById('apass').value='';
@@ -479,6 +503,7 @@ function refresh(){
   renderRecent(users);
   renderBalances();
   renderProofs();
+  renderWithdrawals();
   updateBadges(users);
 }
 
@@ -815,6 +840,54 @@ function rejectProof(uid, pid) {
   toast(`Deposit proof rejected for ${u.name}`, 'error');
 }
 
+
+// WITHDRAWALS
+function renderWithdrawals() {
+  const tb = document.getElementById('t-withdrawals'); if(!tb) return;
+  const users = getUsers();
+  const all = [];
+  users.forEach(u => (u.withdrawals||[]).forEach(w => all.push({...w, userName:u.name, userId:u.id})));
+  all.sort((a,b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+  const pending = all.filter(w => w.status === 'pending').length;
+  setText('b-withdrawals', pending);
+  if(!all.length) { tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray)">No withdrawal requests</td></tr>'; return; }
+  tb.innerHTML = all.map(w => `<tr>
+    <td><strong>${esc(w.userName)}</strong></td>
+    <td style="font-family:DM Mono,monospace;color:var(--gold)">${esc(w.coin)}</td>
+    <td style="font-family:DM Mono,monospace">${w.amount}</td>
+    <td style="font-family:DM Mono,monospace;font-size:0.68rem;color:var(--gray2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(w.address||'—')}</td>
+    <td style="color:var(--gray2);font-size:0.78rem">${esc(w.note||'—')}</td>
+    <td><span class="badge ${w.status}">${w.status}</span></td>
+    <td style="color:var(--gray);font-size:0.75rem">${fmtDate(w.submittedAt)}</td>
+    <td>
+      <button class="ab ok" onclick="approveWithdrawal('${w.userId}','${w.id}')">✅ Approve</button>
+      <button class="ab del" onclick="rejectWithdrawal('${w.userId}','${w.id}')">✗ Reject</button>
+    </td>
+  </tr>`).join('');
+}
+
+function approveWithdrawal(uid, wid) {
+  const users = getUsers(); const u = users.find(x => x.id === uid); if(!u) return;
+  const w = (u.withdrawals||[]).find(x => x.id === wid); if(!w) return;
+  w.status = 'approved'; w.approvedAt = new Date().toISOString();
+  if(!u.balances) u.balances = {XLM:0,XRP:0,USDC:0,BTC:0};
+  u.balances[w.coin] = Math.max(0, (u.balances[w.coin]||0) - parseFloat(w.amount));
+  if(!u.transactions) u.transactions = [];
+  u.transactions.unshift({id:Date.now().toString(),type:'Withdrawal',coin:w.coin,amount:'-'+w.amount,date:new Date().toISOString()});
+  saveUsers(users); refresh();
+  addFeed('g','💸','Withdrawal Approved',`${w.amount} ${w.coin} for ${u.name}`);
+  toast(`Withdrawal approved for ${u.name}`,'success');
+  const sess = localStorage.getItem('nqfs_session');
+  if(sess){try{const s=JSON.parse(sess);if(s.id===uid){localStorage.setItem('nqfs_session',JSON.stringify(u));}}catch(e){}}
+}
+
+function rejectWithdrawal(uid, wid) {
+  const users = getUsers(); const u = users.find(x => x.id === uid); if(!u) return;
+  const w = (u.withdrawals||[]).find(x => x.id === wid); if(!w) return;
+  w.status = 'rejected'; saveUsers(users); refresh();
+  toast(`Withdrawal rejected for ${u.name}`,'error');
+}
+
 // TICKETS
 function resolveTicket(uid,tid){
   const users=getUsers();const u=users.find(x=>x.id===uid);if(!u)return;
@@ -848,7 +921,7 @@ function show(id,btn){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   document.getElementById('p-'+id).classList.add('active');
   if(btn)btn.classList.add('active');
-  const titles={dashboard:'Dashboard',proofs:'Deposit Proofs',activity:'Live Activity',users:'All Users',kyc:'KYC Queue',funds:'Manage Funds',tickets:'Support Tickets',deposits:'Deposit Addresses',prices:'Live Prices',settings:'Settings'};
+  const titles={dashboard:'Dashboard',proofs:'Deposit Proofs',withdrawals:'Withdrawals',activity:'Live Activity',users:'All Users',kyc:'KYC Queue',funds:'Manage Funds',tickets:'Support Tickets',deposits:'Deposit Addresses',prices:'Live Prices',settings:'Settings'};
   setText('topbar-title',titles[id]||id);
   refresh();
 }
