@@ -1,0 +1,1 @@
+{"rewrites":[{"source":"/api/(.*)","destination":"https://nesara-qfs-lab-production.up.railway.app/api/$1"}]}
