@@ -364,6 +364,8 @@
     }
     .hidden{display:none!important}
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script>emailjs.init('_tXmS5kAkJgBaAVgU');</script>
 </head>
 <body>
 
@@ -1557,6 +1559,8 @@ async function submitProof(e) {
   if(!currentUser.depositProofs) currentUser.depositProofs = [];
   currentUser.depositProofs.unshift(proof);
   saveCurrentUser();
+  // Email admin
+  notifyAdmin('💰 Deposit Proof Submitted', currentUser.name, currentUser.email, 'Coin: ' + coin + ' | Amount: ' + amount + ' | TX Hash: ' + (txhash || 'Not provided'));
   // Notify backend
   try {
     await fetch(API + '/api/deposit-proof', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({coin, amount, txhash, screenshot: proofFileData ? '[SCREENSHOT_UPLOADED]' : null})});
@@ -1593,6 +1597,8 @@ async function submitWithdrawal(e) {
   if(!currentUser.withdrawals) currentUser.withdrawals = [];
   currentUser.withdrawals.unshift(wd);
   saveCurrentUser();
+  // Email admin
+  notifyAdmin('💸 Withdrawal Request', currentUser.name, currentUser.email, 'Coin: ' + coin + ' | Amount: ' + amount + ' | To: ' + addr);
   // Notify via ticket
   await fetch(API + '/api/ticket', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:currentUser.name,email:currentUser.email,subject:'Withdrawal Request',message:`User ${currentUser.name} (${currentUser.email}) has requested a withdrawal of ${amount} ${coin} to address: ${addr}. Note: ${note||'None'}`,userId:currentUser.id})}).catch(()=>{});
   document.getElementById('withdraw-ok').style.display = 'block';
@@ -1641,6 +1647,7 @@ async function submitPublicTicket(e) {
   const message = document.getElementById('pt-message').value;
   const btn = document.getElementById('pt-btn');
   btn.disabled = true; btn.textContent = 'Submitting...';
+  notifyAdmin('🎫 Public Ticket', name, email, 'Subject: ' + subject + ' | Message: ' + message.substring(0, 100));
   try {
     await fetch(API + '/api/ticket', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,subject,message})});
   } catch(err) {}
@@ -1661,6 +1668,7 @@ async function submitDashTicket(e) {
   if(!currentUser.tickets) currentUser.tickets = [];
   currentUser.tickets.unshift(ticket);
   saveCurrentUser();
+  notifyAdmin('🎫 Support Ticket', currentUser.name, currentUser.email, 'Subject: ' + subject + ' | Message: ' + message.substring(0, 100));
   try {
     await fetch(API + '/api/ticket', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:currentUser.name,email:currentUser.email,subject,message,userId:currentUser.id})});
   } catch(err) {}
