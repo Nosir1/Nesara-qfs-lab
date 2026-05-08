@@ -154,7 +154,7 @@
     /* ── FORM ELEMENTS ── */
     .fg{margin-bottom:14px}
     .fg label{display:block;font-size:0.7rem;font-family:'Space Mono',monospace;color:var(--gray2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:7px}
-    .fg input,.fg select,.fg textarea{width:100%;background:rgba(10,15,30,0.9);border:1px solid var(--border2);color:var(--white);padding:11px 15px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s}
+    .fg input,.fg select,.fg textarea{width:100%;background:rgba(10,15,30,0.9);border:1px solid var(--border2);color:var(--white);padding:11px 15px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:16px;outline:none;transition:border-color 0.2s}
     .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold)}
     .fg select option{background:var(--navy2)}
     .fg textarea{min-height:88px;resize:vertical}
@@ -301,11 +301,12 @@
     .kyc-lock p{font-size:0.85rem;color:var(--gray2);margin-bottom:16px}
 
     /* Quick actions grid */
-    .qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
-    .qa-btn{background:rgba(10,15,30,0.8);border:1px solid var(--border2);border-radius:12px;padding:22px 16px;text-align:center;cursor:pointer;transition:all 0.3s;color:var(--white)}
+    .qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+    .qa-btn{background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:18px 12px;text-align:center;cursor:pointer;transition:all 0.3s;color:var(--white)}
     .qa-btn:hover{border-color:var(--gold);background:rgba(200,169,110,0.06);transform:translateY(-2px)}
-    .qa-btn .icon{font-size:1.6rem;margin-bottom:8px}
-    .qa-btn .label{font-size:0.8rem;font-weight:600;color:var(--gray2)}
+    .qa-icon{display:flex;align-items:center;justify-content:center;margin-bottom:8px;color:var(--gold2)}
+    .qa-btn:hover .qa-icon{color:var(--gold)}
+    .qa-btn .label{font-size:0.72rem;font-weight:600;color:var(--gray2);line-height:1.3}
 
     /* Coming soon badge */
     .soon{display:inline-block;background:rgba(0,212,200,0.1);border:1px solid rgba(0,212,200,0.25);color:var(--teal);font-size:0.65rem;font-family:'Space Mono',monospace;padding:3px 8px;border-radius:4px;margin-left:6px;vertical-align:middle}
@@ -364,22 +365,23 @@
     }
 
     /* ── MOBILE BOTTOM NAV ── */
-    .mobile-dash-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy2);border-top:1px solid var(--border2);z-index:200;padding:8px 0 12px}
-    .mobile-dash-nav-inner{display:flex;justify-content:space-around;align-items:center}
-    .mob-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--gray2);cursor:pointer;padding:6px 10px;border-radius:8px;transition:all 0.2s;min-width:52px}
+    .mobile-dash-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy2);border-top:1px solid var(--border2);z-index:200;padding:10px 0 16px;box-shadow:0 -4px 20px rgba(0,0,0,0.3)}
+    .mobile-dash-nav-inner{display:flex;justify-content:space-around;align-items:center;max-width:500px;margin:0 auto}
+    .mob-nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;color:var(--gray2);cursor:pointer;padding:4px 8px;border-radius:8px;transition:all 0.2s;flex:1}
     .mob-nav-btn.active{color:var(--gold)}
-    .mob-nav-btn .ico{font-size:1.3rem}
-    .mob-nav-btn .lbl{font-size:0.6rem;font-family:'Space Mono',monospace;letter-spacing:0.05em;text-transform:uppercase}
+    .mob-nav-btn svg{transition:all 0.2s}
+    .mob-nav-btn.active svg{stroke:var(--gold)}
+    .mob-nav-btn .lbl{font-size:0.58rem;font-family:'Space Mono',monospace;letter-spacing:0.04em;text-transform:uppercase}
     @media(max-width:900px){
       .mobile-dash-nav{display:block}
       .dash.active{padding-bottom:80px}
       .dash-main{padding:16px 14px 20px}
-      .dash-sidebar{display:none!important}
+      .dash-sidebar{display:none!important;width:0!important;overflow:hidden!important}
       .dash-welcome h2{font-size:1.1rem}
       .cards-row{grid-template-columns:1fr!important}
       .wallet-grid{grid-template-columns:1fr!important}
       .price-row{grid-template-columns:repeat(2,1fr)!important}
-      .qa-grid{grid-template-columns:repeat(4,1fr)!important}
+      .qa-grid{grid-template-columns:repeat(2,1fr)!important}
       .plan-grid{grid-template-columns:1fr!important}
       .dep-grid{grid-template-columns:1fr!important}
       .fr{grid-template-columns:1fr!important}
@@ -411,6 +413,19 @@
       .qa-grid{grid-template-columns:repeat(2,1fr)!important}
       .price-row{grid-template-columns:1fr 1fr!important}
       .coins-grid{grid-template-columns:1fr!important}
+    }
+
+    /* ── PREVENT OVERFLOW ── */
+    .dash-main *{max-width:100%;word-break:break-word}
+    .wcard-addr{font-size:0.55rem!important;letter-spacing:0!important}
+    .dep-addr-val{font-size:0.65rem!important}
+    .dcard-val{font-size:1.4rem!important}
+    @media(max-width:900px){
+      .dash-layout{overflow-x:hidden}
+      .dash-main{overflow-x:hidden;width:100%}
+      .qa-btn .icon{font-size:1.3rem}
+      .qa-btn .label{font-size:0.72rem}
+      .wcard{padding:16px!important}
     }
     .hidden{display:none!important}
   </style>
@@ -784,14 +799,38 @@
           </div>
         </div>
         <div class="qa-grid">
-          <div class="qa-btn" onclick="switchPanel('deposit',null)"><div class="icon">📥</div><div class="label">Deposit</div></div>
-          <div class="qa-btn" onclick="switchPanel('withdraw',null)"><div class="icon">💸</div><div class="label">Withdraw</div></div>
-          <div class="qa-btn" onclick="switchPanel('exchange',null)"><div class="icon">🔄</div><div class="label">Exchange</div></div>
-          <div class="qa-btn" onclick="switchPanel('invest',null)"><div class="icon">📈</div><div class="label">Invest</div></div>
-          <div class="qa-btn" onclick="switchPanel('proof',null)"><div class="icon">📤</div><div class="label">Upload Proof</div></div>
-          <div class="qa-btn" onclick="switchPanel('cards',null)"><div class="icon">💳</div><div class="label">QFS Cards</div></div>
-          <div class="qa-btn" onclick="switchPanel('tickets',null)"><div class="icon">🎫</div><div class="label">Support</div></div>
-          <div class="qa-btn" onclick="switchPanel('profile',null)"><div class="icon">👤</div><div class="label">Profile</div></div>
+          <div class="qa-btn" onclick="switchPanel('deposit',null)">
+            <div class="qa-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v14m-5-5 5 5 5-5"/><rect x="2" y="18" width="20" height="4" rx="1"/></svg></div>
+            <div class="label">Deposit</div>
+          </div>
+          <div class="qa-btn" onclick="switchPanel('withdraw',null)">
+            <div class="qa-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 16V2m-5 5 5-5 5 5"/><rect x="2" y="18" width="20" height="4" rx="1"/></svg></div>
+            <div class="label">Withdraw</div>
+          </div>
+          <div class="qa-btn" onclick="switchPanel('exchange',null)">
+            <div class="qa-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4 4 4M17 8v12m0 0 4-4m-4 4-4-4"/></svg></div>
+            <div class="label">Exchange</div>
+          </div>
+          <div class="qa-btn" onclick="switchPanel('invest',null)">
+            <div class="qa-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+            <div class="label">Invest</div>
+          </div>
+          <div class="qa-btn" onclick="switchPanel('proof',null)">
+            <div class="qa-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div class="label">Upload Proof</div>
+          </div>
+          <div class="qa-btn" onclick="switchPanel('cards',null)">
+            <div class="qa-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+            <div class="label">QFS Cards</div>
+          </div>
+          <div class="qa-btn" onclick="switchPanel('tickets',null)">
+            <div class="qa-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="label">Support</div>
+          </div>
+          <div class="qa-btn" onclick="switchPanel('profile',null)">
+            <div class="qa-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+            <div class="label">Profile</div>
+          </div>
         </div>
         <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:14px">Recent Activity</h3>
         <div class="tx-list" id="dash-recent-tx">
@@ -1176,19 +1215,24 @@
   <div class="mobile-dash-nav" id="mob-dash-nav">
     <div class="mobile-dash-nav-inner">
       <button class="mob-nav-btn active" onclick="switchPanel('overview',this);updateMobNav(this)">
-        <span class="ico">📊</span><span class="lbl">Home</span>
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span class="lbl">Home</span>
       </button>
       <button class="mob-nav-btn" onclick="switchPanel('wallets',this);updateMobNav(this)">
-        <span class="ico">👛</span><span class="lbl">Wallets</span>
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L2 7h20z"/><circle cx="16" cy="14" r="1" fill="currentColor"/></svg>
+        <span class="lbl">Wallets</span>
       </button>
       <button class="mob-nav-btn" onclick="switchPanel('deposit',this);updateMobNav(this)">
-        <span class="ico">📥</span><span class="lbl">Deposit</span>
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v14m-5-5 5 5 5-5"/><rect x="2" y="18" width="20" height="4" rx="1"/></svg>
+        <span class="lbl">Deposit</span>
       </button>
       <button class="mob-nav-btn" onclick="switchPanel('withdraw',this);updateMobNav(this)">
-        <span class="ico">💸</span><span class="lbl">Withdraw</span>
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 16V2m-5 5 5-5 5 5"/><rect x="2" y="18" width="20" height="4" rx="1"/></svg>
+        <span class="lbl">Withdraw</span>
       </button>
       <button class="mob-nav-btn" onclick="switchPanel('profile',this);updateMobNav(this)">
-        <span class="ico">👤</span><span class="lbl">Profile</span>
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span class="lbl">Profile</span>
       </button>
     </div>
   </div>
