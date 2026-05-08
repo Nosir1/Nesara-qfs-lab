@@ -362,6 +362,56 @@
       .nav{padding:0 20px}
       .section{padding:60px 20px}
     }
+
+    /* ── MOBILE BOTTOM NAV ── */
+    .mobile-dash-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy2);border-top:1px solid var(--border2);z-index:200;padding:8px 0 12px}
+    .mobile-dash-nav-inner{display:flex;justify-content:space-around;align-items:center}
+    .mob-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--gray2);cursor:pointer;padding:6px 10px;border-radius:8px;transition:all 0.2s;min-width:52px}
+    .mob-nav-btn.active{color:var(--gold)}
+    .mob-nav-btn .ico{font-size:1.3rem}
+    .mob-nav-btn .lbl{font-size:0.6rem;font-family:'Space Mono',monospace;letter-spacing:0.05em;text-transform:uppercase}
+    @media(max-width:900px){
+      .mobile-dash-nav{display:block}
+      .dash.active{padding-bottom:80px}
+      .dash-main{padding:16px 14px 20px}
+      .dash-sidebar{display:none!important}
+      .dash-welcome h2{font-size:1.1rem}
+      .cards-row{grid-template-columns:1fr!important}
+      .wallet-grid{grid-template-columns:1fr!important}
+      .price-row{grid-template-columns:repeat(2,1fr)!important}
+      .qa-grid{grid-template-columns:repeat(4,1fr)!important}
+      .plan-grid{grid-template-columns:1fr!important}
+      .dep-grid{grid-template-columns:1fr!important}
+      .fr{grid-template-columns:1fr!important}
+      .qfs-card-display{max-width:100%}
+      #dp-profile > div{grid-template-columns:1fr!important}
+      #dp-withdraw > div{grid-template-columns:1fr!important}
+      #dp-proof > div{grid-template-columns:1fr!important}
+      #dp-tickets > div{grid-template-columns:1fr!important}
+      #dp-exchange > div{max-width:100%}
+      #dp-kyc > div{max-width:100%}
+      .wcard-addr{font-size:0.55rem!important}
+      .dcard-val{font-size:1.3rem!important}
+      .hero h1{font-size:2rem!important}
+      .hero-stats{grid-template-columns:repeat(2,1fr)!important}
+      .coins-grid{grid-template-columns:1fr 1fr!important}
+      .feat-grid{grid-template-columns:1fr!important}
+      .steps{grid-template-columns:1fr 1fr!important}
+      .steps::before{display:none!important}
+      .contact-wrap{grid-template-columns:1fr!important;padding:40px 20px!important}
+      .footer-grid{grid-template-columns:1fr!important}
+      .dep-steps-grid{grid-template-columns:1fr!important}
+      .hero{padding:100px 20px 60px!important}
+      .section{padding:60px 20px!important}
+      .dep-bg{padding:60px 20px!important}
+      .nav{padding:0 16px!important}
+      .mbox{padding:32px 20px!important}
+    }
+    @media(max-width:400px){
+      .qa-grid{grid-template-columns:repeat(2,1fr)!important}
+      .price-row{grid-template-columns:1fr 1fr!important}
+      .coins-grid{grid-template-columns:1fr!important}
+    }
     .hidden{display:none!important}
   </style>
 </head>
@@ -1121,6 +1171,28 @@
 
     </div><!-- /dash-main -->
   </div><!-- /dash-layout -->
+
+  <!-- MOBILE BOTTOM NAV -->
+  <div class="mobile-dash-nav" id="mob-dash-nav">
+    <div class="mobile-dash-nav-inner">
+      <button class="mob-nav-btn active" onclick="switchPanel('overview',this);updateMobNav(this)">
+        <span class="ico">📊</span><span class="lbl">Home</span>
+      </button>
+      <button class="mob-nav-btn" onclick="switchPanel('wallets',this);updateMobNav(this)">
+        <span class="ico">👛</span><span class="lbl">Wallets</span>
+      </button>
+      <button class="mob-nav-btn" onclick="switchPanel('deposit',this);updateMobNav(this)">
+        <span class="ico">📥</span><span class="lbl">Deposit</span>
+      </button>
+      <button class="mob-nav-btn" onclick="switchPanel('withdraw',this);updateMobNav(this)">
+        <span class="ico">💸</span><span class="lbl">Withdraw</span>
+      </button>
+      <button class="mob-nav-btn" onclick="switchPanel('profile',this);updateMobNav(this)">
+        <span class="ico">👤</span><span class="lbl">Profile</span>
+      </button>
+    </div>
+  </div>
+
 </div><!-- /dashboard -->
 
 <!-- ═══ AUTH MODAL ═══ -->
@@ -1227,7 +1299,16 @@ let proofFileData = null;
 let depModalCoin = '';
 
 try { users = JSON.parse(localStorage.getItem('nqfs_users')||'[]'); } catch(e){}
-try { const s = localStorage.getItem('nqfs_session'); if(s){ currentUser = JSON.parse(s); updateUIState(); } } catch(e){}
+try { 
+  const s = localStorage.getItem('nqfs_session'); 
+  if(s){ 
+    currentUser = JSON.parse(s); 
+    updateUIState();
+    // Show dashboard immediately on refresh if logged in
+    document.getElementById('site-main').classList.add('hidden');
+    document.getElementById('dashboard').classList.add('active');
+  } 
+} catch(e){}
 
 // ═══ PRICES ═══
 async function fetchPrices() {
@@ -1490,6 +1571,10 @@ function switchPanel(id, btn) {
   const panel = document.getElementById('dp-' + id);
   if(panel) panel.classList.add('active');
   if(btn) btn.classList.add('active');
+  // Scroll to top on mobile
+  const dashMain = document.querySelector('.dash-main');
+  if(dashMain) dashMain.scrollTop = 0;
+  window.scrollTo(0,0);
   refreshDash();
 }
 
@@ -1815,4 +1900,3 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 </body>
 </html>
  
-.
