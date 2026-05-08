@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nesara QFS Lab | Quantum Financial System</title>
+  <meta name="description" content="Nesara QFS Lab — Next-generation quantum financial system. Secure, decentralized, and accessible to everyone.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--navy:#0A0F1E;--navy2:#111827;--navy3:#1C2537;--gold:#C8A96E;--gold2:#E8CFA0;--gold3:#9A7A45;--teal:#00D4C8;--green:#00C48C;--red:#FF4D6D;--yellow:#FFB800;--white:#F0EDE8;--gray:#6B7280;--gray2:#9CA3AF;--border:rgba(200,169,110,0.12);--border2:rgba(200,169,110,0.28);}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);overflow-x:hidden}
+    h1,h2,h3,h4,h5{font-family:'Syne',sans-serif}
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--navy)}::-webkit-scrollbar-thumb{background:var(--gold3);border-radius:3px}
+
+    /* ── NAV ── */
+    .nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(10,15,30,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:all 0.3s}
+    .nav.scrolled{background:rgba(10,15,30,0.99);border-bottom-color:var(--border2)}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .logo-mark{width:38px;height:38px}
+    .logo-brand{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;letter-spacing:0.03em}
+    .logo-sub{font-size:0.6rem;color:var(--gold);font-family:'Space Mono',monospace;letter-spacing:0.15em}
+    .nav-links{display:flex;align-items:center;gap:28px}
+    .nav-links a{color:var(--gray2);text-decoration:none;font-size:0.875rem;font-weight:500;transition:color 0.2s}
+    .nav-links a:hover{color:var(--white)}
+    .nav-actions{display:flex;gap:10px;align-items:center}
+    .btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--gold);padding:8px 20px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.875rem;cursor:pointer;transition:all 0.2s}
+    .btn-ghost:hover{background:rgba(200,169,110,0.1)}
+    .btn-gold{background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--navy);padding:9px 22px;border-radius:6px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.875rem;cursor:pointer;transition:all 0.3s;letter-spacing:0.03em}
+    .btn-gold:hover{box-shadow:0 6px 24px rgba(200,169,110,0.4);transform:translateY(-1px)}
+    .menu-toggle{display:none;background:transparent;border:1px solid var(--border2);color:var(--gold);width:38px;height:38px;border-radius:6px;cursor:pointer;font-size:1.1rem;align-items:center;justify-content:center}
+    .mobile-nav{display:none;position:fixed;top:68px;left:0;right:0;background:var(--navy2);border-bottom:1px solid var(--border2);padding:16px 24px;z-index:999;animation:slideDown 0.2s ease}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    .mobile-nav.active{display:block}
+    .mobile-nav a{display:block;padding:13px 0;color:var(--gray2);text-decoration:none;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.05)}
+    .mobile-nav .mob-btns{display:flex;gap:10px;margin-top:14px}
+    .mobile-nav .mob-btns button{flex:1;padding:12px}
+
+    /* ── HERO ── */
+    .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 40px 80px;position:relative;overflow:hidden}
+    .hero-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(200,169,110,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(200,169,110,0.03) 1px,transparent 1px);background-size:60px 60px}
+    .hero-glow{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(0,212,200,0.07),transparent 70%);pointer-events:none}
+    .hero-inner{position:relative;z-index:1;max-width:860px}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 18px;background:rgba(0,212,200,0.07);border:1px solid rgba(0,212,200,0.2);border-radius:50px;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--teal);letter-spacing:0.1em;margin-bottom:28px}
+    .hero-dot{width:6px;height:6px;background:var(--teal);border-radius:50%;animation:blink 2s infinite}
+    @keyframes blink{0%,100%{opacity:1;box-shadow:0 0 6px var(--teal)}50%{opacity:0.3;box-shadow:none}}
+    .hero h1{font-size:clamp(2.8rem,6vw,5rem);font-weight:800;line-height:1.05;letter-spacing:-0.02em;margin-bottom:20px}
+    .hero h1 .accent{background:linear-gradient(135deg,var(--gold2),var(--gold),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero-sub{font-size:1.1rem;color:var(--gray2);max-width:580px;margin:0 auto 40px;line-height:1.7;font-weight:300}
+    .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+    .btn-hero{padding:15px 34px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:all 0.3s;letter-spacing:0.03em}
+    .btn-hero.primary{background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--navy)}
+    .btn-hero.primary:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(200,169,110,0.4)}
+    .btn-hero.outline{background:transparent;border:1px solid var(--border2);color:var(--gold2)}
+    .btn-hero.outline:hover{background:rgba(200,169,110,0.06)}
+    .hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:72px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .hstat{background:var(--navy);padding:24px 16px;text-align:center}
+    .hstat .num{font-family:'Space Mono',monospace;font-size:1.6rem;color:var(--gold);display:block}
+    .hstat .lbl{font-size:0.75rem;color:var(--gray);margin-top:5px;text-transform:uppercase;letter-spacing:0.06em}
+
+    /* ── TICKER ── */
+    .ticker{background:rgba(0,212,200,0.05);border-top:1px solid rgba(0,212,200,0.12);border-bottom:1px solid rgba(0,212,200,0.12);padding:10px 0;overflow:hidden}
+    .ticker-track{display:flex;animation:tick 30s linear infinite;white-space:nowrap}
+    .ticker-item{display:inline-flex;align-items:center;gap:7px;padding:0 36px;font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--teal)}
+    .up{color:var(--green)}.down{color:var(--red)}
+    @keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+    /* ── SECTIONS ── */
+    .section{padding:90px 40px;max-width:1200px;margin:0 auto}
+    .section-tag{display:inline-block;font-family:'Space Mono',monospace;font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--teal);padding:5px 13px;background:rgba(0,212,200,0.07);border:1px solid rgba(0,212,200,0.18);border-radius:4px;margin-bottom:14px}
+    .section-title{font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;line-height:1.1;letter-spacing:-0.02em;margin-bottom:14px}
+    .section-sub{font-size:1rem;color:var(--gray2);line-height:1.7;font-weight:300;max-width:540px}
+
+    /* ── COINS ── */
+    .coins-bg{background:var(--navy2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+    .coins-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .coin-card{background:var(--navy);border:1px solid var(--border);border-radius:14px;padding:24px;transition:all 0.3s}
+    .coin-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,0.3)}
+    .coin-top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .coin-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+    .coin-name{font-weight:700;font-size:1rem}
+    .coin-ticker{font-size:0.72rem;color:var(--gray);font-family:'Space Mono',monospace}
+    .coin-price{font-family:'Space Mono',monospace;font-size:1.3rem;color:var(--gold);font-weight:700;margin-bottom:6px}
+    .coin-change{font-size:0.78rem;font-family:'Space Mono',monospace}
+    .coin-addr{margin-top:12px;padding:10px 12px;background:rgba(200,169,110,0.05);border:1px solid var(--border);border-radius:8px;font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--gray2);word-break:break-all;line-height:1.5}
+
+    /* ── FEATURES ── */
+    .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+    .feat{background:var(--navy2);padding:32px;transition:background 0.3s;position:relative;overflow:hidden}
+    .feat:hover{background:var(--navy3)}
+    .feat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity 0.3s}
+    .feat:hover::before{opacity:1}
+    .feat-icon{width:48px;height:48px;background:rgba(200,169,110,0.1);border:1px solid var(--border2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:18px}
+    .feat h3{font-size:1rem;font-weight:700;margin-bottom:8px}
+    .feat p{font-size:0.875rem;color:var(--gray2);line-height:1.7}
+    .feat-badge{margin-top:14px;font-size:0.68rem;font-family:'Space Mono',monospace;color:var(--teal)}
+
+    /* ── HOW IT WORKS ── */
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);position:relative}
+    .steps::before{content:'';position:absolute;top:44px;left:12.5%;right:12.5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold3),var(--gold),var(--gold3),transparent)}
+    .step{text-align:center;padding:0 20px}
+    .step-circle{width:56px;height:56px;border-radius:50%;border:2px solid var(--gold3);background:var(--navy2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.3rem;position:relative;z-index:1;transition:all 0.3s}
+    .step:hover .step-circle{border-color:var(--gold);box-shadow:0 0 24px rgba(200,169,110,0.3)}
+    .step-n{position:absolute;top:-8px;right:-8px;width:20px;height:20px;background:var(--gold);border-radius:50%;font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700}
+    .step h3{font-size:0.95rem;font-weight:700;margin-bottom:8px}
+    .step p{font-size:0.82rem;color:var(--gray2);line-height:1.6}
+
+    /* ── DEPOSIT ── */
+    .dep-bg{background:var(--navy2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:90px 40px}
+    .dep-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:880px;margin:0 auto}
+    .dep-card{background:var(--navy);border:1px solid var(--border);border-radius:14px;padding:28px;position:relative;overflow:hidden;transition:border-color 0.3s}
+    .dep-card:hover{border-color:var(--border2)}
+    .dep-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+    .dep-card.xlm::before{background:linear-gradient(90deg,#0070f3,#00D4C8)}
+    .dep-card.xrp::before{background:linear-gradient(90deg,#346aa9,#00D4C8)}
+    .dep-card.usdc::before{background:linear-gradient(90deg,#2775ca,#00D4C8)}
+    .dep-card.btc::before{background:linear-gradient(90deg,#f7931a,#ffb800)}
+    .dep-head{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+    .dep-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+    .dep-name{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem}
+    .dep-net{font-size:0.68rem;font-family:'Space Mono',monospace;color:var(--teal)}
+    .dep-addr-box{background:rgba(8,12,24,0.8);border:1px solid var(--border2);border-radius:8px;padding:14px;margin-bottom:12px}
+    .dep-addr-label{font-size:0.65rem;font-family:'Space Mono',monospace;color:var(--gray);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px}
+    .dep-addr-val{font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--gold);word-break:break-all;line-height:1.6}
+    .btn-copy{width:100%;padding:11px;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;transition:all 0.2s;letter-spacing:0.03em}
+    .dep-note{margin-top:12px;padding:10px 12px;background:rgba(0,212,200,0.05);border:1px solid rgba(0,212,200,0.12);border-radius:8px;font-size:0.75rem;color:var(--gray2);line-height:1.6}
+
+    /* ── FAQ ── */
+    .faq-wrap{max-width:780px;margin:0 auto}
+    .faq-item{border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:var(--navy2);transition:border-color 0.3s;overflow:hidden}
+    .faq-item.open,.faq-item:hover{border-color:var(--border2)}
+    .faq-q{width:100%;padding:18px 22px;background:transparent;border:none;color:var(--white);text-align:left;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:'Syne',sans-serif;font-size:0.92rem;font-weight:600}
+    .faq-q:hover{color:var(--gold2)}
+    .faq-chev{width:20px;height:20px;border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:0.65rem;flex-shrink:0;transition:all 0.3s}
+    .faq-item.open .faq-chev{transform:rotate(180deg);background:rgba(200,169,110,0.1)}
+    .faq-body{max-height:0;overflow:hidden;transition:max-height 0.3s ease}
+    .faq-body-inner{padding:0 22px 18px;color:var(--gray2);font-size:0.875rem;line-height:1.75}
+
+    /* ── CONTACT ── */
+    .contact-wrap{max-width:1200px;margin:0 auto;padding:90px 40px;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start}
+    .contact-cards{display:flex;flex-direction:column;gap:14px;margin-top:32px}
+    .contact-card{display:flex;align-items:center;gap:16px;padding:20px 22px;background:var(--navy2);border:1px solid var(--border);border-radius:12px;text-decoration:none;transition:all 0.3s}
+    .contact-card:hover{border-color:var(--border2);transform:translateX(4px)}
+    .cc-icon{width:44px;height:44px;background:rgba(200,169,110,0.1);border:1px solid var(--border2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+    .cc-label{font-size:0.72rem;font-family:'Space Mono',monospace;color:var(--gray);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+    .cc-val{font-size:0.92rem;color:var(--white);font-weight:500}
+    .ticket-form{background:var(--navy2);border:1px solid var(--border2);border-radius:16px;padding:32px;position:relative;overflow:hidden}
+    .ticket-form::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold3),var(--gold))}
+    .ticket-form h3{font-size:1.1rem;margin-bottom:5px}
+    .ticket-form>p{color:var(--gray2);font-size:0.85rem;margin-bottom:24px}
+
+    /* ── FORM ELEMENTS ── */
+    .fg{margin-bottom:14px}
+    .fg label{display:block;font-size:0.7rem;font-family:'Space Mono',monospace;color:var(--gray2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:7px}
+    .fg input,.fg select,.fg textarea{width:100%;background:rgba(10,15,30,0.9);border:1px solid var(--border2);color:var(--white);padding:11px 15px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s}
+    .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold)}
+    .fg select option{background:var(--navy2)}
+    .fg textarea{min-height:88px;resize:vertical}
+    .fr{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+    /* ── FOOTER ── */
+    .footer{background:#060A14;border-top:1px solid var(--border);padding:60px 40px 28px}
+    .footer-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:50px;padding-bottom:50px;border-bottom:1px solid rgba(255,255,255,0.05)}
+    .footer-brand p{color:var(--gray);font-size:0.85rem;line-height:1.7;margin-top:14px;max-width:280px}
+    .footer-col h5{font-size:0.7rem;font-family:'Space Mono',monospace;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:18px}
+    .footer-col ul{list-style:none}
+    .footer-col ul li{margin-bottom:10px}
+    .footer-col ul li a{color:var(--gray2);text-decoration:none;font-size:0.85rem;transition:color 0.2s}
+    .footer-col ul li a:hover{color:var(--gold2)}
+    .footer-bottom{max-width:1200px;margin:24px auto 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+    .footer-bottom p{font-size:0.75rem;color:var(--gray);font-family:'Space Mono',monospace}
+    .fp{display:flex;gap:10px;flex-wrap:wrap}
+    .fp-pill{padding:4px 12px;border:1px solid var(--border);border-radius:50px;font-size:0.68rem;font-family:'Space Mono',monospace;color:var(--gray)}
+
+    /* ── FLOAT BTN ── */
+    .float-btn{position:fixed;bottom:28px;right:28px;z-index:500;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--navy);width:54px;height:54px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 6px 28px rgba(200,169,110,0.4);transition:all 0.3s}
+    .float-btn:hover{transform:translateY(-3px) scale(1.08)}
+
+    /* ── MODAL ── */
+    .modal{position:fixed;inset:0;background:rgba(6,10,20,0.88);backdrop-filter:blur(8px);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
+    .modal.active{display:flex}
+    .mbox{background:var(--navy2);border:1px solid var(--border2);border-radius:18px;padding:44px 40px;width:100%;max-width:440px;position:relative;overflow:hidden;max-height:92vh;overflow-y:auto}
+    .mbox::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold3),var(--gold),var(--teal))}
+    .mclose{position:absolute;top:14px;right:14px;width:32px;height:32px;background:transparent;border:1px solid var(--border2);color:var(--gray2);border-radius:6px;cursor:pointer;font-size:0.9rem;transition:all 0.2s}
+    .mclose:hover{color:var(--gold);border-color:var(--gold)}
+    .mbox h2{text-align:center;font-size:1.4rem;margin-bottom:6px}
+    .mbox>.msub{text-align:center;color:var(--gray2);font-size:0.85rem;margin-bottom:28px}
+    .merr{background:rgba(255,77,109,0.1);border:1px solid rgba(255,77,109,0.3);color:#FF6B87;padding:11px 15px;border-radius:8px;font-size:0.85rem;margin-bottom:16px;display:none}
+    .mok{background:rgba(0,196,140,0.1);border:1px solid rgba(0,196,140,0.3);color:var(--green);padding:11px 15px;border-radius:8px;font-size:0.85rem;margin-bottom:16px;display:none}
+    .btn-full{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--navy);font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;border-radius:8px;cursor:pointer;transition:all 0.3s;letter-spacing:0.04em}
+    .btn-full:hover{box-shadow:0 6px 24px rgba(200,169,110,0.4);transform:translateY(-1px)}
+    .btn-full:disabled{opacity:0.6;cursor:not-allowed;transform:none;box-shadow:none}
+    .switch-ln{text-align:center;margin-top:18px;font-size:0.85rem;color:var(--gray2)}
+    .switch-ln button{background:none;border:none;color:var(--gold);font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.85rem}
+    .terms-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:16px}
+    .terms-row input[type=checkbox]{margin-top:3px;accent-color:var(--gold);width:15px;height:15px;flex-shrink:0;cursor:pointer}
+    .terms-row label{font-size:0.82rem;color:var(--gray2);line-height:1.5;cursor:pointer}
+    .terms-row a{color:var(--gold);text-decoration:none}
+
+    /* ── DASHBOARD ── */
+    .dash{display:none;min-height:100vh;background:var(--navy);padding-top:68px}
+    .dash.active{display:block}
+    .dash-layout{display:flex;min-height:calc(100vh - 68px)}
+
+    /* Sidebar */
+    .dash-sidebar{width:230px;flex-shrink:0;background:var(--navy2);border-right:1px solid var(--border);padding:16px 0;position:sticky;top:68px;height:calc(100vh - 68px);overflow-y:auto}
+    .dash-sidebar-section{padding:16px 16px 6px;font-size:0.6rem;font-family:'Space Mono',monospace;color:var(--gray);text-transform:uppercase;letter-spacing:0.15em}
+    .dni{display:flex;align-items:center;gap:10px;padding:11px 18px;margin:2px 8px;border-radius:8px;cursor:pointer;color:var(--gray2);font-size:0.86rem;font-weight:500;transition:all 0.2s;border:none;background:none;width:calc(100% - 16px);text-align:left}
+    .dni:hover{background:rgba(200,169,110,0.06);color:var(--white)}
+    .dni.active{background:rgba(200,169,110,0.12);color:var(--gold)}
+    .dni .ico{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+
+    /* Main area */
+    .dash-main{flex:1;padding:28px 32px;overflow-y:auto;max-height:calc(100vh - 68px)}
+    .dash-panel{display:none}
+    .dash-panel.active{display:block}
+    .dash-welcome{margin-bottom:24px}
+    .dash-welcome h2{font-size:1.4rem;font-weight:800}
+    .dash-welcome p{color:var(--gray2);font-size:0.875rem;margin-top:4px}
+
+    /* Dashboard cards */
+    .cards-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+    .dcard{background:var(--navy2);border:1px solid var(--border);border-radius:13px;padding:22px 24px;transition:border-color 0.3s}
+    .dcard:hover{border-color:var(--border2)}
+    .dcard.gold{background:linear-gradient(135deg,#1A1200,#251900);border-color:rgba(200,169,110,0.35)}
+    .dcard-label{font-size:0.68rem;font-family:'Space Mono',monospace;color:var(--gray);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px}
+    .dcard-val{font-family:'Space Mono',monospace;font-size:1.7rem;font-weight:500;color:var(--gold)}
+    .dcard-sub{font-size:0.78rem;color:var(--gray2);margin-top:5px}
+
+    /* KYC badges */
+    .kyc-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:50px;font-size:0.72rem;font-family:'Space Mono',monospace;margin-top:6px}
+    .kyc-badge.unverified{background:rgba(107,114,128,0.15);color:var(--gray2);border:1px solid rgba(107,114,128,0.3)}
+    .kyc-badge.pending{background:rgba(255,184,0,0.12);color:var(--yellow);border:1px solid rgba(255,184,0,0.3)}
+    .kyc-badge.verified{background:rgba(0,196,140,0.12);color:var(--green);border:1px solid rgba(0,196,140,0.3)}
+    .kyc-badge.rejected{background:rgba(255,77,109,0.12);color:var(--red);border:1px solid rgba(255,77,109,0.3)}
+
+    /* Wallet cards */
+    .wallet-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .wcard{background:var(--navy2);border:1px solid var(--border);border-radius:13px;padding:22px;transition:all 0.3s}
+    .wcard:hover{border-color:var(--border2)}
+    .wcard-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+    .wcard-ico{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+    .wcard-name{font-weight:700;font-size:0.95rem}
+    .wcard-net{font-size:0.68rem;font-family:'Space Mono',monospace;color:var(--teal)}
+    .wcard-bal{font-family:'Space Mono',monospace;font-size:1.4rem;color:var(--gold);margin-bottom:4px}
+    .wcard-usd{font-size:0.8rem;color:var(--gray2)}
+    .wcard-addr{margin-top:12px;padding:9px 12px;background:rgba(8,12,24,0.8);border:1px solid var(--border);border-radius:7px;font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--gray2);word-break:break-all;line-height:1.5}
+    .wcard-actions{display:flex;gap:8px;margin-top:12px}
+    .wcard-btn{flex:1;padding:9px;border:1px solid var(--border2);background:transparent;color:var(--gray2);border-radius:7px;cursor:pointer;font-size:0.78rem;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+    .wcard-btn:hover{border-color:var(--gold);color:var(--gold)}
+    .wcard-btn.dep{background:rgba(200,169,110,0.1);color:var(--gold2)}
+
+    /* KYC upload */
+    .kyc-tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+    .kyc-tab{padding:9px 20px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--gray2);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.85rem;transition:all 0.2s}
+    .kyc-tab.active{background:rgba(200,169,110,0.12);border-color:var(--gold);color:var(--gold)}
+    .upload-box{border:2px dashed var(--border2);border-radius:12px;padding:36px;text-align:center;cursor:pointer;transition:all 0.3s;background:rgba(200,169,110,0.02)}
+    .upload-box:hover{border-color:var(--gold);background:rgba(200,169,110,0.05)}
+    .upload-box .ico{font-size:2.2rem;margin-bottom:10px}
+    .upload-box h4{font-size:0.95rem;margin-bottom:6px}
+    .upload-box p{font-size:0.8rem;color:var(--gray2)}
+
+    /* Transactions */
+    .tx-list{display:flex;flex-direction:column;gap:10px}
+    .tx-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--navy2);border:1px solid var(--border);border-radius:10px}
+    .tx-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0}
+    .tx-ico.g{background:rgba(0,196,140,0.12)}.tx-ico.r{background:rgba(255,77,109,0.12)}.tx-ico.y{background:rgba(255,184,0,0.12)}
+    .tx-info h4{font-size:0.875rem;font-weight:600}
+    .tx-info p{font-size:0.75rem;color:var(--gray2);margin-top:2px}
+    .tx-amt{margin-left:auto;font-family:'Space Mono',monospace;font-size:0.875rem;font-weight:700}
+    .tx-amt.pos{color:var(--green)}.tx-amt.neg{color:var(--red)}
+
+    /* Price row */
+    .price-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+    .price-mini{background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+    .price-mini .sym{font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--gray);margin-bottom:4px}
+    .price-mini .val{font-family:'Space Mono',monospace;font-size:1rem;color:var(--gold);font-weight:700}
+    .price-mini .chg{font-size:0.72rem;margin-top:3px}
+
+    /* Proof / ticket items */
+    .proof-item{padding:16px;background:var(--navy2);border:1px solid var(--border);border-radius:10px;margin-bottom:10px}
+    .proof-item h4{font-size:0.875rem;font-weight:600;margin-bottom:5px}
+    .proof-item p{font-size:0.8rem;color:var(--gray2);line-height:1.5}
+    .status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:50px;font-size:0.68rem;font-family:'Space Mono',monospace;margin-top:8px}
+    .status-pill.pending{background:rgba(255,184,0,0.12);color:var(--yellow);border:1px solid rgba(255,184,0,0.3)}
+    .status-pill.approved{background:rgba(0,196,140,0.12);color:var(--green);border:1px solid rgba(0,196,140,0.3)}
+    .status-pill.rejected{background:rgba(255,77,109,0.12);color:var(--red);border:1px solid rgba(255,77,109,0.3)}
+    .status-pill.open{background:rgba(255,184,0,0.12);color:var(--yellow);border:1px solid rgba(255,184,0,0.3)}
+    .status-pill.resolved{background:rgba(0,196,140,0.12);color:var(--green);border:1px solid rgba(0,196,140,0.3)}
+
+    /* Deposit modal */
+    .dep-modal-addr{background:rgba(8,12,24,0.9);border:1px solid var(--border2);border-radius:10px;padding:16px;margin:16px 0}
+    .dep-modal-addr .lbl{font-size:0.65rem;font-family:'Space Mono',monospace;color:var(--gray);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+    .dep-modal-addr .addr{font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--gold);word-break:break-all;line-height:1.6}
+
+    /* KYC lock overlay */
+    .kyc-lock{background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.25);border-radius:12px;padding:24px;text-align:center;margin-bottom:24px}
+    .kyc-lock h3{font-size:1rem;color:var(--yellow);margin-bottom:8px}
+    .kyc-lock p{font-size:0.85rem;color:var(--gray2);margin-bottom:16px}
+
+    /* Quick actions grid */
+    .qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+    .qa-btn{background:rgba(10,15,30,0.8);border:1px solid var(--border2);border-radius:12px;padding:22px 16px;text-align:center;cursor:pointer;transition:all 0.3s;color:var(--white)}
+    .qa-btn:hover{border-color:var(--gold);background:rgba(200,169,110,0.06);transform:translateY(-2px)}
+    .qa-btn .icon{font-size:1.6rem;margin-bottom:8px}
+    .qa-btn .label{font-size:0.8rem;font-weight:600;color:var(--gray2)}
+
+    /* Coming soon badge */
+    .soon{display:inline-block;background:rgba(0,212,200,0.1);border:1px solid rgba(0,212,200,0.25);color:var(--teal);font-size:0.65rem;font-family:'Space Mono',monospace;padding:3px 8px;border-radius:4px;margin-left:6px;vertical-align:middle}
+
+    /* Investment plans */
+    .plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .plan-card{background:var(--navy2);border:1px solid var(--border);border-radius:13px;padding:24px;text-align:center;transition:all 0.3s;position:relative;overflow:hidden}
+    .plan-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+    .plan-card.bronze::before{background:linear-gradient(90deg,#cd7f32,#e8a75a)}
+    .plan-card.silver::before{background:linear-gradient(90deg,#a8a9ad,#d4d5d9)}
+    .plan-card.gold::before{background:linear-gradient(90deg,var(--gold3),var(--gold))}
+    .plan-card:hover{border-color:var(--border2);transform:translateY(-4px)}
+    .plan-name{font-size:1.1rem;font-weight:800;margin-bottom:8px}
+    .plan-roi{font-family:'Space Mono',monospace;font-size:2rem;color:var(--gold);font-weight:700;margin:12px 0}
+    .plan-roi span{font-size:0.9rem;color:var(--gray2)}
+    .plan-min{font-size:0.82rem;color:var(--gray2);margin-bottom:16px}
+    .plan-features{list-style:none;font-size:0.82rem;color:var(--gray2);text-align:left;margin-bottom:20px}
+    .plan-features li{padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+    .plan-features li::before{content:'✓ ';color:var(--green)}
+
+    /* QFS Card display */
+    .qfs-card-display{background:linear-gradient(135deg,#1A1200,#2A1F00,#1A1200);border:1px solid rgba(200,169,110,0.4);border-radius:16px;padding:28px;position:relative;overflow:hidden;max-width:380px}
+    .qfs-card-display::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(200,169,110,0.03) 10px,rgba(200,169,110,0.03) 20px)}
+    .qfs-card-chip{width:42px;height:32px;background:linear-gradient(135deg,var(--gold3),var(--gold));border-radius:5px;margin-bottom:24px}
+    .qfs-card-num{font-family:'Space Mono',monospace;font-size:1rem;color:var(--gold2);letter-spacing:0.2em;margin-bottom:16px}
+    .qfs-card-name{font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.1em}
+    .qfs-card-exp{font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--gray2);margin-top:6px}
+    .qfs-card-logo{position:absolute;top:24px;right:24px;font-size:1.8rem}
+
+    @media(max-width:1024px){
+      .coins-grid,.plan-grid{grid-template-columns:repeat(2,1fr)}
+      .qa-grid{grid-template-columns:repeat(2,1fr)}
+      .feat-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:900px){
+      .nav-links,.nav-actions{display:none}
+      .menu-toggle{display:flex}
+      .contact-wrap{grid-template-columns:1fr;gap:40px}
+      .footer-grid{grid-template-columns:1fr 1fr;gap:36px}
+      .cards-row,.wallet-grid,.price-row{grid-template-columns:1fr}
+      .dash-sidebar{display:none}
+      .dash-main{padding:20px 16px}
+      .hero-stats{grid-template-columns:repeat(2,1fr)}
+      .dep-grid{grid-template-columns:1fr}
+      .steps{grid-template-columns:repeat(2,1fr);gap:32px}
+      .steps::before{display:none}
+      .fr{grid-template-columns:1fr}
+    }
+    @media(max-width:600px){
+      .coins-grid,.feat-grid,.plan-grid{grid-template-columns:1fr}
+      .steps{grid-template-columns:1fr}
+      .qa-grid{grid-template-columns:repeat(2,1fr)}
+      .hero h1{font-size:2.4rem}
+      .nav{padding:0 20px}
+      .section{padding:60px 20px}
+    }
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav" id="main-nav">
+  <a href="#" class="logo" onclick="goToSite()">
+    <svg class="logo-mark" viewBox="0 0 38 38" fill="none">
+      <rect width="38" height="38" rx="9" fill="#C8A96E" fill-opacity="0.12"/>
+      <rect x="0.5" y="0.5" width="37" height="37" rx="8.5" stroke="#C8A96E" stroke-opacity="0.4"/>
+      <path d="M19 5L31 12V26L19 33L7 26V12Z" stroke="#C8A96E" stroke-width="1.5" fill="none"/>
+      <path d="M19 10L27 15V23L19 28L11 23V15Z" fill="#C8A96E" fill-opacity="0.18" stroke="#C8A96E" stroke-width="1"/>
+      <circle cx="19" cy="19" r="3" fill="#00D4C8"/>
+    </svg>
+    <div>
+      <div class="logo-brand">NESARA QFS LAB</div>
+      <div class="logo-sub">Quantum Financial System</div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#deposit">Deposit</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <div class="nav-actions" id="nav-auth">
+    <button class="btn-ghost" onclick="showAuth('login')">Sign In</button>
+    <button class="btn-gold" onclick="showAuth('register')">Get Started</button>
+  </div>
+  <div class="nav-actions hidden" id="nav-user">
+    <span style="font-size:0.85rem;color:var(--gray2)">Welcome, <span id="nav-name" style="color:var(--gold)"></span></span>
+    <button class="btn-ghost" onclick="showDash()">Dashboard</button>
+    <button class="btn-ghost" onclick="logout()">Logout</button>
+  </div>
+  <button class="menu-toggle" onclick="toggleMobileNav()">☰</button>
+</nav>
+
+<!-- Mobile nav -->
+<div class="mobile-nav" id="mobile-nav">
+  <a href="#features" onclick="toggleMobileNav()">Features</a>
+  <a href="#deposit" onclick="toggleMobileNav()">Deposit</a>
+  <a href="#faq" onclick="toggleMobileNav()">FAQ</a>
+  <a href="#contact" onclick="toggleMobileNav()">Contact</a>
+  <div class="mob-btns" id="mob-auth">
+    <button class="btn-ghost" onclick="showAuth('login');toggleMobileNav()">Sign In</button>
+    <button class="btn-gold" onclick="showAuth('register');toggleMobileNav()">Get Started</button>
+  </div>
+  <div class="mob-btns hidden" id="mob-user">
+    <button class="btn-ghost" style="flex:1" onclick="showDash();toggleMobileNav()">Dashboard</button>
+    <button class="btn-ghost" style="flex:1" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<!-- ═══ MAIN SITE ═══ -->
+<main id="site-main">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-inner">
+      <div class="hero-badge"><div class="hero-dot"></div>QFS NETWORK LIVE · ALL SYSTEMS OPERATIONAL</div>
+      <h1>The <span class="accent">Quantum Financial</span><br>Revolution Starts Here</h1>
+      <p class="hero-sub">Nesara QFS Lab — next-generation decentralized financial infrastructure backed by quantum encryption, commodity assets, and real transparency.</p>
+      <div class="hero-btns">
+        <button class="btn-hero primary" onclick="showAuth('register')">Open Your Account →</button>
+        <button class="btn-hero outline" onclick="document.getElementById('deposit').scrollIntoView({behavior:'smooth'})">View Deposit Options</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><span class="num">$2.4T+</span><span class="lbl">Assets Secured</span></div>
+        <div class="hstat"><span class="num">150+</span><span class="lbl">Countries</span></div>
+        <div class="hstat"><span class="num">10M+</span><span class="lbl">Active Users</span></div>
+        <div class="hstat"><span class="num">99.99%</span><span class="lbl">Uptime</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="ticker-track">
+      <span class="ticker-item">XLM/USD <span class="up" id="t-xlm">▲ —</span></span>
+      <span class="ticker-item">XRP/USD <span class="up" id="t-xrp">▲ —</span></span>
+      <span class="ticker-item">BTC/USD <span class="up" id="t-btc">▲ —</span></span>
+      <span class="ticker-item">USDC/USD <span class="up">= $1.00</span></span>
+      <span class="ticker-item">NETWORK NODES <span class="up">48,291 ACTIVE</span></span>
+      <span class="ticker-item">SETTLEMENTS <span class="up">1.2M+ TODAY</span></span>
+      <span class="ticker-item">XLM/USD <span class="up" id="t-xlm2">▲ —</span></span>
+      <span class="ticker-item">XRP/USD <span class="up" id="t-xrp2">▲ —</span></span>
+      <span class="ticker-item">BTC/USD <span class="up" id="t-btc2">▲ —</span></span>
+      <span class="ticker-item">USDC/USD <span class="up">= $1.00</span></span>
+      <span class="ticker-item">NETWORK NODES <span class="up">48,291 ACTIVE</span></span>
+      <span class="ticker-item">SETTLEMENTS <span class="up">1.2M+ TODAY</span></span>
+    </div>
+  </div>
+
+  <!-- LIVE PRICES -->
+  <section class="coins-bg">
+    <div class="section">
+      <div style="text-align:center;margin-bottom:48px">
+        <div class="section-tag">Live Markets</div>
+        <h2 class="section-title">Supported Assets</h2>
+        <p class="section-sub" style="margin:0 auto">Real-time prices updated every 30 seconds.</p>
+      </div>
+      <div class="coins-grid">
+        <div class="coin-card">
+          <div class="coin-top"><div class="coin-icon" style="background:rgba(0,112,243,0.15);border:1px solid rgba(0,112,243,0.3)">⭐</div><div><div class="coin-name">Stellar</div><div class="coin-ticker">XLM</div></div></div>
+          <div class="coin-price" id="cp-xlm">Loading...</div>
+          <div class="coin-change" id="cc-xlm">—</div>
+          <div class="coin-addr"><span style="color:var(--gray)">Deposit:</span> GARYAMRNNLJEPV2Z2RTSGIKQGMBE2Q5EETNSRHIPUZ3KT5OV6HXAPWTX</div>
+        </div>
+        <div class="coin-card">
+          <div class="coin-top"><div class="coin-icon" style="background:rgba(52,106,169,0.15);border:1px solid rgba(52,106,169,0.3)">💧</div><div><div class="coin-name">Ripple</div><div class="coin-ticker">XRP</div></div></div>
+          <div class="coin-price" id="cp-xrp">Loading...</div>
+          <div class="coin-change" id="cc-xrp">—</div>
+          <div class="coin-addr"><span style="color:var(--gray)">Deposit:</span> r91kk7dkrRkh73FqCbdg6PbFH65jDkoYgk</div>
+        </div>
+        <div class="coin-card">
+          <div class="coin-top"><div class="coin-icon" style="background:rgba(39,117,202,0.15);border:1px solid rgba(39,117,202,0.3)">💵</div><div><div class="coin-name">USD Coin</div><div class="coin-ticker">USDC</div></div></div>
+          <div class="coin-price">$1.00</div>
+          <div class="coin-change" style="color:var(--green)">= Stable</div>
+          <div class="coin-addr"><span style="color:var(--gray)">Deposit (ERC20):</span> 0x3b5B532ca9837878a276e90D9c16208849f3aBC0</div>
+        </div>
+        <div class="coin-card">
+          <div class="coin-top"><div class="coin-icon" style="background:rgba(247,147,26,0.15);border:1px solid rgba(247,147,26,0.3)">₿</div><div><div class="coin-name">Bitcoin</div><div class="coin-ticker">BTC</div></div></div>
+          <div class="coin-price" id="cp-btc">Loading...</div>
+          <div class="coin-change" id="cc-btc">—</div>
+          <div class="coin-addr"><span style="color:var(--gray)">Deposit:</span> bc1pmzvfnf4pngf2a9xu7wx0w3fdra7dmhu460wkxxget6nr7ert7kwqlwh04f</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <div style="margin-bottom:48px">
+      <div class="section-tag">Platform</div>
+      <h2 class="section-title">Built for the Next Financial Era</h2>
+      <p class="section-sub">Every feature purpose-built for security, speed, and global reach.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat"><div class="feat-icon">🛡️</div><h3>Quantum Encryption</h3><p>Military-grade QKD-256 protocol. Interception is mathematically impossible under known physics.</p><div class="feat-badge">→ QKD-256</div></div>
+      <div class="feat"><div class="feat-icon">🪪</div><h3>KYC Verification</h3><p>Upload your government ID. Our admin team personally reviews and approves every submission.</p><div class="feat-badge">→ HUMAN REVIEW</div></div>
+      <div class="feat"><div class="feat-icon">📈</div><h3>Live Asset Prices</h3><p>XLM, XRP, BTC and USDC prices fetched live every 30 seconds from global markets.</p><div class="feat-badge">→ LIVE FEED</div></div>
+      <div class="feat"><div class="feat-icon">💰</div><h3>Investment Plans</h3><p>Structured investment programs with competitive returns backed by quantum-secured assets.</p><div class="feat-badge">→ UP TO 25% ROI</div></div>
+      <div class="feat"><div class="feat-icon">💳</div><h3>QFS Cards</h3><p>Physical and virtual quantum-secured cards accepted in 120+ countries worldwide.</p><div class="feat-badge">→ 120+ COUNTRIES</div></div>
+      <div class="feat"><div class="feat-icon">🎫</div><h3>24/7 Support</h3><p>Submit tickets anytime. Our team responds within 2 hours, every day of the week.</p><div class="feat-badge">→ 2HR RESPONSE</div></div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section style="background:var(--navy2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:90px 40px">
+    <div style="max-width:1200px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:56px">
+        <div class="section-tag">Process</div>
+        <h2 class="section-title">Four Steps to Financial Freedom</h2>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-circle"><span class="step-n">1</span>👤</div><h3>Create Account</h3><p>Register with your email. No paperwork, no delays.</p></div>
+        <div class="step"><div class="step-circle"><span class="step-n">2</span>🪪</div><h3>Complete KYC</h3><p>Upload your government ID. Our team reviews manually.</p></div>
+        <div class="step"><div class="step-circle"><span class="step-n">3</span>💰</div><h3>Make a Deposit</h3><p>Send XLM, XRP, USDC or BTC to your deposit address.</p></div>
+        <div class="step"><div class="step-circle"><span class="step-n">4</span>⚡</div><h3>Access Your Funds</h3><p>Balance updated within 30 mins. Manage from your dashboard.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEPOSIT -->
+  <div class="dep-bg" id="deposit">
+    <div style="max-width:1200px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:52px">
+        <div class="section-tag">Deposits</div>
+        <h2 class="section-title">Fund Your Account</h2>
+        <p class="section-sub" style="margin:0 auto">Send crypto to the addresses below. Balances updated within 30 minutes of confirmation.</p>
+      </div>
+      <div class="dep-grid">
+        <div class="dep-card xlm">
+          <div class="dep-head"><div class="dep-ico" style="background:rgba(0,112,243,0.12);border:1px solid rgba(0,112,243,0.25)">⭐</div><div><div class="dep-name">Stellar (XLM)</div><div class="dep-net">STELLAR NETWORK</div></div></div>
+          <div class="dep-addr-box"><div class="dep-addr-label">Deposit Address</div><div class="dep-addr-val">GARYAMRNNLJEPV2Z2RTSGIKQGMBE2Q5EETNSRHIPUZ3KT5OV6HXAPWTX</div></div>
+          <button class="btn-copy" style="background:linear-gradient(135deg,#0050b3,#0070f3);color:white" id="pub-xlm-btn" onclick="copyAddr('GARYAMRNNLJEPV2Z2RTSGIKQGMBE2Q5EETNSRHIPUZ3KT5OV6HXAPWTX','pub-xlm-btn')">📋 Copy XLM Address</button>
+          <div class="dep-note">⚠️ Send only <strong>XLM</strong>. Other assets will be permanently lost.</div>
+        </div>
+        <div class="dep-card xrp">
+          <div class="dep-head"><div class="dep-ico" style="background:rgba(52,106,169,0.12);border:1px solid rgba(52,106,169,0.25)">💧</div><div><div class="dep-name">Ripple (XRP)</div><div class="dep-net">XRP LEDGER</div></div></div>
+          <div class="dep-addr-box"><div class="dep-addr-label">Deposit Address</div><div class="dep-addr-val">r91kk7dkrRkh73FqCbdg6PbFH65jDkoYgk</div></div>
+          <button class="btn-copy" style="background:linear-gradient(135deg,#1a3d6b,#346aa9);color:white" id="pub-xrp-btn" onclick="copyAddr('r91kk7dkrRkh73FqCbdg6PbFH65jDkoYgk','pub-xrp-btn')">📋 Copy XRP Address</button>
+          <div class="dep-note">⚠️ Send only <strong>XRP</strong>. Include destination tag if required by your exchange.</div>
+        </div>
+        <div class="dep-card usdc">
+          <div class="dep-head"><div class="dep-ico" style="background:rgba(39,117,202,0.12);border:1px solid rgba(39,117,202,0.25)">💵</div><div><div class="dep-name">USD Coin (USDC)</div><div class="dep-net">ETHEREUM ERC-20</div></div></div>
+          <div class="dep-addr-box"><div class="dep-addr-label">ERC-20 Address</div><div class="dep-addr-val">0x3b5B532ca9837878a276e90D9c16208849f3aBC0</div></div>
+          <button class="btn-copy" style="background:linear-gradient(135deg,#1a4b8b,#2775ca);color:white" id="pub-usdc-btn" onclick="copyAddr('0x3b5B532ca9837878a276e90D9c16208849f3aBC0','pub-usdc-btn')">📋 Copy USDC Address</button>
+          <div class="dep-note">⚠️ ERC-20 only. Do NOT send from BEP-20 or other networks.</div>
+        </div>
+        <div class="dep-card btc">
+          <div class="dep-head"><div class="dep-ico" style="background:rgba(247,147,26,0.12);border:1px solid rgba(247,147,26,0.25)">₿</div><div><div class="dep-name">Bitcoin (BTC)</div><div class="dep-net">BITCOIN NETWORK</div></div></div>
+          <div class="dep-addr-box"><div class="dep-addr-label">Deposit Address</div><div class="dep-addr-val">bc1pmzvfnf4pngf2a9xu7wx0w3fdra7dmhu460wkxxget6nr7ert7kwqlwh04f</div></div>
+          <button class="btn-copy" style="background:linear-gradient(135deg,#8b4a00,#f7931a);color:white" id="pub-btc-btn" onclick="copyAddr('bc1pmzvfnf4pngf2a9xu7wx0w3fdra7dmhu460wkxxget6nr7ert7kwqlwh04f','pub-btc-btn')">📋 Copy BTC Address</button>
+          <div class="dep-note">⚠️ Bitcoin network only. Minimum 1 confirmation required.</div>
+        </div>
+      </div>
+      <div style="max-width:880px;margin:32px auto 0;background:rgba(200,169,110,0.04);border:1px solid var(--border);border-radius:12px;padding:28px 32px">
+        <h4 style="font-size:0.9rem;color:var(--gold);margin-bottom:16px">How Deposits Work</h4>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+          <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:26px;height:26px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--navy);font-weight:700;flex-shrink:0">1</div><div><div style="font-weight:600;font-size:0.875rem;margin-bottom:3px">Copy Address</div><div style="font-size:0.78rem;color:var(--gray2)">Copy your deposit address above</div></div></div>
+          <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:26px;height:26px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--navy);font-weight:700;flex-shrink:0">2</div><div><div style="font-weight:600;font-size:0.875rem;margin-bottom:3px">Send & Upload Proof</div><div style="font-size:0.78rem;color:var(--gray2)">Send crypto then upload screenshot in dashboard</div></div></div>
+          <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:26px;height:26px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--navy);font-weight:700;flex-shrink:0">3</div><div><div style="font-weight:600;font-size:0.875rem;margin-bottom:3px">Balance Updated</div><div style="font-size:0.78rem;color:var(--gray2)">Admin credits your account within 30 mins</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div style="text-align:center;margin-bottom:48px">
+      <div class="section-tag">FAQ</div>
+      <h2 class="section-title">Common Questions</h2>
+    </div>
+    <div class="faq-wrap">
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What is Nesara QFS Lab?<div class="faq-chev">▾</div></button><div class="faq-body"><div class="faq-body-inner">Nesara QFS Lab is a next-generation quantum financial platform enabling secure, decentralized asset management using XLM, XRP, USDC, and BTC with investment programs and 24/7 support.</div></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How do I deposit funds?<div class="faq-chev">▾</div></button><div class="faq-body"><div class="faq-body-inner">Copy your chosen deposit address above, send crypto from any wallet or exchange, then upload proof of payment in your dashboard. Your balance will be credited within 30 minutes.</div></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Why is KYC required before deposits?<div class="faq-chev">▾</div></button><div class="faq-body"><div class="faq-body-inner">KYC is required for regulatory compliance. Upload your government ID and our team personally reviews and approves it within 2–24 hours before your deposits can be credited.</div></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How do withdrawals work?<div class="faq-chev">▾</div></button><div class="faq-body"><div class="faq-body-inner">Submit a withdrawal request from your dashboard, specifying the coin and your receiving wallet address. Withdrawals are processed within 24 hours after admin approval.</div></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What investment plans are available?<div class="faq-chev">▾</div></button><div class="faq-body"><div class="faq-body-inner">We offer Bronze, Silver, and Gold investment plans with returns ranging from 10% to 25% ROI. All plans are backed by quantum-secured commodity assets. Available after KYC verification.</div></div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How do I contact support?<div class="faq-chev">▾</div></button><div class="faq-body"><div class="faq-body-inner">Email info@nesaraqfslab.com, call +1 (206) 251-7105, or submit a ticket below. Every ticket is emailed directly to our team and we respond within 2 business hours.</div></div></div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section style="background:var(--navy2);border-top:1px solid var(--border)" id="contact">
+    <div class="contact-wrap">
+      <div>
+        <div class="section-tag">Support</div>
+        <h2 class="section-title">We're Here to Help</h2>
+        <p class="section-sub">Our team responds to all inquiries within 2 business hours, 7 days a week. Every ticket goes directly to our email.</p>
+        <div class="contact-cards">
+          <a href="mailto:info@nesaraqfslab.com" class="contact-card"><div class="cc-icon">✉️</div><div><div class="cc-label">Email</div><div class="cc-val">info@nesaraqfslab.com</div></div></a>
+          <a href="tel:+12062517105" class="contact-card"><div class="cc-icon">📞</div><div><div class="cc-label">Phone</div><div class="cc-val">+1 (206) 251-7105</div></div></a>
+          <div class="contact-card" style="cursor:default"><div class="cc-icon">🕐</div><div><div class="cc-label">Response Time</div><div class="cc-val">Within 2 business hours</div></div></div>
+          <div class="contact-card" style="cursor:default"><div class="cc-icon">🏢</div><div><div class="cc-label">Office Address</div><div class="cc-val">1309 Coffeen Avenue STE 1200<br>Sheridan, Wyoming 82801, USA</div></div></div>
+        </div>
+      </div>
+      <div class="ticket-form">
+        <h3>🎫 Submit a Ticket</h3>
+        <p>Your message is emailed directly to info@nesaraqfslab.com</p>
+        <div id="pub-ticket-ok" class="mok" style="display:none">✅ Ticket submitted! We'll reply within 2 hours.</div>
+        <div id="pub-ticket-err" class="merr" style="display:none"></div>
+        <form onsubmit="submitPublicTicket(event)">
+          <div class="fr">
+            <div class="fg"><label>Full Name</label><input type="text" id="pt-name" placeholder="John Doe" required></div>
+            <div class="fg"><label>Email</label><input type="email" id="pt-email" placeholder="you@email.com" required></div>
+          </div>
+          <div class="fg"><label>Subject</label>
+            <select id="pt-subject">
+              <option>Account Access</option>
+              <option>KYC Verification</option>
+              <option>Deposit Issue</option>
+              <option>Withdrawal Request</option>
+              <option>Balance Query</option>
+              <option>Investment Plans</option>
+              <option>QFS Cards</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="fg"><label>Message</label><textarea id="pt-message" placeholder="Describe your issue in detail..."></textarea></div>
+          <button type="submit" class="btn-full" id="pt-btn">Submit Ticket →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="logo" style="text-decoration:none">
+          <svg class="logo-mark" viewBox="0 0 38 38" fill="none"><rect width="38" height="38" rx="9" fill="#C8A96E" fill-opacity="0.12"/><path d="M19 5L31 12V26L19 33L7 26V12Z" stroke="#C8A96E" stroke-width="1.5" fill="none"/><circle cx="19" cy="19" r="3" fill="#00D4C8"/></svg>
+          <div><div class="logo-brand">NESARA QFS LAB</div><div class="logo-sub">Quantum Financial System</div></div>
+        </a>
+        <p>Next-generation global finance — decentralized, quantum-secured, and accessible to every citizen of the world.</p>
+      </div>
+      <div class="footer-col"><h5>Platform</h5><ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#deposit">Deposit</a></li>
+        <li><a href="#" onclick="showAuth('register')">Get Started</a></li>
+        <li><a href="#contact">Support</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Resources</h5><ul>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#contact">Contact Us</a></li>
+        <li><a href="mailto:info@nesaraqfslab.com">Email Us</a></li>
+        <li><a href="tel:+12062517105">Call Us</a></li>
+        <li><a href="#">1309 Coffeen Ave STE 1200, Sheridan WY 82801</a></li>
+      </ul></div>
+      <div class="footer-col"><h5>Legal</h5><ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Compliance</a></li>
+        <li><a href="#">AML Policy</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 NESARA QFS LAB · info@nesaraqfslab.com · +1 (206) 251-7105</p>
+      <div class="fp"><span class="fp-pill">SSL Protected</span><span class="fp-pill">ISO 27001</span><span class="fp-pill">SOC 2</span></div>
+    </div>
+  </footer>
+</main>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div class="dash" id="dashboard">
+  <div class="dash-layout">
+
+    <!-- Sidebar -->
+    <aside class="dash-sidebar">
+      <div style="padding:16px 18px 8px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);margin-bottom:8px">
+        <div style="width:34px;height:34px;background:rgba(200,169,110,0.15);border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem">👤</div>
+        <div><div id="sidebar-name" style="font-size:0.85rem;font-weight:700"></div><div id="sidebar-email" style="font-size:0.68rem;color:var(--gray);font-family:'Space Mono',monospace"></div></div>
+      </div>
+      <div class="dash-sidebar-section">Main</div>
+      <button class="dni active" onclick="switchPanel('overview',this)"><span class="ico">📊</span>Dashboard</button>
+      <button class="dni" onclick="switchPanel('profile',this)"><span class="ico">👤</span>Profile</button>
+      <div class="dash-sidebar-section">Finance</div>
+      <button class="dni" onclick="switchPanel('wallets',this)"><span class="ico">👛</span>Wallets</button>
+      <button class="dni" onclick="switchPanel('deposit',this)"><span class="ico">📥</span>Deposit Money</button>
+      <button class="dni" onclick="switchPanel('proof',this)"><span class="ico">📤</span>Upload Proof</button>
+      <button class="dni" onclick="switchPanel('withdraw',this)"><span class="ico">💸</span>Withdrawals</button>
+      <button class="dni" onclick="switchPanel('exchange',this)"><span class="ico">🔄</span>Exchange Money</button>
+      <button class="dni" onclick="switchPanel('invest',this)"><span class="ico">📈</span>Investment</button>
+      <div class="dash-sidebar-section">Transactions</div>
+      <button class="dni" onclick="switchPanel('transactions',this)"><span class="ico">📋</span>Transactions</button>
+      <div class="dash-sidebar-section">Account</div>
+      <button class="dni" onclick="switchPanel('kyc',this)"><span class="ico">🪪</span>KYC Verification</button>
+      <button class="dni" onclick="switchPanel('cards',this)"><span class="ico">💳</span>QFS Cards</button>
+      <button class="dni" onclick="switchPanel('tickets',this)"><span class="ico">🎫</span>Support Tickets</button>
+      <div style="margin-top:16px;padding:12px;border-top:1px solid var(--border)">
+        <button class="dni" onclick="goToSite()"><span class="ico">←</span>Back to Site</button>
+        <button class="dni" onclick="logout()" style="color:var(--red)"><span class="ico">🚪</span>Logout</button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="dash-main">
+
+      <!-- OVERVIEW -->
+      <div class="dash-panel active" id="dp-overview">
+        <div class="dash-welcome">
+          <h2>Welcome back, <span id="dash-name" style="color:var(--gold)"></span> 👋</h2>
+          <p>Here's your account overview</p>
+        </div>
+        <div class="price-row">
+          <div class="price-mini"><div class="sym">XLM/USD</div><div class="val" id="ov-xlm">—</div><div class="chg" id="ov-xlm-c">—</div></div>
+          <div class="price-mini"><div class="sym">XRP/USD</div><div class="val" id="ov-xrp">—</div><div class="chg" id="ov-xrp-c">—</div></div>
+          <div class="price-mini"><div class="sym">BTC/USD</div><div class="val" id="ov-btc">—</div><div class="chg" id="ov-btc-c">—</div></div>
+          <div class="price-mini"><div class="sym">USDC/USD</div><div class="val">$1.00</div><div class="chg" style="color:var(--green)">Stable</div></div>
+        </div>
+        <div class="cards-row">
+          <div class="dcard gold">
+            <div class="dcard-label">Total Balance (USD)</div>
+            <div class="dcard-val" id="dash-total-bal">$0.00</div>
+            <div class="dcard-sub">Combined across all assets</div>
+          </div>
+          <div class="dcard">
+            <div class="dcard-label">KYC Status</div>
+            <div id="dash-kyc-badge" class="kyc-badge unverified">⬤ Unverified</div>
+            <div style="margin-top:12px"><button onclick="switchPanel('kyc',null)" id="kyc-cta-btn" class="btn-ghost" style="font-size:0.78rem;padding:6px 14px">Complete KYC →</button></div>
+          </div>
+          <div class="dcard">
+            <div class="dcard-label">QFS Card</div>
+            <div id="dash-card-status" class="dcard-val" style="font-size:1rem;margin-top:6px;color:var(--gray2)">Pending KYC</div>
+            <div class="dcard-sub">Activate after KYC approval</div>
+          </div>
+        </div>
+        <div class="qa-grid">
+          <div class="qa-btn" onclick="switchPanel('deposit',null)"><div class="icon">📥</div><div class="label">Deposit</div></div>
+          <div class="qa-btn" onclick="switchPanel('withdraw',null)"><div class="icon">💸</div><div class="label">Withdraw</div></div>
+          <div class="qa-btn" onclick="switchPanel('exchange',null)"><div class="icon">🔄</div><div class="label">Exchange</div></div>
+          <div class="qa-btn" onclick="switchPanel('invest',null)"><div class="icon">📈</div><div class="label">Invest</div></div>
+          <div class="qa-btn" onclick="switchPanel('proof',null)"><div class="icon">📤</div><div class="label">Upload Proof</div></div>
+          <div class="qa-btn" onclick="switchPanel('cards',null)"><div class="icon">💳</div><div class="label">QFS Cards</div></div>
+          <div class="qa-btn" onclick="switchPanel('tickets',null)"><div class="icon">🎫</div><div class="label">Support</div></div>
+          <div class="qa-btn" onclick="switchPanel('profile',null)"><div class="icon">👤</div><div class="label">Profile</div></div>
+        </div>
+        <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:14px">Recent Activity</h3>
+        <div class="tx-list" id="dash-recent-tx">
+          <div class="tx-item"><div class="tx-ico g">🔐</div><div class="tx-info"><h4>Account Login</h4><p>Secure session started</p></div><div class="tx-amt" style="color:var(--gray2)">Just now</div></div>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="dash-panel" id="dp-profile">
+        <div class="dash-welcome"><h2>My Profile</h2><p>Manage your account information and security</p></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:800px">
+          <div style="background:var(--navy2);border:1px solid var(--border);border-radius:14px;padding:28px">
+            <h3 style="font-size:1rem;margin-bottom:20px">Personal Information</h3>
+            <div class="fg"><label>Full Name</label><input type="text" id="prof-name" placeholder="Your name"></div>
+            <div class="fg"><label>Email Address</label><input type="email" id="prof-email" readonly style="opacity:0.6;cursor:not-allowed"></div>
+            <div class="fg"><label>Member Since</label><input type="text" id="prof-since" readonly style="opacity:0.6;cursor:not-allowed"></div>
+            <button class="btn-full" onclick="saveProfile()">Save Changes</button>
+          </div>
+          <div style="background:var(--navy2);border:1px solid var(--border);border-radius:14px;padding:28px">
+            <h3 style="font-size:1rem;margin-bottom:20px">Change Password</h3>
+            <form onsubmit="changePassword(event)">
+              <div class="fg"><label>Current Password</label><input type="password" id="cp-cur" placeholder="••••••••" required></div>
+              <div class="fg"><label>New Password</label><input type="password" id="cp-new" placeholder="••••••••" required></div>
+              <div class="fg"><label>Confirm New Password</label><input type="password" id="cp-conf" placeholder="••••••••" required></div>
+              <button type="submit" class="btn-full">Update Password</button>
+            </form>
+          </div>
+          <div style="background:var(--navy2);border:1px solid var(--border);border-radius:14px;padding:28px;grid-column:1/-1">
+            <h3 style="font-size:1rem;margin-bottom:16px">Account Status</h3>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+              <div style="background:rgba(10,15,30,0.6);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center">
+                <div style="font-size:0.68rem;font-family:'Space Mono',monospace;color:var(--gray);margin-bottom:8px">KYC STATUS</div>
+                <div id="prof-kyc-badge" class="kyc-badge unverified" style="display:inline-flex">⬤ Unverified</div>
+              </div>
+              <div style="background:rgba(10,15,30,0.6);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center">
+                <div style="font-size:0.68rem;font-family:'Space Mono',monospace;color:var(--gray);margin-bottom:8px">TOTAL BALANCE</div>
+                <div id="prof-total-bal" style="font-family:'Space Mono',monospace;font-size:1.1rem;color:var(--gold)">$0.00</div>
+              </div>
+              <div style="background:rgba(10,15,30,0.6);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center">
+                <div style="font-size:0.68rem;font-family:'Space Mono',monospace;color:var(--gray);margin-bottom:8px">QFS CARD</div>
+                <div id="prof-card-status" style="font-size:0.9rem;font-weight:600;color:var(--gray2)">Pending KYC</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WALLETS -->
+      <div class="dash-panel" id="dp-wallets">
+        <div class="dash-welcome"><h2>My Wallets</h2><p>Your asset balances in USD equivalent at live prices</p></div>
+        <div class="wallet-grid">
+          <div class="wcard">
+            <div class="wcard-top"><div class="wcard-ico" style="background:rgba(0,112,243,0.15);border:1px solid rgba(0,112,243,0.3)">⭐</div><div><div class="wcard-name">Stellar</div><div class="wcard-net">XLM · STELLAR NETWORK</div></div></div>
+            <div class="wcard-bal" id="w-xlm-bal">0 XLM</div><div class="wcard-usd" id="w-xlm-usd">≈ $0.00 USD</div>
+            <div class="wcard-addr">GARYAMRNNLJEPV2Z2RTSGIKQGMBE2Q5EETNSRHIPUZ3KT5OV6HXAPWTX</div>
+            <div class="wcard-actions"><button class="wcard-btn dep" onclick="openDepModal('XLM')">📥 Deposit</button><button class="wcard-btn" onclick="switchPanel('transactions',null)">📋 History</button></div>
+          </div>
+          <div class="wcard">
+            <div class="wcard-top"><div class="wcard-ico" style="background:rgba(52,106,169,0.15);border:1px solid rgba(52,106,169,0.3)">💧</div><div><div class="wcard-name">Ripple</div><div class="wcard-net">XRP · XRP LEDGER</div></div></div>
+            <div class="wcard-bal" id="w-xrp-bal">0 XRP</div><div class="wcard-usd" id="w-xrp-usd">≈ $0.00 USD</div>
+            <div class="wcard-addr">r91kk7dkrRkh73FqCbdg6PbFH65jDkoYgk</div>
+            <div class="wcard-actions"><button class="wcard-btn dep" onclick="openDepModal('XRP')">📥 Deposit</button><button class="wcard-btn" onclick="switchPanel('transactions',null)">📋 History</button></div>
+          </div>
+          <div class="wcard">
+            <div class="wcard-top"><div class="wcard-ico" style="background:rgba(39,117,202,0.15);border:1px solid rgba(39,117,202,0.3)">💵</div><div><div class="wcard-name">USD Coin</div><div class="wcard-net">USDC · ERC-20</div></div></div>
+            <div class="wcard-bal" id="w-usdc-bal">0 USDC</div><div class="wcard-usd" id="w-usdc-usd">≈ $0.00 USD</div>
+            <div class="wcard-addr">0x3b5B532ca9837878a276e90D9c16208849f3aBC0</div>
+            <div class="wcard-actions"><button class="wcard-btn dep" onclick="openDepModal('USDC')">📥 Deposit</button><button class="wcard-btn" onclick="switchPanel('transactions',null)">📋 History</button></div>
+          </div>
+          <div class="wcard">
+            <div class="wcard-top"><div class="wcard-ico" style="background:rgba(247,147,26,0.15);border:1px solid rgba(247,147,26,0.3)">₿</div><div><div class="wcard-name">Bitcoin</div><div class="wcard-net">BTC · BITCOIN NETWORK</div></div></div>
+            <div class="wcard-bal" id="w-btc-bal">0 BTC</div><div class="wcard-usd" id="w-btc-usd">≈ $0.00 USD</div>
+            <div class="wcard-addr">bc1pmzvfnf4pngf2a9xu7wx0w3fdra7dmhu460wkxxget6nr7ert7kwqlwh04f</div>
+            <div class="wcard-actions"><button class="wcard-btn dep" onclick="openDepModal('BTC')">📥 Deposit</button><button class="wcard-btn" onclick="switchPanel('transactions',null)">📋 History</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEPOSIT -->
+      <div class="dash-panel" id="dp-deposit">
+        <div class="dash-welcome"><h2>Deposit Money</h2><p>Send crypto to your deposit address. Upload proof after sending.</p></div>
+        <div id="deposit-kyc-lock" class="kyc-lock hidden">
+          <h3>🔒 KYC Required</h3>
+          <p>Complete identity verification before making deposits to comply with financial regulations.</p>
+          <button class="btn-full" style="max-width:200px;margin:0 auto" onclick="switchPanel('kyc',null)">Complete KYC →</button>
+        </div>
+        <div id="deposit-content">
+          <div class="dep-grid">
+            <div class="dep-card xlm"><div class="dep-head"><div class="dep-ico" style="background:rgba(0,112,243,0.12);border:1px solid rgba(0,112,243,0.25)">⭐</div><div><div class="dep-name">Stellar (XLM)</div><div class="dep-net">STELLAR NETWORK</div></div></div><div class="dep-addr-box"><div class="dep-addr-label">Deposit Address</div><div class="dep-addr-val">GARYAMRNNLJEPV2Z2RTSGIKQGMBE2Q5EETNSRHIPUZ3KT5OV6HXAPWTX</div></div><button class="btn-copy" style="background:linear-gradient(135deg,#0050b3,#0070f3);color:white" id="d-xlm-btn" onclick="copyAddr('GARYAMRNNLJEPV2Z2RTSGIKQGMBE2Q5EETNSRHIPUZ3KT5OV6HXAPWTX','d-xlm-btn')">📋 Copy XLM Address</button><div class="dep-note">⚠️ XLM only. Other assets will be lost.</div></div>
+            <div class="dep-card xrp"><div class="dep-head"><div class="dep-ico" style="background:rgba(52,106,169,0.12);border:1px solid rgba(52,106,169,0.25)">💧</div><div><div class="dep-name">Ripple (XRP)</div><div class="dep-net">XRP LEDGER</div></div></div><div class="dep-addr-box"><div class="dep-addr-label">Deposit Address</div><div class="dep-addr-val">r91kk7dkrRkh73FqCbdg6PbFH65jDkoYgk</div></div><button class="btn-copy" style="background:linear-gradient(135deg,#1a3d6b,#346aa9);color:white" id="d-xrp-btn" onclick="copyAddr('r91kk7dkrRkh73FqCbdg6PbFH65jDkoYgk','d-xrp-btn')">📋 Copy XRP Address</button><div class="dep-note">⚠️ XRP only. Include destination tag if required.</div></div>
+            <div class="dep-card usdc"><div class="dep-head"><div class="dep-ico" style="background:rgba(39,117,202,0.12);border:1px solid rgba(39,117,202,0.25)">💵</div><div><div class="dep-name">USD Coin (USDC)</div><div class="dep-net">ETHEREUM ERC-20</div></div></div><div class="dep-addr-box"><div class="dep-addr-label">ERC-20 Address</div><div class="dep-addr-val">0x3b5B532ca9837878a276e90D9c16208849f3aBC0</div></div><button class="btn-copy" style="background:linear-gradient(135deg,#1a4b8b,#2775ca);color:white" id="d-usdc-btn" onclick="copyAddr('0x3b5B532ca9837878a276e90D9c16208849f3aBC0','d-usdc-btn')">📋 Copy USDC Address</button><div class="dep-note">⚠️ ERC-20 only. Not BEP-20.</div></div>
+            <div class="dep-card btc"><div class="dep-head"><div class="dep-ico" style="background:rgba(247,147,26,0.12);border:1px solid rgba(247,147,26,0.25)">₿</div><div><div class="dep-name">Bitcoin (BTC)</div><div class="dep-net">BITCOIN NETWORK</div></div></div><div class="dep-addr-box"><div class="dep-addr-label">Deposit Address</div><div class="dep-addr-val">bc1pmzvfnf4pngf2a9xu7wx0w3fdra7dmhu460wkxxget6nr7ert7kwqlwh04f</div></div><button class="btn-copy" style="background:linear-gradient(135deg,#8b4a00,#f7931a);color:white" id="d-btc-btn" onclick="copyAddr('bc1pmzvfnf4pngf2a9xu7wx0w3fdra7dmhu460wkxxget6nr7ert7kwqlwh04f','d-btc-btn')">📋 Copy BTC Address</button><div class="dep-note">⚠️ Bitcoin only. Min 1 confirmation.</div></div>
+          </div>
+          <div style="margin-top:20px;padding:16px 20px;background:rgba(0,212,200,0.05);border:1px solid rgba(0,212,200,0.15);border-radius:10px;font-size:0.875rem;color:var(--gray2)">
+            💡 After sending, go to <strong style="color:var(--white)">Upload Proof</strong> to submit your transaction screenshot for faster processing.
+          </div>
+        </div>
+      </div>
+
+      <!-- UPLOAD PROOF -->
+      <div class="dash-panel" id="dp-proof">
+        <div class="dash-welcome"><h2>Upload Deposit Proof</h2><p>Submit your transaction screenshot or hash to get credited faster</p></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+          <div style="background:var(--navy2);border:1px solid var(--border2);border-radius:14px;padding:26px;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold3),var(--gold))"></div>
+            <h3 style="font-size:1rem;font-weight:700;margin-bottom:6px">Submit Deposit Proof</h3>
+            <p style="font-size:0.82rem;color:var(--gray2);margin-bottom:22px">Upload your transaction screenshot or enter the transaction hash.</p>
+            <div id="proof-ok" style="display:none;background:rgba(0,196,140,0.1);border:1px solid rgba(0,196,140,0.3);color:var(--green);padding:11px 15px;border-radius:8px;font-size:0.85rem;margin-bottom:16px">✅ Proof submitted! We'll credit your account within 30 minutes.</div>
+            <div id="proof-err" style="display:none;background:rgba(255,77,109,0.1);border:1px solid rgba(255,77,109,0.3);color:#FF6B87;padding:11px 15px;border-radius:8px;font-size:0.85rem;margin-bottom:16px"></div>
+            <form onsubmit="submitProof(event)">
+              <div class="fg"><label>Coin Deposited</label><select id="proof-coin"><option value="XLM">⭐ Stellar (XLM)</option><option value="XRP">💧 Ripple (XRP)</option><option value="USDC">💵 USDC (ERC-20)</option><option value="BTC">₿ Bitcoin (BTC)</option></select></div>
+              <div class="fg"><label>Amount Sent</label><input type="number" id="proof-amount" placeholder="e.g. 100" step="any" min="0" required></div>
+              <div class="fg"><label>Transaction Hash / ID (optional)</label><input type="text" id="proof-txhash" placeholder="e.g. abc123def456..."></div>
+              <div class="fg"><label>Upload Screenshot (optional)</label>
+                <input type="file" id="proof-file" accept="image/*,.pdf" style="display:none" onchange="handleProofFile(this)">
+                <div class="upload-box" onclick="document.getElementById('proof-file').click()" id="proof-upload-box">
+                  <div class="ico">📸</div>
+                  <h4 style="font-size:0.9rem">Click to upload screenshot</h4>
+                  <p>JPG, PNG or PDF · Max 20MB</p>
+                </div>
+                <div id="proof-fname" style="display:none;margin-top:10px;padding:9px 13px;background:rgba(0,196,140,0.08);border:1px solid rgba(0,196,140,0.25);border-radius:8px;font-size:0.8rem;color:var(--green)"></div>
+              </div>
+              <button type="submit" class="btn-full" id="proof-submit-btn">📤 Submit Proof →</button>
+            </form>
+          </div>
+          <div>
+            <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:14px">My Submissions</h3>
+            <div id="user-proofs-list">
+              <div style="text-align:center;padding:40px;color:var(--gray2);background:var(--navy2);border:1px solid var(--border);border-radius:12px"><div style="font-size:2rem;margin-bottom:10px">📤</div><p style="font-size:0.85rem">No submissions yet</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WITHDRAWALS -->
+      <div class="dash-panel" id="dp-withdraw">
+        <div class="dash-welcome"><h2>Withdrawals</h2><p>Request a withdrawal to your personal wallet</p></div>
+        <div id="withdraw-kyc-lock" class="kyc-lock hidden">
+          <h3>🔒 KYC Required</h3>
+          <p>Complete identity verification to enable withdrawals.</p>
+          <button class="btn-full" style="max-width:200px;margin:0 auto" onclick="switchPanel('kyc',null)">Complete KYC →</button>
+        </div>
+        <div id="withdraw-content" style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+          <div style="background:var(--navy2);border:1px solid var(--border2);border-radius:14px;padding:26px;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold3),var(--gold))"></div>
+            <h3 style="font-size:1rem;font-weight:700;margin-bottom:6px">Request Withdrawal</h3>
+            <p style="font-size:0.82rem;color:var(--gray2);margin-bottom:22px">Withdrawals are processed within 24 hours after admin approval.</p>
+            <div id="withdraw-ok" style="display:none;background:rgba(0,196,140,0.1);border:1px solid rgba(0,196,140,0.3);color:var(--green);padding:11px 15px;border-radius:8px;font-size:0.85rem;margin-bottom:16px">✅ Withdrawal request submitted! Processing within 24 hours.</div>
+            <form onsubmit="submitWithdrawal(event)">
+              <div class="fg"><label>Coin to Withdraw</label>
+                <select id="wd-coin">
+                  <option value="XLM">⭐ Stellar (XLM)</option>
+                  <option value="XRP">💧 Ripple (XRP)</option>
+                  <option value="USDC">💵 USDC (ERC-20)</option>
+                  <option value="BTC">₿ Bitcoin (BTC)</option>
+                </select>
+              </div>
+              <div class="fg"><label>Amount</label><input type="number" id="wd-amount" placeholder="0.00" step="any" min="0" required></div>
+              <div class="fg"><label>Your Receiving Wallet Address</label><input type="text" id="wd-addr" placeholder="Your wallet address..." required></div>
+              <div class="fg"><label>Notes (optional)</label><input type="text" id="wd-note" placeholder="e.g. Binance withdrawal"></div>
+              <button type="submit" class="btn-full" id="wd-btn">Request Withdrawal →</button>
+            </form>
+          </div>
+          <div>
+            <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:14px">My Withdrawal Requests</h3>
+            <div id="user-withdrawals">
+              <div style="text-align:center;padding:40px;color:var(--gray2);background:var(--navy2);border:1px solid var(--border);border-radius:12px"><div style="font-size:2rem;margin-bottom:10px">💸</div><p style="font-size:0.85rem">No withdrawal requests yet</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXCHANGE -->
+      <div class="dash-panel" id="dp-exchange">
+        <div class="dash-welcome"><h2>Exchange Money</h2><p>Swap between supported assets at live rates</p></div>
+        <div style="max-width:500px">
+          <div style="background:var(--navy2);border:1px solid var(--border2);border-radius:14px;padding:28px;position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold3),var(--gold))"></div>
+            <h3 style="font-size:1rem;font-weight:700;margin-bottom:20px">Swap Assets</h3>
+            <div class="fg"><label>From</label>
+              <select id="ex-from" onchange="updateExchangePreview()">
+                <option value="USDC">💵 USDC</option>
+                <option value="XLM">⭐ XLM</option>
+                <option value="XRP">💧 XRP</option>
+                <option value="BTC">₿ BTC</option>
+              </select>
+            </div>
+            <div class="fg"><label>Amount</label><input type="number" id="ex-amount" placeholder="0.00" step="any" oninput="updateExchangePreview()"></div>
+            <div style="text-align:center;margin:8px 0;font-size:1.3rem;color:var(--gold)">⇅</div>
+            <div class="fg"><label>To</label>
+              <select id="ex-to" onchange="updateExchangePreview()">
+                <option value="XLM">⭐ XLM</option>
+                <option value="XRP">💧 XRP</option>
+                <option value="USDC">💵 USDC</option>
+                <option value="BTC">₿ BTC</option>
+              </select>
+            </div>
+            <div id="ex-preview" style="background:rgba(0,212,200,0.06);border:1px solid rgba(0,212,200,0.15);border-radius:8px;padding:14px;margin-bottom:16px;font-size:0.85rem;color:var(--gray2)">Enter amount to see conversion</div>
+            <button class="btn-full" onclick="submitExchange()" id="ex-btn">Swap Now <span class="soon">COMING SOON</span></button>
+          </div>
+          <div style="margin-top:14px;padding:14px;background:rgba(255,184,0,0.06);border:1px solid rgba(255,184,0,0.2);border-radius:8px;font-size:0.8rem;color:var(--gray2)">
+            ⚠️ Exchange feature is coming soon. Contact support at info@nesaraqfslab.com to arrange manual exchanges.
+          </div>
+        </div>
+      </div>
+
+      <!-- INVESTMENT -->
+      <div class="dash-panel" id="dp-invest">
+        <div class="dash-welcome"><h2>Investment Plans</h2><p>Grow your assets with our structured investment programs</p></div>
+        <div id="invest-kyc-lock" class="kyc-lock hidden">
+          <h3>🔒 KYC Required</h3>
+          <p>Complete identity verification to access investment plans.</p>
+          <button class="btn-full" style="max-width:200px;margin:0 auto" onclick="switchPanel('kyc',null)">Complete KYC →</button>
+        </div>
+        <div id="invest-content">
+          <div class="plan-grid">
+            <div class="plan-card bronze">
+              <div class="plan-name">🥉 Bronze Plan</div>
+              <div style="font-size:0.78rem;color:var(--gray2);margin-bottom:12px">Entry level · 30 days</div>
+              <div class="plan-roi">10%<span> ROI</span></div>
+              <div class="plan-min">Minimum: $500 USDC</div>
+              <ul class="plan-features">
+                <li>30-day investment period</li>
+                <li>10% return on investment</li>
+                <li>Weekly progress reports</li>
+                <li>Standard support</li>
+              </ul>
+              <button class="btn-full" onclick="investNow('Bronze','500')">Invest Now →</button>
+            </div>
+            <div class="plan-card silver" style="border-color:rgba(200,169,110,0.3)">
+              <div style="position:absolute;top:12px;right:12px;background:var(--gold);color:var(--navy);font-size:0.65rem;font-family:'Space Mono',monospace;padding:3px 8px;border-radius:4px">POPULAR</div>
+              <div class="plan-name">🥈 Silver Plan</div>
+              <div style="font-size:0.78rem;color:var(--gray2);margin-bottom:12px">Intermediate · 60 days</div>
+              <div class="plan-roi">17%<span> ROI</span></div>
+              <div class="plan-min">Minimum: $2,000 USDC</div>
+              <ul class="plan-features">
+                <li>60-day investment period</li>
+                <li>17% return on investment</li>
+                <li>Daily progress reports</li>
+                <li>Priority support</li>
+              </ul>
+              <button class="btn-full" onclick="investNow('Silver','2000')">Invest Now →</button>
+            </div>
+            <div class="plan-card gold">
+              <div class="plan-name">🥇 Gold Plan</div>
+              <div style="font-size:0.78rem;color:var(--gray2);margin-bottom:12px">Premium · 90 days</div>
+              <div class="plan-roi">25%<span> ROI</span></div>
+              <div class="plan-min">Minimum: $10,000 USDC</div>
+              <ul class="plan-features">
+                <li>90-day investment period</li>
+                <li>25% return on investment</li>
+                <li>Real-time portfolio tracking</li>
+                <li>Dedicated account manager</li>
+              </ul>
+              <button class="btn-full" onclick="investNow('Gold','10000')">Invest Now →</button>
+            </div>
+          </div>
+          <div style="margin-top:20px;padding:16px 20px;background:rgba(255,77,109,0.06);border:1px solid rgba(255,77,109,0.15);border-radius:10px;font-size:0.82rem;color:var(--gray2)">
+            ⚠️ Investment returns are not guaranteed. Past performance does not indicate future results. Contact support before investing large amounts.
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSACTIONS -->
+      <div class="dash-panel" id="dp-transactions">
+        <div class="dash-welcome"><h2>Transaction History</h2><p>Your complete deposit and credit history</p></div>
+        <div class="tx-list" id="tx-full-list">
+          <div style="text-align:center;padding:48px;color:var(--gray2)">
+            <div style="font-size:2.5rem;margin-bottom:12px">📊</div>
+            <p>No transactions yet. Make your first deposit to get started.</p>
+            <button class="btn-ghost" style="margin-top:16px" onclick="switchPanel('deposit',null)">Make a Deposit →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- KYC -->
+      <div class="dash-panel" id="dp-kyc">
+        <div class="dash-welcome"><h2>KYC Verification</h2><p>Verify your identity to unlock full account access</p></div>
+        <div style="max-width:600px">
+          <div id="kyc-status-banner" style="padding:14px 18px;border-radius:10px;margin-bottom:24px;font-size:0.875rem;background:rgba(107,114,128,0.1);border:1px solid rgba(107,114,128,0.25);color:var(--gray2)">
+            ⬤ Status: <strong id="kyc-status-txt">Unverified</strong> — Upload your ID below to get started.
+          </div>
+          <div style="background:var(--navy2);border:1px solid var(--border);border-radius:14px;padding:28px">
+            <div class="kyc-tabs">
+              <button class="kyc-tab active" onclick="setKycDoc(this,'passport')">🛂 Passport</button>
+              <button class="kyc-tab" onclick="setKycDoc(this,'dl')">🪪 Driver's License</button>
+              <button class="kyc-tab" onclick="setKycDoc(this,'national')">🆔 National ID</button>
+            </div>
+            <input type="file" id="kyc-file-input" accept="image/*,.pdf" style="display:none" onchange="handleKycFile(this)">
+            <div class="upload-box" onclick="document.getElementById('kyc-file-input').click()" id="kyc-upload-box">
+              <div class="ico">📄</div>
+              <h4>Click to Upload <span id="kyc-doc-type-lbl">Passport</span></h4>
+              <p>JPG, PNG or PDF · Max 20MB</p>
+            </div>
+            <div id="kyc-fname" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(0,196,140,0.08);border:1px solid rgba(0,196,140,0.25);border-radius:8px;font-size:0.82rem;color:var(--green)"></div>
+            <div id="kyc-preview-wrap" style="display:none;margin-top:14px"><img id="kyc-preview-img" src="" style="max-width:100%;border-radius:8px;border:1px solid var(--border)"></div>
+            <button class="btn-full" style="margin-top:18px" id="kyc-submit-btn" onclick="submitKYC()">Submit for Verification →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- QFS CARDS -->
+      <div class="dash-panel" id="dp-cards">
+        <div class="dash-welcome"><h2>QFS Cards</h2><p>Your quantum-secured payment cards</p></div>
+        <div id="cards-kyc-lock" class="kyc-lock hidden">
+          <h3>🔒 KYC Required</h3>
+          <p>Complete identity verification to activate your QFS Card.</p>
+          <button class="btn-full" style="max-width:200px;margin:0 auto" onclick="switchPanel('kyc',null)">Complete KYC →</button>
+        </div>
+        <div id="cards-content" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+          <div>
+            <div class="qfs-card-display">
+              <div class="qfs-card-logo">⚡</div>
+              <div class="qfs-card-chip"></div>
+              <div class="qfs-card-num" id="card-number">•••• •••• •••• ••••</div>
+              <div class="qfs-card-name" id="card-holder-name">YOUR NAME</div>
+              <div class="qfs-card-exp">Valid Thru: 12/28 · QFS QUANTUM SECURED</div>
+            </div>
+            <div style="margin-top:16px;padding:14px;background:rgba(200,169,110,0.05);border:1px solid var(--border);border-radius:10px">
+              <div style="font-size:0.72rem;font-family:'Space Mono',monospace;color:var(--gray);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Card Status</div>
+              <div id="card-status-display" style="font-size:0.95rem;font-weight:600;color:var(--gray2)">Pending KYC verification</div>
+            </div>
+          </div>
+          <div>
+            <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px">Card Features</h3>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;gap:12px;align-items:center;padding:14px;background:var(--navy2);border:1px solid var(--border);border-radius:10px"><span style="font-size:1.2rem">🌍</span><div><div style="font-weight:600;font-size:0.875rem">Global Acceptance</div><div style="font-size:0.78rem;color:var(--gray2)">Accepted in 120+ countries</div></div></div>
+              <div style="display:flex;gap:12px;align-items:center;padding:14px;background:var(--navy2);border:1px solid var(--border);border-radius:10px"><span style="font-size:1.2rem">🛡️</span><div><div style="font-weight:600;font-size:0.875rem">Quantum Secured</div><div style="font-size:0.78rem;color:var(--gray2)">Military-grade encryption on every transaction</div></div></div>
+              <div style="display:flex;gap:12px;align-items:center;padding:14px;background:var(--navy2);border:1px solid var(--border);border-radius:10px"><span style="font-size:1.2rem">⚡</span><div><div style="font-weight:600;font-size:0.875rem">Instant Conversion</div><div style="font-size:0.78rem;color:var(--gray2)">Auto-convert XLM, XRP, BTC, USDC at point of sale</div></div></div>
+              <div style="display:flex;gap:12px;align-items:center;padding:14px;background:var(--navy2);border:1px solid var(--border);border-radius:10px"><span style="font-size:1.2rem">📱</span><div><div style="font-weight:600;font-size:0.875rem">Virtual Card</div><div style="font-size:0.78rem;color:var(--gray2)">Use for online payments immediately after activation</div></div></div>
+            </div>
+            <div style="margin-top:16px;padding:14px;background:rgba(0,212,200,0.06);border:1px solid rgba(0,212,200,0.15);border-radius:8px;font-size:0.8rem;color:var(--gray2)">
+              📧 To order your physical QFS card, email <a href="mailto:info@nesaraqfslab.com" style="color:var(--teal)">info@nesaraqfslab.com</a> after KYC approval.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TICKETS -->
+      <div class="dash-panel" id="dp-tickets">
+        <div class="dash-welcome"><h2>Support Tickets</h2><p>Submit and track your support requests</p></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+          <div>
+            <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:16px">Submit New Ticket</h3>
+            <div style="background:var(--navy2);border:1px solid var(--border2);border-radius:14px;padding:24px;position:relative;overflow:hidden">
+              <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold3),var(--gold))"></div>
+              <div id="dash-ticket-ok" style="display:none;background:rgba(0,196,140,0.1);border:1px solid rgba(0,196,140,0.3);color:var(--green);padding:11px 15px;border-radius:8px;font-size:0.85rem;margin-bottom:16px">✅ Ticket submitted! We'll respond to your email within 2 hours.</div>
+              <form onsubmit="submitDashTicket(event)">
+                <div class="fg"><label>Subject</label>
+                  <select id="dt-subject">
+                    <option>Deposit Issue</option>
+                    <option>KYC Help</option>
+                    <option>Balance Query</option>
+                    <option>Withdrawal Request</option>
+                    <option>Investment Query</option>
+                    <option>Card Request</option>
+                    <option>Account Access</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="fg"><label>Message</label><textarea id="dt-message" placeholder="Describe your issue in detail..."></textarea></div>
+                <button type="submit" class="btn-full" id="dt-btn">Submit Ticket →</button>
+              </form>
+            </div>
+          </div>
+          <div>
+            <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:16px">My Tickets</h3>
+            <div id="user-tickets-list">
+              <div style="text-align:center;padding:32px;color:var(--gray2);background:var(--navy2);border:1px solid var(--border);border-radius:12px">
+                <div style="font-size:2rem;margin-bottom:10px">🎫</div>
+                <p style="font-size:0.85rem">No tickets submitted yet</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /dash-main -->
+  </div><!-- /dash-layout -->
+</div><!-- /dashboard -->
+
+<!-- ═══ AUTH MODAL ═══ -->
+<div class="modal" id="auth-modal">
+  <div class="mbox">
+    <button class="mclose" onclick="closeAuth()">✕</button>
+    <div style="text-align:center;margin-bottom:24px">
+      <svg style="width:38px;height:38px;margin:0 auto 12px;display:block" viewBox="0 0 38 38" fill="none"><rect width="38" height="38" rx="9" fill="#C8A96E" fill-opacity="0.12"/><path d="M19 5L31 12V26L19 33L7 26V12Z" stroke="#C8A96E" stroke-width="1.5" fill="none"/><circle cx="19" cy="19" r="3" fill="#00D4C8"/></svg>
+      <h2 id="auth-title">Welcome Back</h2>
+      <p class="msub" id="auth-sub">Sign in to your account</p>
+    </div>
+    <div class="merr" id="auth-err"></div>
+    <form onsubmit="handleAuth(event)">
+      <div class="fg hidden" id="name-field"><label>Full Name</label><input type="text" id="f-name" placeholder="John Doe"></div>
+      <div class="fg"><label>Email Address</label><input type="email" id="f-email" placeholder="you@email.com" required></div>
+      <div class="fg"><label>Password</label><input type="password" id="f-pass" placeholder="••••••••" required></div>
+      <div class="fg hidden" id="conf-field"><label>Confirm Password</label><input type="password" id="f-conf" placeholder="••••••••"></div>
+      <div class="terms-row hidden" id="terms-row">
+        <input type="checkbox" id="terms-check">
+        <label for="terms-check">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+      </div>
+      <button type="submit" class="btn-full" id="auth-btn">Sign In</button>
+    </form>
+    <div class="switch-ln">
+      <span id="sw-msg">Don't have an account?</span>
+      <button onclick="toggleAuth()" id="sw-btn"> Sign up</button>
+    </div>
+    <div style="text-align:center;margin-top:12px">
+      <button onclick="showForgot()" style="background:none;border:none;color:var(--gray2);font-size:0.8rem;cursor:pointer;font-family:'DM Sans',sans-serif" id="forgot-link">Forgot your password?</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEPOSIT DETAIL MODAL -->
+<div class="modal" id="dep-modal">
+  <div class="mbox">
+    <button class="mclose" onclick="document.getElementById('dep-modal').classList.remove('active')">✕</button>
+    <h2 id="dep-modal-title" style="margin-bottom:6px">Deposit</h2>
+    <p class="msub" id="dep-modal-sub">Send to the address below</p>
+    <div class="dep-modal-addr">
+      <div class="lbl">Deposit Address</div>
+      <div class="addr" id="dep-modal-addr-val"></div>
+    </div>
+    <button class="btn-full" id="dep-modal-copy-btn" onclick="copyDepModal()">📋 Copy Address</button>
+    <div id="dep-modal-note" class="dep-note" style="margin-top:12px"></div>
+    <button class="btn-full" style="margin-top:10px;background:transparent;border:1px solid var(--border2);color:var(--gold2)" onclick="document.getElementById('dep-modal').classList.remove('active');switchPanel('proof',null)">📤 Upload Proof After Sending</button>
+  </div>
+</div>
+
+<!-- INVEST CONFIRM MODAL -->
+<div class="modal" id="invest-modal">
+  <div class="mbox">
+    <button class="mclose" onclick="document.getElementById('invest-modal').classList.remove('active')">✕</button>
+    <h2 id="invest-modal-title" style="margin-bottom:6px">Confirm Investment</h2>
+    <p class="msub" id="invest-modal-sub"></p>
+    <div style="background:rgba(200,169,110,0.06);border:1px solid var(--border2);border-radius:10px;padding:16px;margin:16px 0;font-size:0.85rem;color:var(--gray2);line-height:1.7">
+      To start your investment, transfer the minimum amount in USDC to our deposit address, then submit proof and contact support at <strong style="color:var(--white)">info@nesaraqfslab.com</strong> referencing your plan selection.
+    </div>
+    <button class="btn-full" onclick="document.getElementById('invest-modal').classList.remove('active');switchPanel('tickets',null)">Contact Support →</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" style="position:fixed;bottom:24px;right:24px;background:var(--navy2);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:0.875rem;box-shadow:0 10px 40px rgba(0,0,0,0.4);z-index:9999;transform:translateY(80px);opacity:0;transition:all 0.3s;max-width:320px"></div>
+
+<!-- FLOAT TICKET BTN -->
+<button class="float-btn" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">🎫</button>
+
+<script>
+// ═══ CONFIG ═══
+  const API = 'https://nesara-qfs-lab-production.up.railway.app';
+const COIN_ADDRS = {
+  XLM:{addr:'GARYAMRNNLJEPV2Z2RTSGIKQGMBE2Q5EETNSRHIPUZ3KT5OV6HXAPWTX',note:'XLM only. Other assets will be permanently lost.',net:'Stellar Network'},
+  XRP:{addr:'r91kk7dkrRkh73FqCbdg6PbFH65jDkoYgk',note:'XRP only. Include destination tag if your exchange requires it.',net:'XRP Ledger'},
+  USDC:{addr:'0x3b5B532ca9837878a276e90D9c16208849f3aBC0',note:'ERC-20 network only. Do not send from BEP-20 or other networks.',net:'Ethereum ERC-20'},
+  BTC:{addr:'bc1pmzvfnf4pngf2a9xu7wx0w3fdra7dmhu460wkxxget6nr7ert7kwqlwh04f',note:'Bitcoin network only. Minimum 1 confirmation required.',net:'Bitcoin Network'}
+};
+
+// ═══ STATE ═══
+let prices = {XLM:0,XRP:0,BTC:0,USDC:1};
+let authMode = 'login';
+let currentUser = null;
+let users = [];
+let kycDocType = 'passport';
+let kycFileData = null;
+let proofFileData = null;
+let depModalCoin = '';
+
+try { users = JSON.parse(localStorage.getItem('nqfs_users')||'[]'); } catch(e){}
+try { const s = localStorage.getItem('nqfs_session'); if(s){ currentUser = JSON.parse(s); updateUIState(); } } catch(e){}
+
+// ═══ PRICES ═══
+async function fetchPrices() {
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=stellar,ripple,bitcoin,usd-coin&vs_currencies=usd&include_24hr_change=true');
+    const d = await r.json();
+    prices.XLM = d.stellar?.usd||0;
+    prices.XRP = d.ripple?.usd||0;
+    prices.BTC = d.bitcoin?.usd||0;
+    prices.USDC = d['usd-coin']?.usd||1;
+    const xlmC = d.stellar?.usd_24h_change||0;
+    const xrpC = d.ripple?.usd_24h_change||0;
+    const btcC = d.bitcoin?.usd_24h_change||0;
+    updatePriceUI(xlmC, xrpC, btcC);
+    if(currentUser) updateWalletUI();
+  } catch(e) { console.log('Price fetch error', e); }
+}
+
+function updatePriceUI(xlmC, xrpC, btcC) {
+  const f = v => '$' + v.toFixed(v > 100 ? 2 : v > 1 ? 4 : 6);
+  const chg = (v, id) => { const el = document.getElementById(id); if(!el) return; el.textContent = (v >= 0 ? '▲ +' : '▼ ') + Math.abs(v).toFixed(2) + '%'; el.style.color = v >= 0 ? '#00C48C' : '#FF4D6D'; };
+  ['cp-xlm','ov-xlm'].forEach(id => setText(id, f(prices.XLM)));
+  ['cp-xrp','ov-xrp'].forEach(id => setText(id, f(prices.XRP)));
+  ['cp-btc','ov-btc'].forEach(id => setText(id, f(prices.BTC)));
+  chg(xlmC,'cc-xlm'); chg(xrpC,'cc-xrp'); chg(btcC,'cc-btc');
+  chg(xlmC,'ov-xlm-c'); chg(xrpC,'ov-xrp-c'); chg(btcC,'ov-btc-c');
+  const tf = (v, ids) => ids.forEach(id => { const el = document.getElementById(id); if(el){ el.textContent = (v >= 0 ? '▲ +' : '▼ ') + Math.abs(v).toFixed(2) + '%'; el.style.color = v >= 0 ? '#00C48C' : '#FF4D6D'; }});
+  tf(xlmC, ['t-xlm','t-xlm2']); tf(xrpC, ['t-xrp','t-xrp2']); tf(btcC, ['t-btc','t-btc2']);
+  updateExchangePreview();
+}
+
+function updateWalletUI() {
+  if(!currentUser) return;
+  const b = currentUser.balances || {XLM:0,XRP:0,USDC:0,BTC:0};
+  const usd = (v,p) => '$' + (v*p).toFixed(2);
+  setText('w-xlm-bal', (b.XLM||0) + ' XLM'); setText('w-xlm-usd', '≈ ' + usd(b.XLM,prices.XLM) + ' USD');
+  setText('w-xrp-bal', (b.XRP||0) + ' XRP'); setText('w-xrp-usd', '≈ ' + usd(b.XRP,prices.XRP) + ' USD');
+  setText('w-usdc-bal', (b.USDC||0) + ' USDC'); setText('w-usdc-usd', '≈ $' + (b.USDC||0).toFixed(2) + ' USD');
+  setText('w-btc-bal', (b.BTC||0) + ' BTC'); setText('w-btc-usd', '≈ ' + usd(b.BTC,prices.BTC) + ' USD');
+  const total = (b.XLM||0)*prices.XLM + (b.XRP||0)*prices.XRP + (b.USDC||0)*1 + (b.BTC||0)*prices.BTC;
+  setText('dash-total-bal', '$' + total.toFixed(2));
+  setText('prof-total-bal', '$' + total.toFixed(2));
+}
+
+fetchPrices();
+setInterval(fetchPrices, 30000);
+
+// ═══ NAV ═══
+function toggleMobileNav() {
+  document.getElementById('mobile-nav').classList.toggle('active');
+}
+
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').classList.toggle('scrolled', scrollY > 40);
+});
+
+// ═══ AUTH ═══
+function showAuth(mode) {
+  authMode = mode;
+  document.getElementById('auth-modal').classList.add('active');
+  refreshAuthUI();
+}
+
+function closeAuth() {
+  document.getElementById('auth-modal').classList.remove('active');
+  document.getElementById('auth-err').style.display = 'none';
+}
+
+function refreshAuthUI() {
+  const l = authMode === 'login';
+  setText('auth-title', l ? 'Welcome Back' : 'Create Account');
+  setText('auth-sub', l ? 'Sign in to your account' : 'Join Nesara QFS Lab today');
+  setText('auth-btn', l ? 'Sign In' : 'Create Account');
+  document.getElementById('name-field').classList.toggle('hidden', l);
+  document.getElementById('conf-field').classList.toggle('hidden', l);
+  document.getElementById('terms-row').classList.toggle('hidden', l);
+  document.getElementById('forgot-link').style.display = l ? 'block' : 'none';
+  setText('sw-msg', l ? "Don't have an account?" : 'Already have an account?');
+  setText('sw-btn', l ? ' Sign up' : ' Sign in');
+}
+
+function toggleAuth() { authMode = authMode === 'login' ? 'register' : 'login'; refreshAuthUI(); }
+
+function handleAuth(e) {
+  e.preventDefault();
+  const email = document.getElementById('f-email').value.trim().toLowerCase();
+  const pass = document.getElementById('f-pass').value;
+  const name = document.getElementById('f-name').value.trim();
+  const btn = document.getElementById('auth-btn');
+
+  if(authMode === 'register') {
+    const conf = document.getElementById('f-conf').value;
+    const terms = document.getElementById('terms-check').checked;
+    if(!name) { showAuthErr('Please enter your full name.'); return; }
+    if(pass.length < 6) { showAuthErr('Password must be at least 6 characters.'); return; }
+    if(pass !== conf) { showAuthErr('Passwords do not match.'); return; }
+    if(!terms) { showAuthErr('Please accept the Terms of Service.'); return; }
+    if(users.find(u => u.email === email)) { showAuthErr('This email is already registered.'); return; }
+    btn.disabled = true; btn.textContent = 'Creating account...';
+    const user = {
+      id: Date.now().toString(), name, email, password: pass,
+      kycStatus: 'unverified', kycFile: null, kycDocType: null,
+      balances: {XLM:0,XRP:0,USDC:0,BTC:0}, transactions: [], tickets: [],
+      depositProofs: [], withdrawals: [], createdAt: new Date().toISOString(),
+    };
+    users.push(user); saveUsers();
+    // Notify backend
+    fetch(API + '/api/register', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,password:pass})}).catch(()=>{});
+    loginWith(user);
+  } else {
+    const user = users.find(u => u.email === email);
+    if(!user || user.password !== pass) { showAuthErr('Invalid email or password.'); return; }
+    btn.disabled = true; btn.textContent = 'Signing in...';
+    fetch(API + '/api/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pass})}).catch(()=>{});
+    loginWith(user);
+  }
+}
+
+async function loginWith(user) {
+  currentUser = user;
+  localStorage.setItem('nqfs_session', JSON.stringify(user));
+  // Sync user to Railway
+  try {
+    const r = await fetch(API + '/api/me');
+    if(r.ok) {
+      const d = await r.json();
+      if(d.user) {
+        currentUser = {...user, ...d.user, password: user.password};
+        localStorage.setItem('nqfs_session', JSON.stringify(currentUser));
+      }
+    }
+  } catch(e){}
+  closeAuth();
+  updateUIState();
+  showDash();
+}
+
+function logout() {
+  currentUser = null;
+  localStorage.removeItem('nqfs_session');
+  fetch(API + '/api/logout', {method:'POST'}).catch(()=>{});
+  updateUIState();
+  hideDash();
+}
+
+function showAuthErr(msg) {
+  const el = document.getElementById('auth-err');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('auth-btn').disabled = false;
+  document.getElementById('auth-btn').textContent = authMode === 'login' ? 'Sign In' : 'Create Account';
+}
+
+function showForgot() {
+  closeAuth();
+  toast('Password reset: Email info@nesaraqfslab.com with your registered email address and we will reset it for you within 2 hours.', 'info');
+}
+
+// ═══ UI STATE ═══
+function updateUIState() {
+  const has = !!currentUser;
+  document.getElementById('nav-auth').classList.toggle('hidden', has);
+  document.getElementById('nav-user').classList.toggle('hidden', !has);
+  document.getElementById('mob-auth').classList.toggle('hidden', has);
+  document.getElementById('mob-user').classList.toggle('hidden', !has);
+  if(has) {
+    setText('nav-name', currentUser.name);
+    setText('dash-name', currentUser.name);
+    setText('sidebar-name', currentUser.name);
+    setText('sidebar-email', currentUser.email);
+    setText('prof-name', currentUser.name);
+  }
+}
+
+// ═══ DASHBOARD ═══
+function showDash() {
+  document.getElementById('site-main').classList.add('hidden');
+  document.getElementById('dashboard').classList.add('active');
+  refreshDash();
+}
+
+function hideDash() {
+  document.getElementById('site-main').classList.remove('hidden');
+  document.getElementById('dashboard').classList.remove('active');
+}
+
+function goToSite() { hideDash(); }
+
+function refreshDash() {
+  if(!currentUser) return;
+  const kyc = currentUser.kycStatus || 'unverified';
+  updateKycUI(kyc);
+  updateWalletUI();
+  updateKYCGates(kyc);
+  renderTransactions();
+  renderUserProofs();
+  renderUserTickets();
+  renderWithdrawals();
+  refreshKycPanel();
+  updateCardUI(kyc);
+  updateProfileUI();
+}
+
+function updateKycUI(kyc) {
+  const badge = document.getElementById('dash-kyc-badge');
+  if(badge) { badge.textContent = '⬤ ' + kyc.charAt(0).toUpperCase() + kyc.slice(1); badge.className = 'kyc-badge ' + kyc; }
+  const profBadge = document.getElementById('prof-kyc-badge');
+  if(profBadge) { profBadge.textContent = '⬤ ' + kyc.charAt(0).toUpperCase() + kyc.slice(1); profBadge.className = 'kyc-badge ' + kyc; }
+  const ctaBtn = document.getElementById('kyc-cta-btn');
+  if(ctaBtn) ctaBtn.style.display = kyc === 'verified' ? 'none' : 'inline-block';
+}
+
+function updateKYCGates(kyc) {
+  const isVerified = kyc === 'verified';
+  // Deposit gate
+  const depLock = document.getElementById('deposit-kyc-lock');
+  const depContent = document.getElementById('deposit-content');
+  if(depLock && depContent) { depLock.classList.toggle('hidden', isVerified); depContent.style.display = isVerified ? 'block' : 'none'; }
+  // Withdraw gate
+  const wdLock = document.getElementById('withdraw-kyc-lock');
+  const wdContent = document.getElementById('withdraw-content');
+  if(wdLock && wdContent) { wdLock.classList.toggle('hidden', isVerified); wdContent.style.display = isVerified ? 'grid' : 'none'; }
+  // Invest gate
+  const invLock = document.getElementById('invest-kyc-lock');
+  const invContent = document.getElementById('invest-content');
+  if(invLock && invContent) { invLock.classList.toggle('hidden', isVerified); invContent.style.display = isVerified ? 'block' : 'none'; }
+  // Cards gate
+  const cardsLock = document.getElementById('cards-kyc-lock');
+  const cardsContent = document.getElementById('cards-content');
+  if(cardsLock && cardsContent) { cardsLock.classList.toggle('hidden', isVerified); cardsContent.style.display = isVerified ? 'grid' : 'none'; }
+}
+
+function updateCardUI(kyc) {
+  const cardStatus = document.getElementById('dash-card-status');
+  const profCardStatus = document.getElementById('prof-card-status');
+  const cardStatusDisplay = document.getElementById('card-status-display');
+  const cardNum = document.getElementById('card-number');
+  const cardName = document.getElementById('card-holder-name');
+  const isVerified = kyc === 'verified';
+  if(cardStatus) { cardStatus.textContent = isVerified ? 'Active' : 'Pending KYC'; cardStatus.style.color = isVerified ? 'var(--green)' : 'var(--gray2)'; }
+  if(profCardStatus) { profCardStatus.textContent = isVerified ? 'Active' : 'Pending KYC'; profCardStatus.style.color = isVerified ? 'var(--green)' : 'var(--gray2)'; }
+  if(cardStatusDisplay) { cardStatusDisplay.textContent = isVerified ? '✅ Active — Card ready for use' : 'Pending KYC verification'; cardStatusDisplay.style.color = isVerified ? 'var(--green)' : 'var(--gray2)'; }
+  if(isVerified && cardNum) {
+    const id = currentUser.id;
+    cardNum.textContent = id.slice(0,4).toUpperCase() + ' ' + id.slice(4,8).toUpperCase() + ' ' + id.slice(8,12).toUpperCase() + ' ' + id.slice(12,16).toUpperCase();
+  }
+  if(cardName && currentUser) cardName.textContent = currentUser.name.toUpperCase();
+}
+
+function updateProfileUI() {
+  if(!currentUser) return;
+  const n = document.getElementById('prof-name'); if(n) n.value = currentUser.name;
+  const e = document.getElementById('prof-email'); if(e) e.value = currentUser.email;
+  const s = document.getElementById('prof-since'); if(s) s.value = fmtDate(currentUser.createdAt);
+}
+
+function switchPanel(id, btn) {
+  document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.dni').forEach(n => n.classList.remove('active'));
+  const panel = document.getElementById('dp-' + id);
+  if(panel) panel.classList.add('active');
+  if(btn) btn.classList.add('active');
+  refreshDash();
+}
+
+// ═══ KYC ═══
+function setKycDoc(btn, type) {
+  kycDocType = type;
+  document.querySelectorAll('.kyc-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const labels = {passport:'Passport', dl:"Driver's License", national:'National ID'};
+  setText('kyc-doc-type-lbl', labels[type]);
+}
+
+function handleKycFile(input) {
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    kycFileData = e.target.result;
+    const fn = document.getElementById('kyc-fname');
+    fn.textContent = '✅ File selected: ' + file.name; fn.style.display = 'block';
+    document.getElementById('kyc-upload-box').style.borderColor = 'var(--green)';
+    if(file.type.startsWith('image/')) {
+      document.getElementById('kyc-preview-img').src = kycFileData;
+      document.getElementById('kyc-preview-wrap').style.display = 'block';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function submitKYC() {
+  if(!kycFileData && currentUser.kycStatus === 'unverified') { toast('Please select an ID document first', 'error'); return; }
+  if(currentUser.kycStatus === 'verified') { toast('Your KYC is already verified ✅', 'success'); return; }
+  currentUser.kycStatus = 'pending';
+  currentUser.kycFile = kycFileData;
+  currentUser.kycDocType = kycDocType;
+  saveCurrentUser();
+  // Notify backend
+  fetch(API + '/api/kyc/submit', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fileData: kycFileData ? '[FILE_UPLOADED]' : null, docType: kycDocType})}).catch(()=>{});
+  refreshDash();
+  refreshKycPanel();
+  toast('KYC submitted! Our team will review within 24 hours.', 'success');
+}
+
+function refreshKycPanel() {
+  const kyc = currentUser?.kycStatus || 'unverified';
+  const banner = document.getElementById('kyc-status-banner');
+  if(!banner) return;
+  const msgs = {unverified:'⬤ Status: Unverified — Upload your ID to get started.',pending:'⏳ Status: Pending Review — Our team is reviewing your document.',verified:'✅ Status: Verified — Your identity has been confirmed.',rejected:'❌ Status: Rejected — Please re-upload your ID.'};
+  const bgs = {unverified:'rgba(107,114,128,0.1)',pending:'rgba(255,184,0,0.1)',verified:'rgba(0,196,140,0.1)',rejected:'rgba(255,77,109,0.1)'};
+  const bds = {unverified:'rgba(107,114,128,0.25)',pending:'rgba(255,184,0,0.3)',verified:'rgba(0,196,140,0.3)',rejected:'rgba(255,77,109,0.3)'};
+  const clrs = {unverified:'var(--gray2)',pending:'var(--yellow)',verified:'var(--green)',rejected:'var(--red)'};
+  banner.textContent = msgs[kyc];
+  banner.style.background = bgs[kyc];
+  banner.style.borderColor = bds[kyc];
+  banner.style.color = clrs[kyc];
+  setText('kyc-status-txt', kyc.charAt(0).toUpperCase() + kyc.slice(1));
+  const submitBtn = document.getElementById('kyc-submit-btn');
+  if(submitBtn) submitBtn.style.display = kyc === 'verified' ? 'none' : 'block';
+}
+
+// ═══ DEPOSIT PROOF ═══
+function handleProofFile(input) {
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    proofFileData = e.target.result;
+    const fn = document.getElementById('proof-fname');
+    fn.textContent = '✅ File: ' + file.name; fn.style.display = 'block';
+    document.getElementById('proof-upload-box').style.borderColor = 'var(--green)';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitProof(e) {
+  e.preventDefault();
+  const coin = document.getElementById('proof-coin').value;
+  const amount = parseFloat(document.getElementById('proof-amount').value);
+  const txhash = document.getElementById('proof-txhash').value.trim();
+  if(!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
+  const btn = document.getElementById('proof-submit-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  const proof = {id: Date.now().toString(), coin, amount, txhash, screenshot: proofFileData, status: 'pending', submittedAt: new Date().toISOString()};
+  if(!currentUser.depositProofs) currentUser.depositProofs = [];
+  currentUser.depositProofs.unshift(proof);
+  saveCurrentUser();
+  // Notify backend
+  try {
+    await fetch(API + '/api/deposit-proof', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({coin, amount, txhash, screenshot: proofFileData ? '[SCREENSHOT_UPLOADED]' : null})});
+  } catch(err){}
+  e.target.reset(); proofFileData = null;
+  document.getElementById('proof-fname').style.display = 'none';
+  document.getElementById('proof-upload-box').style.borderColor = '';
+  document.getElementById('proof-ok').style.display = 'block';
+  btn.disabled = false; btn.textContent = '📤 Submit Proof →';
+  renderUserProofs();
+}
+
+function renderUserProofs() {
+  const wrap = document.getElementById('user-proofs-list'); if(!wrap) return;
+  const proofs = currentUser?.depositProofs || [];
+  if(!proofs.length) { wrap.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray2);background:var(--navy2);border:1px solid var(--border);border-radius:12px"><div style="font-size:2rem;margin-bottom:10px">📤</div><p style="font-size:0.85rem">No submissions yet</p></div>'; return; }
+  wrap.innerHTML = proofs.map(p => `<div class="proof-item"><h4>${p.coin} — ${p.amount} ${p.coin}</h4>${p.txhash ? `<p style="font-family:'Space Mono',monospace;font-size:0.68rem;word-break:break-all">TX: ${esc(p.txhash)}</p>` : ''}<p>${fmtDate(p.submittedAt)}</p><span class="status-pill ${p.status}">${p.status === 'pending' ? '⏳' : p.status === 'approved' ? '✅' : '❌'} ${p.status}</span></div>`).join('');
+}
+
+// ═══ WITHDRAWAL ═══
+async function submitWithdrawal(e) {
+  e.preventDefault();
+  const coin = document.getElementById('wd-coin').value;
+  const amount = parseFloat(document.getElementById('wd-amount').value);
+  const addr = document.getElementById('wd-addr').value.trim();
+  const note = document.getElementById('wd-note').value.trim();
+  if(!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
+  if(!addr) { toast('Enter your receiving wallet address', 'error'); return; }
+  const b = currentUser.balances || {};
+  if((b[coin]||0) < amount) { toast('Insufficient ' + coin + ' balance', 'error'); return; }
+  const btn = document.getElementById('wd-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  const wd = {id: Date.now().toString(), coin, amount, address: addr, note, status: 'pending', submittedAt: new Date().toISOString()};
+  if(!currentUser.withdrawals) currentUser.withdrawals = [];
+  currentUser.withdrawals.unshift(wd);
+  saveCurrentUser();
+  // Notify via ticket
+  await fetch(API + '/api/ticket', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:currentUser.name,email:currentUser.email,subject:'Withdrawal Request',message:`User ${currentUser.name} (${currentUser.email}) has requested a withdrawal of ${amount} ${coin} to address: ${addr}. Note: ${note||'None'}`,userId:currentUser.id})}).catch(()=>{});
+  document.getElementById('withdraw-ok').style.display = 'block';
+  btn.disabled = false; btn.textContent = 'Request Withdrawal →';
+  e.target.reset();
+  renderWithdrawals();
+}
+
+function renderWithdrawals() {
+  const wrap = document.getElementById('user-withdrawals'); if(!wrap) return;
+  const wds = currentUser?.withdrawals || [];
+  if(!wds.length) { wrap.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray2);background:var(--navy2);border:1px solid var(--border);border-radius:12px"><div style="font-size:2rem;margin-bottom:10px">💸</div><p style="font-size:0.85rem">No withdrawal requests yet</p></div>'; return; }
+  wrap.innerHTML = wds.map(w => `<div class="proof-item"><h4>${w.coin} — ${w.amount} ${w.coin}</h4><p style="font-family:'Space Mono',monospace;font-size:0.68rem;word-break:break-all;margin-top:4px">To: ${esc(w.address)}</p><p style="margin-top:4px">${fmtDate(w.submittedAt)}</p><span class="status-pill ${w.status}">${w.status === 'pending' ? '⏳' : w.status === 'approved' ? '✅' : '❌'} ${w.status}</span></div>`).join('');
+}
+
+// ═══ EXCHANGE ═══
+function updateExchangePreview() {
+  const from = document.getElementById('ex-from')?.value;
+  const to = document.getElementById('ex-to')?.value;
+  const amount = parseFloat(document.getElementById('ex-amount')?.value) || 0;
+  const preview = document.getElementById('ex-preview');
+  if(!preview || !amount) { if(preview) preview.textContent = 'Enter amount to see conversion'; return; }
+  const priceMap = {XLM: prices.XLM, XRP: prices.XRP, USDC: 1, BTC: prices.BTC};
+  const fromUSD = amount * (priceMap[from] || 0);
+  const toAmt = fromUSD / (priceMap[to] || 1);
+  preview.innerHTML = `<span style="color:var(--white)">${amount} ${from}</span> ≈ <span style="color:var(--gold)">${toAmt.toFixed(6)} ${to}</span> <span style="color:var(--gray)">(at live rates)</span>`;
+}
+
+function submitExchange() {
+  toast('Exchange feature coming soon. Contact support at info@nesaraqfslab.com for manual exchanges.', 'info');
+}
+
+// ═══ INVESTMENT ═══
+function investNow(plan, minAmount) {
+  setText('invest-modal-title', `${plan} Investment Plan`);
+  setText('invest-modal-sub', `Minimum investment: $${minAmount} USDC`);
+  document.getElementById('invest-modal').classList.add('active');
+}
+
+// ═══ TICKETS ═══
+async function submitPublicTicket(e) {
+  e.preventDefault();
+  const name = document.getElementById('pt-name').value;
+  const email = document.getElementById('pt-email').value;
+  const subject = document.getElementById('pt-subject').value;
+  const message = document.getElementById('pt-message').value;
+  const btn = document.getElementById('pt-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    await fetch(API + '/api/ticket', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,subject,message})});
+  } catch(err) {}
+  document.getElementById('pub-ticket-ok').style.display = 'block';
+  document.getElementById('pub-ticket-err').style.display = 'none';
+  e.target.reset();
+  btn.disabled = false; btn.textContent = 'Submit Ticket →';
+}
+
+async function submitDashTicket(e) {
+  e.preventDefault();
+  const subject = document.getElementById('dt-subject').value;
+  const message = document.getElementById('dt-message').value;
+  if(!message.trim()) { toast('Please enter a message', 'error'); return; }
+  const btn = document.getElementById('dt-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  const ticket = {id: Date.now().toString(), subject, message, status: 'open', createdAt: new Date().toISOString()};
+  if(!currentUser.tickets) currentUser.tickets = [];
+  currentUser.tickets.unshift(ticket);
+  saveCurrentUser();
+  try {
+    await fetch(API + '/api/ticket', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:currentUser.name,email:currentUser.email,subject,message,userId:currentUser.id})});
+  } catch(err) {}
+  document.getElementById('dash-ticket-ok').style.display = 'block';
+  btn.disabled = false; btn.textContent = 'Submit Ticket →';
+  e.target.reset();
+  renderUserTickets();
+}
+
+function renderUserTickets() {
+  const wrap = document.getElementById('user-tickets-list'); if(!wrap) return;
+  const tickets = currentUser?.tickets || [];
+  if(!tickets.length) { wrap.innerHTML = '<div style="text-align:center;padding:32px;color:var(--gray2);background:var(--navy2);border:1px solid var(--border);border-radius:12px"><div style="font-size:2rem;margin-bottom:10px">🎫</div><p style="font-size:0.85rem">No tickets yet</p></div>'; return; }
+  wrap.innerHTML = tickets.map(t => `<div class="proof-item"><h4>${esc(t.subject)}</h4><p>${esc(t.message)}</p><p style="margin-top:4px">${fmtDate(t.createdAt)}</p><span class="status-pill ${t.status}">${t.status}</span></div>`).join('');
+}
+
+// ═══ TRANSACTIONS ═══
+function renderTransactions() {
+  const list = document.getElementById('tx-full-list'); if(!list) return;
+  const txs = currentUser?.transactions || [];
+  if(!txs.length) { list.innerHTML = '<div style="text-align:center;padding:48px;color:var(--gray2)"><div style="font-size:2.5rem;margin-bottom:12px">📊</div><p>No transactions yet.</p><button class="btn-ghost" style="margin-top:16px" onclick="switchPanel(\'deposit\',null)">Make a Deposit →</button></div>'; return; }
+  list.innerHTML = txs.map(t => `<div class="tx-item"><div class="tx-ico g">💰</div><div class="tx-info"><h4>${esc(t.type)} — ${esc(t.coin)}</h4><p>${fmtDate(t.date)}</p></div><div class="tx-amt pos">+${t.amount} ${esc(t.coin)}</div></div>`).join('');
+  // Also update recent in overview
+  const recent = document.getElementById('dash-recent-tx');
+  if(recent && txs.length) {
+    const last = txs[0];
+    recent.innerHTML = `<div class="tx-item"><div class="tx-ico g">💰</div><div class="tx-info"><h4>${esc(last.type)} — ${esc(last.coin)}</h4><p>${fmtDate(last.date)}</p></div><div class="tx-amt pos">+${last.amount} ${esc(last.coin)}</div></div>` + recent.innerHTML;
+  }
+}
+
+// ═══ PROFILE ═══
+function saveProfile() {
+  const name = document.getElementById('prof-name').value.trim();
+  if(!name) { toast('Name cannot be empty', 'error'); return; }
+  currentUser.name = name;
+  saveCurrentUser();
+  setText('nav-name', name); setText('dash-name', name); setText('sidebar-name', name);
+  const cardName = document.getElementById('card-holder-name');
+  if(cardName) cardName.textContent = name.toUpperCase();
+  toast('Profile updated!', 'success');
+}
+
+function changePassword(e) {
+  e.preventDefault();
+  const cur = document.getElementById('cp-cur').value;
+  const nw = document.getElementById('cp-new').value;
+  const conf = document.getElementById('cp-conf').value;
+  if(cur !== currentUser.password) { toast('Current password is incorrect', 'error'); return; }
+  if(nw !== conf) { toast('New passwords do not match', 'error'); return; }
+  if(nw.length < 6) { toast('Password must be at least 6 characters', 'error'); return; }
+  currentUser.password = nw; saveCurrentUser();
+  e.target.reset(); toast('Password updated successfully!', 'success');
+}
+
+// ═══ DEPOSIT MODAL ═══
+function openDepModal(coin) {
+  depModalCoin = coin;
+  const c = COIN_ADDRS[coin];
+  setText('dep-modal-title', 'Deposit ' + coin);
+  setText('dep-modal-sub', 'Send ' + coin + ' to the address below — ' + c.net);
+  setText('dep-modal-addr-val', c.addr);
+  setText('dep-modal-note', '⚠️ ' + c.note);
+  document.getElementById('dep-modal').classList.add('active');
+}
+
+function copyDepModal() {
+  const addr = COIN_ADDRS[depModalCoin].addr;
+  navigator.clipboard.writeText(addr).then(() => {
+    setText('dep-modal-copy-btn', '✅ Copied!');
+    setTimeout(() => setText('dep-modal-copy-btn', '📋 Copy Address'), 2500);
+    toast(depModalCoin + ' address copied!', 'success');
+  });
+}
+
+// ═══ COPY ═══
+function copyAddr(addr, btnId) {
+  navigator.clipboard.writeText(addr).then(() => {
+    const btn = document.getElementById(btnId); if(!btn) return;
+    const orig = btn.textContent;
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = orig, 2500);
+    toast('Address copied to clipboard!', 'success');
+  }).catch(() => prompt('Copy this address:', addr));
+}
+
+// ═══ FAQ ═══
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const body = item.querySelector('.faq-body');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(el => { el.classList.remove('open'); el.querySelector('.faq-body').style.maxHeight = '0'; });
+  if(!isOpen) { item.classList.add('open'); body.style.maxHeight = body.scrollHeight + 'px'; }
+}
+
+// ═══ STORAGE ═══
+function saveUsers() { try { localStorage.setItem('nqfs_users', JSON.stringify(users)); } catch(e) {} }
+function saveCurrentUser() {
+  const idx = users.findIndex(u => u.id === currentUser.id);
+  if(idx !== -1) { users[idx] = currentUser; saveUsers(); }
+  localStorage.setItem('nqfs_session', JSON.stringify(currentUser));
+}
+
+// ═══ TOAST ═══
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  const icons = {success:'✅', error:'❌', info:'ℹ️'};
+  el.textContent = (icons[type]||'') + ' ' + msg;
+  const colors = {success:'rgba(0,196,140,0.4)', error:'rgba(255,77,109,0.4)', info:'rgba(0,212,200,0.4)'};
+  el.style.borderColor = colors[type] || colors.success;
+  el.style.transform = 'translateY(0)'; el.style.opacity = '1';
+  setTimeout(() => { el.style.transform = 'translateY(80px)'; el.style.opacity = '0'; }, 4000);
+}
+
+// ═══ UTILS ═══
+function setText(id, val) { const el = document.getElementById(id); if(el) el.textContent = val; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtDate(iso) { try { return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); } catch(e) { return '—'; } }
+
+// ═══ SMOOTH SCROLL ═══
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', function(e) {
+    const href = this.getAttribute('href');
+    if(href === '#') return;
+    const t = document.querySelector(href);
+    if(t) { e.preventDefault(); t.scrollIntoView({behavior:'smooth'}); if(document.getElementById('mobile-nav').classList.contains('active')) toggleMobileNav(); }
+  });
+});
+</script>
+</body>
+</html>
