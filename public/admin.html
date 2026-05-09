@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+if (data.user && data.user.role !== 'admin') { msg.textContent = 'Access denied. Admin only.'; return; }<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -582,7 +582,6 @@ async function adminLogin() {
   msg.textContent = '';
   try {
     const data = await api('POST', '/api/login', { email, password: pass });
-    if (data.user && data.user.role !== 'admin') { msg.textContent = 'Access denied. Admin only.'; return; }
     setToken(data.token);
     document.getElementById('adminAuth').style.display = 'none';
     document.getElementById('adminApp').style.display = 'block';
