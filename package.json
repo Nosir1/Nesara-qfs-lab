@@ -1,16 +1,11 @@
 {
-  "name": "nesara-qfs-lab-backend",
-  "version": "2.0.0",
-  "description": "Nesara QFS Lab — Quantum Financial System Backend Server",
+  "name": "nesara-qfs-lab",
+  "version": "7.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
+    "start": "node server.js"
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "keywords": ["qfs", "quantum", "finance", "nesara"],
-  "author": "Nesara QFS Lab <info@nesaraqfslab.com>",
-  "license": "PROPRIETARY"
+  }
 }
