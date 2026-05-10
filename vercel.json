@@ -1,8 +1,3 @@
 {
-  "version": 2,
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://nesara-qfs-lab-production.up.railway.app/api/$1" },
-    { "source": "/admin", "destination": "/public/admin.html" },
-    { "source": "/(.*)", "destination": "/public/index.html" }
-  ]
+  "outputDirectory": "public"
 }
