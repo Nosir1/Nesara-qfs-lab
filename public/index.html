@@ -1710,7 +1710,12 @@ async function submitKYC() {
   if(!kycFileData && currentUser.kycStatus === 'unverified') { toast('Please select an ID document first', 'error'); return; }
   if(currentUser.kycStatus === 'verified') { toast('Your KYC is already verified ✅', 'success'); return; }
   try {
-    await apiCall('POST', '/api/kyc/submit', { docType: kycDocType, fullName: currentUser.name, dob: '' });
+    await apiCall('POST', '/api/kyc/submit', { 
+      docType: kycDocType, 
+      fullName: currentUser.name, 
+      dob: '',
+      fileData: kycFileData 
+    });
     currentUser.kycStatus = 'pending';
     currentUser.kycDocType = kycDocType;
     saveCurrentUser();
@@ -1721,7 +1726,6 @@ async function submitKYC() {
     document.getElementById('kyc-submit-btn').textContent = '⏳ Submitted — Under Review';
     document.getElementById('kyc-submit-btn').disabled = true;
     document.getElementById('kyc-submit-btn').style.opacity = '0.6';
-    // Refresh from server
     setTimeout(syncUserData, 500);
   } catch(err) {
     toast(err.message || 'Failed to submit KYC', 'error');
@@ -1767,7 +1771,7 @@ async function submitProof(e) {
   const btn = document.getElementById('proof-submit-btn');
   btn.disabled = true; btn.textContent = 'Submitting...';
   try {
-    await apiCall('POST', '/api/deposit-proof', { coin, amount, txhash });
+    await apiCall('POST', '/api/deposit-proof', { coin, amount, txhash, screenshot: proofFileData });
     notifyAdmin('💰 Deposit Proof Submitted', currentUser.name, currentUser.email, 'Coin: ' + coin + ' | Amount: ' + amount + ' | TX Hash: ' + (txhash || 'Not provided'));
     e.target.reset(); proofFileData = null;
     document.getElementById('proof-fname').style.display = 'none';
@@ -1888,7 +1892,40 @@ function renderUserTickets() {
   const wrap = document.getElementById('user-tickets-list'); if(!wrap) return;
   const tickets = currentUser?.tickets || [];
   if(!tickets.length) { wrap.innerHTML = '<div style="text-align:center;padding:32px;color:var(--gray2);background:var(--navy2);border:1px solid var(--border);border-radius:12px"><div style="font-size:2rem;margin-bottom:10px">🎫</div><p style="font-size:0.85rem">No tickets yet</p></div>'; return; }
-  wrap.innerHTML = tickets.map(t => `<div class="proof-item"><h4>${esc(t.subject)}</h4><p>${esc(t.message)}</p><p style="margin-top:4px">${fmtDate(t.createdAt)}</p><span class="status-pill ${t.status}">${t.status}</span></div>`).join('');
+  wrap.innerHTML = tickets.map(t => {
+    const msgs = t.messages || [{from:'user',author:currentUser.name,text:t.message,at:t.createdAt}];
+    const thread = msgs.map(m => `
+      <div style="margin:10px 0;padding:10px 12px;border-radius:8px;background:${m.from==='admin'?'rgba(0,212,200,0.08)':'rgba(200,169,110,0.06)'};border-left:3px solid ${m.from==='admin'?'var(--teal)':'var(--gold)'}">
+        <div style="font-size:0.7rem;color:${m.from==='admin'?'var(--teal)':'var(--gold)'};font-weight:700;margin-bottom:4px">${m.from==='admin'?'🛡️ ADMIN':'👤 '+esc(m.author||'You').toUpperCase()} · ${fmtDate(m.at)}</div>
+        <div style="font-size:0.85rem;white-space:pre-wrap">${esc(m.text||'')}</div>
+      </div>`).join('');
+    return `<div class="proof-item" style="padding:14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <h4 style="margin:0">${esc(t.subject)}</h4>
+        <span class="status-pill ${t.status}">${t.status}</span>
+      </div>
+      <div>${thread}</div>
+      ${t.status==='open' ? `<div style="margin-top:10px">
+        <textarea id="reply-${t.id}" placeholder="Type your reply..." style="width:100%;min-height:60px;padding:8px 10px;background:var(--navy);border:1px solid var(--border);border-radius:6px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:0.85rem;resize:vertical"></textarea>
+        <button onclick="userReplyTicket('${t.id}')" style="margin-top:6px;padding:7px 14px;background:var(--gold);color:var(--navy);border:none;border-radius:6px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.8rem">Send Reply</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+async function userReplyTicket(ticketId) {
+  const ta = document.getElementById('reply-'+ticketId);
+  const msg = ta?.value.trim();
+  if (!msg) { toast('Please enter a reply', 'error'); return; }
+  try {
+    await apiCall('POST', '/api/ticket-reply', { ticketId, message: msg });
+    toast('Reply sent', 'success');
+    ta.value = '';
+    await syncUserData();
+    renderUserTickets();
+  } catch(err) {
+    toast(err.message || 'Failed to send reply', 'error');
+  }
 }
 
 // ═══ TRANSACTIONS ═══

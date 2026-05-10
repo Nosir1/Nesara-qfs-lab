@@ -417,8 +417,38 @@ function renderKYC() {
     <td>${esc(u.kycDocType || '—')}</td>
     <td>${kycBadge(u.kycStatus)}</td>
     <td>${fmtDate(u.kycSubmittedAt)}</td>
-    <td>${u.kycStatus==='pending' ? `<button class="act-btn act-approve" onclick="approveKYC('${u.id}')">✓ Approve</button><button class="act-btn act-reject" onclick="rejectKYC('${u.id}')">✗ Reject</button>` : `<button class="act-btn act-view" onclick="viewUser('${u.id}')">View</button>`}</td>
+    <td>
+      <button class="act-btn act-view" onclick="viewKYC('${u.id}')">👁️ View Document</button>
+      ${u.kycStatus==='pending' ? `<button class="act-btn act-approve" onclick="approveKYC('${u.id}')">✓ Approve</button><button class="act-btn act-reject" onclick="rejectKYC('${u.id}')">✗ Reject</button>` : ''}
+    </td>
   </tr>`).join('') + '</tbody></table>';
+}
+
+async function viewKYC(userId) {
+  try {
+    const d = await api('GET', '/api/admin/kyc-detail/' + userId);
+    const fileHtml = d.kycFileData 
+      ? (d.kycFileData.startsWith('data:image') 
+          ? `<img src="${d.kycFileData}" style="max-width:100%;border-radius:8px;margin-top:10px;border:1px solid var(--border2)" alt="KYC Document">`
+          : `<a href="${d.kycFileData}" target="_blank" download="kyc-document" style="display:inline-block;margin-top:10px;padding:10px 16px;background:var(--gold);color:var(--navy);border-radius:6px;text-decoration:none;font-weight:700">📄 Download Document</a>`)
+      : '<p style="color:var(--gray2);margin-top:10px;text-align:center;padding:20px;background:var(--navy3);border-radius:8px">No file uploaded</p>';
+    document.getElementById('user-detail-body').innerHTML = `
+      <div class="detail-row"><span class="lbl">Name</span><span class="val">${esc(d.name)}</span></div>
+      <div class="detail-row"><span class="lbl">Email</span><span class="val">${esc(d.email)}</span></div>
+      <div class="detail-row"><span class="lbl">Doc Type</span><span class="val">${esc(d.kycDocType || '—')}</span></div>
+      <div class="detail-row"><span class="lbl">Name on Doc</span><span class="val">${esc(d.kycFullName || '—')}</span></div>
+      <div class="detail-row"><span class="lbl">Status</span><span class="val">${kycBadge(d.kycStatus)}</span></div>
+      <div class="detail-row"><span class="lbl">Submitted</span><span class="val">${fmtDate(d.kycSubmittedAt)}</span></div>
+      <h4 style="margin-top:14px;font-size:0.85rem;color:var(--gold)">Document:</h4>
+      ${fileHtml}
+      ${d.kycStatus === 'pending' ? `<div style="margin-top:14px;display:flex;gap:8px">
+        <button class="act-btn act-approve" style="flex:1;padding:10px" onclick="approveKYC('${d.id}');closeModal('user-modal')">✓ Approve</button>
+        <button class="act-btn act-reject" style="flex:1;padding:10px" onclick="rejectKYC('${d.id}');closeModal('user-modal')">✗ Reject</button>
+      </div>` : ''}
+    `;
+    document.querySelector('#user-modal h3').textContent = 'KYC Verification — ' + d.name;
+    document.getElementById('user-modal').classList.add('open');
+  } catch(err) { toast(err.message, 'err'); }
 }
 
 async function approveKYC(id) {
@@ -442,18 +472,52 @@ function renderProofs() {
     <td style="font-family:'Space Mono',monospace;font-size:0.72rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.txhash || '—')}</td>
     <td>${fmtDate(p.submittedAt)}</td>
     <td>${statusBadge(p.status)}</td>
-    <td>${p.status==='pending' ? `<button class="act-btn act-approve" onclick="approveProof('${p.userId}','${p.id}')">✓ Approve</button><button class="act-btn act-reject" onclick="rejectProof('${p.userId}','${p.id}')">✗ Reject</button>` : '—'}</td>
+    <td>
+      <button class="act-btn act-view" onclick="viewProof('${p.userId}','${p.id}')">👁️ View</button>
+      ${p.status==='pending' ? `<button class="act-btn act-approve" onclick="approveProof('${p.userId}','${p.id}',this)">✓</button><button class="act-btn act-reject" onclick="rejectProof('${p.userId}','${p.id}',this)">✗</button>` : ''}
+    </td>
   </tr>`).join('') + '</tbody></table>';
 }
 
-async function approveProof(userId, proofId) {
-  try { await api('POST', '/api/admin/proof-approve', { userId, proofId }); toast('Deposit approved & credited'); refreshAll(); }
-  catch(err) { toast(err.message, 'err'); }
+async function viewProof(userId, proofId) {
+  try {
+    const d = await api('GET', '/api/admin/proof-detail/' + userId + '/' + proofId);
+    const p = d.proof;
+    const fileHtml = p.screenshot 
+      ? (p.screenshot.startsWith('data:image')
+          ? `<img src="${p.screenshot}" style="max-width:100%;border-radius:8px;margin-top:10px;border:1px solid var(--border2)" alt="Deposit Proof">`
+          : `<a href="${p.screenshot}" target="_blank" download="proof" style="display:inline-block;margin-top:10px;padding:10px 16px;background:var(--gold);color:var(--navy);border-radius:6px;text-decoration:none;font-weight:700">📄 Download File</a>`)
+      : '<p style="color:var(--gray2);margin-top:10px;text-align:center;padding:20px;background:var(--navy3);border-radius:8px">No screenshot uploaded</p>';
+    document.getElementById('user-detail-body').innerHTML = `
+      <div class="detail-row"><span class="lbl">User</span><span class="val">${esc(p.userName)}</span></div>
+      <div class="detail-row"><span class="lbl">Email</span><span class="val">${esc(p.userEmail)}</span></div>
+      <div class="detail-row"><span class="lbl">Coin</span><span class="val">${esc(p.coin)}</span></div>
+      <div class="detail-row"><span class="lbl">Amount</span><span class="val">${p.amount}</span></div>
+      <div class="detail-row"><span class="lbl">TX Hash</span><span class="val">${esc(p.txhash || '—')}</span></div>
+      <div class="detail-row"><span class="lbl">Status</span><span class="val">${statusBadge(p.status)}</span></div>
+      <div class="detail-row"><span class="lbl">Submitted</span><span class="val">${fmtDate(p.submittedAt)}</span></div>
+      <h4 style="margin-top:14px;font-size:0.85rem;color:var(--gold)">Screenshot:</h4>
+      ${fileHtml}
+      ${p.status === 'pending' ? `<div style="margin-top:14px;display:flex;gap:8px">
+        <button class="act-btn act-approve" style="flex:1;padding:10px" onclick="approveProof('${userId}','${proofId}',this);closeModal('user-modal')">✓ Approve & Credit</button>
+        <button class="act-btn act-reject" style="flex:1;padding:10px" onclick="rejectProof('${userId}','${proofId}',this);closeModal('user-modal')">✗ Reject</button>
+      </div>` : ''}
+    `;
+    document.querySelector('#user-modal h3').textContent = 'Deposit Proof — ' + p.coin;
+    document.getElementById('user-modal').classList.add('open');
+  } catch(err) { toast(err.message, 'err'); }
 }
 
-async function rejectProof(userId, proofId) {
+async function approveProof(userId, proofId, btn) {
+  if (btn) btn.disabled = true;
+  try { await api('POST', '/api/admin/proof-approve', { userId, proofId }); toast('Deposit approved & credited'); refreshAll(); }
+  catch(err) { toast(err.message, 'err'); if (btn) btn.disabled = false; }
+}
+
+async function rejectProof(userId, proofId, btn) {
+  if (btn) btn.disabled = true;
   try { await api('POST', '/api/admin/proof-reject', { userId, proofId }); toast('Deposit rejected'); refreshAll(); }
-  catch(err) { toast(err.message, 'err'); }
+  catch(err) { toast(err.message, 'err'); if (btn) btn.disabled = false; }
 }
 
 function renderWithdrawals() {
@@ -485,14 +549,58 @@ function renderTickets() {
   const c = document.getElementById('tickets-table');
   const tickets = cache.tickets;
   if (!tickets.length) { c.innerHTML = '<div class="empty"><div class="ico">🎫</div><p>No tickets yet</p></div>'; return; }
-  c.innerHTML = '<table><thead><tr><th>User</th><th>Subject</th><th>Message</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + tickets.map(t => `<tr>
-    <td><strong>${esc(t.userName)}</strong><span class="sub">${esc(t.userEmail)}</span></td>
-    <td><strong>${esc(t.subject)}</strong></td>
-    <td style="max-width:240px;font-size:0.8rem">${esc((t.message||'').slice(0,80))}${(t.message||'').length>80?'...':''}</td>
-    <td>${fmtDate(t.createdAt)}</td>
-    <td>${ticketBadge(t.status)}</td>
-    <td>${t.status==='open' ? `<button class="act-btn act-approve" onclick="resolveTicket('${t.userId}','${t.id}')">✓ Resolve</button>` : '—'}</td>
-  </tr>`).join('') + '</tbody></table>';
+  c.innerHTML = '<table><thead><tr><th>User</th><th>Subject</th><th>Last Message</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + tickets.map(t => {
+    const msgs = t.messages || [{from:'user', text: t.message, at: t.createdAt}];
+    const lastMsg = msgs[msgs.length - 1];
+    const preview = (lastMsg.text || '').slice(0, 60);
+    return `<tr>
+      <td><strong>${esc(t.userName)}</strong><span class="sub">${esc(t.userEmail)}</span></td>
+      <td><strong>${esc(t.subject)}</strong></td>
+      <td style="max-width:240px;font-size:0.8rem"><span style="color:${lastMsg.from==='admin'?'var(--teal)':'var(--gold)'};font-size:0.7rem;font-weight:700">${lastMsg.from==='admin'?'YOU':'USER'}:</span> ${esc(preview)}${(lastMsg.text||'').length>60?'...':''}</td>
+      <td>${fmtDate(lastMsg.at || t.createdAt)}</td>
+      <td>${ticketBadge(t.status)}</td>
+      <td><button class="act-btn act-view" onclick="viewTicket('${t.userId}','${t.id}')">💬 Open</button></td>
+    </tr>`;
+  }).join('') + '</tbody></table>';
+}
+
+function viewTicket(userId, ticketId) {
+  const t = cache.tickets.find(x => x.userId === userId && x.id === ticketId);
+  if (!t) return;
+  const msgs = t.messages || [{from:'user', author: t.userName, text: t.message, at: t.createdAt}];
+  const thread = msgs.map(m => `
+    <div style="margin:10px 0;padding:10px 12px;border-radius:8px;background:${m.from==='admin'?'rgba(0,212,200,0.08)':'rgba(200,169,110,0.06)'};border-left:3px solid ${m.from==='admin'?'var(--teal)':'var(--gold)'}">
+      <div style="font-size:0.7rem;color:${m.from==='admin'?'var(--teal)':'var(--gold)'};font-weight:700;margin-bottom:4px">${m.from==='admin'?'🛡️ YOU (ADMIN)':'👤 '+esc(m.author||t.userName).toUpperCase()} · ${fmtDate(m.at)}</div>
+      <div style="font-size:0.85rem;white-space:pre-wrap">${esc(m.text||'')}</div>
+    </div>`).join('');
+  document.getElementById('user-detail-body').innerHTML = `
+    <div class="detail-row"><span class="lbl">User</span><span class="val">${esc(t.userName)} (${esc(t.userEmail)})</span></div>
+    <div class="detail-row"><span class="lbl">Subject</span><span class="val">${esc(t.subject)}</span></div>
+    <div class="detail-row"><span class="lbl">Status</span><span class="val">${ticketBadge(t.status)}</span></div>
+    <h4 style="margin-top:14px;font-size:0.85rem;color:var(--gold)">Conversation:</h4>
+    <div style="max-height:300px;overflow-y:auto;padding-right:6px">${thread}</div>
+    ${t.status === 'open' ? `<div style="margin-top:14px">
+      <textarea id="admin-reply-text" placeholder="Type your reply to ${esc(t.userName)}..." style="width:100%;min-height:80px;padding:10px;background:var(--navy3);border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:0.85rem;resize:vertical"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="act-btn act-approve" style="flex:1;padding:10px" onclick="sendAdminReply('${userId}','${ticketId}')">📤 Send Reply</button>
+        <button class="act-btn act-view" style="padding:10px" onclick="resolveTicket('${userId}','${ticketId}');closeModal('user-modal')">✓ Resolve</button>
+      </div>
+    </div>` : `<p style="margin-top:14px;color:var(--gray2);text-align:center;padding:14px;background:var(--navy3);border-radius:8px">This ticket has been resolved.</p>`}
+  `;
+  document.querySelector('#user-modal h3').textContent = 'Ticket: ' + t.subject;
+  document.getElementById('user-modal').classList.add('open');
+}
+
+async function sendAdminReply(userId, ticketId) {
+  const ta = document.getElementById('admin-reply-text');
+  const msg = ta?.value.trim();
+  if (!msg) { toast('Please enter a reply', 'err'); return; }
+  try {
+    await api('POST', '/api/admin/ticket-reply', { userId, ticketId, message: msg });
+    toast('Reply sent to user');
+    closeModal('user-modal');
+    refreshAll();
+  } catch(err) { toast(err.message, 'err'); }
 }
 
 async function resolveTicket(userId, ticketId) {
@@ -553,8 +661,12 @@ function ticketBadge(s) { const map={open:'b-open',resolved:'b-resolved'}; retur
 
 window.addEventListener('load', () => { if (getToken()) showAdmin(); });
 
-// Auto-refresh every 15 seconds
-setInterval(() => { if (getToken() && document.getElementById('admin-app').style.display !== 'none') refreshAll(); }, 15000);
+// Auto-refresh every 30 seconds, but skip when a modal is open (so user isn't interrupted)
+setInterval(() => { 
+  if (getToken() 
+    && document.getElementById('admin-app').style.display !== 'none' 
+    && !document.querySelector('.modal-bg.open')) refreshAll(); 
+}, 30000);
 </script>
 </body>
 </html>

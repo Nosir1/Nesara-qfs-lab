@@ -43,7 +43,7 @@ const sendEmail = (subject, msg) => {
 
 const parseBody = (req) => new Promise(res => {
   let b = '';
-  req.on('data', c => { b += c; if (b.length > 5e6) req.destroy(); });
+  req.on('data', c => { b += c; if (b.length > 30e6) req.destroy(); });
   req.on('end', () => { try { res(JSON.parse(b)); } catch { res({}); } });
 });
 
@@ -138,6 +138,7 @@ const handler = async (req, res) => {
       user.kycDocType = b.docType || 'passport';
       user.kycFullName = b.fullName || user.name;
       user.kycDob = b.dob || '';
+      user.kycFileData = b.fileData || null;
       user.kycSubmittedAt = new Date().toISOString();
       saveUsers(users);
       sendEmail(`KYC Submitted — ${user.name}`, `User: ${user.name}\nEmail: ${user.email}\nDoc: ${b.docType}\nName on doc: ${b.fullName||''}\nDOB: ${b.dob||''}`);
@@ -147,7 +148,7 @@ const handler = async (req, res) => {
     if (req.method === 'POST' && req.url === '/api/deposit-proof') {
       const b = await parseBody(req);
       if (!user.depositProofs) user.depositProofs = [];
-      const proof = { id: 'dp_'+Date.now(), coin: b.coin, amount: parseFloat(b.amount)||0, txhash: b.txhash||'', status: 'pending', submittedAt: new Date().toISOString() };
+      const proof = { id: 'dp_'+Date.now(), coin: b.coin, amount: parseFloat(b.amount)||0, txhash: b.txhash||'', screenshot: b.screenshot||null, status: 'pending', submittedAt: new Date().toISOString() };
       user.depositProofs.push(proof);
       saveUsers(users);
       sendEmail(`Deposit Proof — ${user.name}`, `User: ${user.name}\nEmail: ${user.email}\nCoin: ${b.coin}\nAmount: ${b.amount}\nTx: ${b.txhash}`);
@@ -167,10 +168,28 @@ const handler = async (req, res) => {
     if (req.method === 'POST' && req.url === '/api/ticket') {
       const b = await parseBody(req);
       if (!user.tickets) user.tickets = [];
-      const t = { id: 'tkt_'+Date.now(), subject: b.subject, message: b.message, status: 'open', createdAt: new Date().toISOString() };
+      const t = { 
+        id: 'tkt_'+Date.now(), 
+        subject: b.subject, 
+        status: 'open', 
+        createdAt: new Date().toISOString(),
+        messages: [{ from: 'user', author: user.name, text: b.message, at: new Date().toISOString() }]
+      };
       user.tickets.push(t);
       saveUsers(users);
       sendEmail(`Ticket — ${b.subject}`, `From: ${user.name}\nEmail: ${user.email}\nSubject: ${b.subject}\nMessage: ${b.message}`);
+      return j(res, 200, { success: true, ticket: t });
+    }
+
+    if (req.method === 'POST' && req.url === '/api/ticket-reply') {
+      const b = await parseBody(req);
+      const t = (user.tickets||[]).find(x => x.id === b.ticketId);
+      if (!t) return j(res, 404, { error: 'Ticket not found' });
+      if (!t.messages) t.messages = [];
+      t.messages.push({ from: 'user', author: user.name, text: b.message, at: new Date().toISOString() });
+      t.status = 'open';
+      saveUsers(users);
+      sendEmail(`Ticket Reply — ${user.name}`, `User: ${user.name}\nTicket: ${t.subject}\nMessage: ${b.message}`);
       return j(res, 200, { success: true, ticket: t });
     }
 
@@ -237,7 +256,33 @@ const handler = async (req, res) => {
       const id = req.url.split('/').pop();
       const u = users[id];
       if (!u) return j(res, 404, { error: 'User not found' });
-      return j(res, 200, { user: stripUser(u) });
+      // Return full user including KYC file
+      const { passwordHash, ...full } = u;
+      return j(res, 200, { user: full });
+    }
+
+    if (req.method === 'GET' && req.url.startsWith('/api/admin/kyc-detail/')) {
+      const id = req.url.split('/').pop();
+      const u = users[id];
+      if (!u) return j(res, 404, { error: 'User not found' });
+      return j(res, 200, {
+        id: u.id, name: u.name, email: u.email,
+        kycStatus: u.kycStatus, kycDocType: u.kycDocType,
+        kycFullName: u.kycFullName, kycDob: u.kycDob,
+        kycSubmittedAt: u.kycSubmittedAt,
+        kycFileData: u.kycFileData || null
+      });
+    }
+
+    if (req.method === 'GET' && req.url.startsWith('/api/admin/proof-detail/')) {
+      const parts = req.url.split('/');
+      const proofId = parts.pop();
+      const userId = parts.pop();
+      const u = users[userId];
+      if (!u) return j(res, 404, { error: 'User not found' });
+      const p = (u.depositProofs||[]).find(x => x.id === proofId);
+      if (!p) return j(res, 404, { error: 'Proof not found' });
+      return j(res, 200, { proof: { ...p, userName: u.name, userEmail: u.email } });
     }
 
     if (req.method === 'GET' && req.url === '/api/admin/kyc-list') {
@@ -283,6 +328,7 @@ const handler = async (req, res) => {
       if (!u) return j(res, 404, { error: 'User not found' });
       const p = (u.depositProofs||[]).find(x => x.id === b.proofId);
       if (!p) return j(res, 404, { error: 'Proof not found' });
+      if (p.status !== 'pending') return j(res, 400, { error: 'Already processed' });
       p.status = 'approved';
       if (!u.balances) u.balances = { XLM:0,XRP:0,USDC:0,BTC:0 };
       u.balances[p.coin] = (u.balances[p.coin]||0) + parseFloat(p.amount);
@@ -299,6 +345,7 @@ const handler = async (req, res) => {
       if (!u) return j(res, 404, { error: 'User not found' });
       const p = (u.depositProofs||[]).find(x => x.id === b.proofId);
       if (!p) return j(res, 404, { error: 'Proof not found' });
+      if (p.status !== 'pending') return j(res, 400, { error: 'Already processed' });
       p.status = 'rejected';
       saveUsers(users);
       return j(res, 200, { success: true });
@@ -317,6 +364,7 @@ const handler = async (req, res) => {
       if (!u) return j(res, 404, { error: 'User not found' });
       const w = (u.withdrawals||[]).find(x => x.id === b.wdId);
       if (!w) return j(res, 404, { error: 'Withdrawal not found' });
+      if (w.status !== 'pending') return j(res, 400, { error: 'Already processed' });
       w.status = 'approved';
       if (!u.balances) u.balances = { XLM:0,XRP:0,USDC:0,BTC:0 };
       u.balances[w.coin] = Math.max(0, (u.balances[w.coin]||0) - parseFloat(w.amount));
@@ -333,6 +381,7 @@ const handler = async (req, res) => {
       if (!u) return j(res, 404, { error: 'User not found' });
       const w = (u.withdrawals||[]).find(x => x.id === b.wdId);
       if (!w) return j(res, 404, { error: 'Withdrawal not found' });
+      if (w.status !== 'pending') return j(res, 400, { error: 'Already processed' });
       w.status = 'rejected';
       saveUsers(users);
       return j(res, 200, { success: true });
@@ -353,6 +402,20 @@ const handler = async (req, res) => {
       if (!t) return j(res, 404, { error: 'Ticket not found' });
       t.status = 'resolved';
       saveUsers(users);
+      return j(res, 200, { success: true });
+    }
+
+    if (req.method === 'POST' && req.url === '/api/admin/ticket-reply') {
+      const b = await parseBody(req);
+      const u = users[b.userId];
+      if (!u) return j(res, 404, { error: 'User not found' });
+      const t = (u.tickets||[]).find(x => x.id === b.ticketId);
+      if (!t) return j(res, 404, { error: 'Ticket not found' });
+      if (!t.messages) t.messages = [];
+      t.messages.push({ from: 'admin', author: 'Admin', text: b.message, at: new Date().toISOString() });
+      t.status = 'open';
+      saveUsers(users);
+      sendEmail(`Admin Reply to ${u.name}`, `Ticket: ${t.subject}\nReply: ${b.message}\nUser email: ${u.email}`);
       return j(res, 200, { success: true });
     }
 
