@@ -16,7 +16,6 @@ const loadUsers = () => {
 };
 
 const saveUsers = (users) => fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-
 const hashPassword = (pwd) => crypto.createHash('sha256').update(pwd + 'nqfs_v7').digest('hex');
 const generateToken = () => crypto.randomBytes(24).toString('hex');
 
@@ -47,12 +46,15 @@ const handler = async (req, res) => {
   
   if (req.method === 'OPTIONS') { res.writeHead(200); res.end(); return; }
 
-  // Static files
-  if (req.method === 'GET' && req.url === '/') {
-    const indexPath = path.join(__dirname, 'public', 'index.html');
-    if (fs.existsSync(indexPath)) return res.end(fs.readFileSync(indexPath, 'utf8'));
-    res.writeHead(404);
-    res.end('index.html not found');
+  if (req.url === '/' || req.url === '/index.html') {
+    try {
+      const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(html);
+    } catch (e) {
+      res.writeHead(500);
+      res.end('index.html not found');
+    }
     return;
   }
 
@@ -87,8 +89,7 @@ const handler = async (req, res) => {
     
     users[id] = newUser;
     saveUsers(users);
-    
-    sendEmail(`New Signup — ${newUser.name}`, `User registered:\n\nName: ${newUser.name}\nEmail: ${newUser.email}\nTime: ${new Date().toISOString()}`);
+    sendEmail(`New Signup — ${newUser.name}`, `Name: ${newUser.name}\nEmail: ${newUser.email}`);
     
     const tok = generateToken();
     sessions[tok] = { token: tok, userId: id, user: newUser };
@@ -146,12 +147,9 @@ const handler = async (req, res) => {
   if (req.method === 'POST' && req.url === '/api/kyc/submit' && user) {
     const body = await parseBody(req);
     user.user.kycStatus = 'pending';
-    user.user.kycDocType = body.docType;
     users[user.userId] = user.user;
     saveUsers(users);
-    
-    sendEmail(`KYC Submission — ${user.user.name}`, `KYC submitted:\n\nUser: ${user.user.name}\nEmail: ${user.user.email}\nDoc Type: ${body.docType}\nName: ${body.fullName}\nDOB: ${body.dob}`);
-    
+    sendEmail(`KYC — ${user.user.name}`, `User: ${user.user.name}\nEmail: ${user.user.email}\nDoc: ${body.docType}`);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: true }));
     return;
@@ -173,11 +171,9 @@ const handler = async (req, res) => {
     user.user.depositProofs.push(proof);
     users[user.userId] = user.user;
     saveUsers(users);
-    
-    sendEmail(`Deposit Proof — ${user.user.name}`, `Deposit received:\n\nUser: ${user.user.name}\nEmail: ${user.user.email}\nCoin: ${body.coin}\nAmount: ${body.amount}\nTx: ${body.txhash}`);
-    
+    sendEmail(`Deposit — ${user.user.name}`, `Coin: ${body.coin}\nAmount: ${body.amount}\nTx: ${body.txhash}`);
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ success: true, proofId: proof.id }));
+    res.end(JSON.stringify({ success: true }));
     return;
   }
 
@@ -197,11 +193,9 @@ const handler = async (req, res) => {
     user.user.withdrawals.push(wd);
     users[user.userId] = user.user;
     saveUsers(users);
-    
-    sendEmail(`Withdrawal Request — ${user.user.name}`, `Withdrawal requested:\n\nUser: ${user.user.name}\nEmail: ${user.user.email}\nCoin: ${body.coin}\nAmount: ${body.amount}\nAddress: ${body.address}`);
-    
+    sendEmail(`Withdrawal — ${user.user.name}`, `Coin: ${body.coin}\nAmount: ${body.amount}\nAddress: ${body.address}`);
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ success: true, withdrawalId: wd.id }));
+    res.end(JSON.stringify({ success: true }));
     return;
   }
 
@@ -220,11 +214,9 @@ const handler = async (req, res) => {
     user.user.tickets.push(ticket);
     users[user.userId] = user.user;
     saveUsers(users);
-    
-    sendEmail(`Support Ticket — ${body.subject}`, `From: ${body.name}\nEmail: ${body.email}\nMessage: ${body.message}`);
-    
+    sendEmail(`Ticket — ${body.subject}`, `From: ${body.name}\nMessage: ${body.message}`);
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ success: true, ticketId: ticket.id }));
+    res.end(JSON.stringify({ success: true }));
     return;
   }
 
@@ -233,7 +225,6 @@ const handler = async (req, res) => {
     user.user.name = body.name;
     users[user.userId] = user.user;
     saveUsers(users);
-    
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: true }));
     return;
@@ -245,12 +236,11 @@ const handler = async (req, res) => {
       user.user.passwordHash = hashPassword(body.newPassword);
       users[user.userId] = user.user;
       saveUsers(users);
-      
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: true }));
     } else {
       res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Incorrect current password' }));
+      res.end(JSON.stringify({ error: 'Incorrect password' }));
     }
     return;
   }
@@ -268,5 +258,6 @@ const handler = async (req, res) => {
 
 http.createServer(handler).listen(PORT, () => {
   console.log(`✓ QFS Server running on port ${PORT}`);
-  console.log(`✓ Email notifications enabled via Formspree`);
+  console.log(`✓ Email notifications enabled`);
+  console.log(`✓ Files loaded from ${path.join(__dirname, 'public')}`);
 });
