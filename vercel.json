@@ -1,3 +1,12 @@
 {
-  "outputDirectory": "public"
+  "version": 2,
+  "outputDirectory": "public",
+  "builds": [
+    { "src": "public/index.html", "use": "@vercel/static" },
+    { "src": "public/admin.html", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/admin", "dest": "/public/admin.html" },
+    { "src": "/(.*)", "dest": "/public/index.html" }
+  ]
 }
