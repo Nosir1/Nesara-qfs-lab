@@ -25,10 +25,7 @@ let sessions = {};
 const parseBody = (req) => new Promise((resolve) => {
   let body = '';
   req.on('data', chunk => body += chunk);
-  req.on('end', () => {
-    try { resolve(JSON.parse(body)); }
-    catch { resolve({}); }
-  });
+  req.on('end', () => { try { resolve(JSON.parse(body)); } catch { resolve({}); } });
 });
 
 const sendEmail = (subject, message) => {
@@ -47,13 +44,13 @@ const handler = async (req, res) => {
   if (req.method === 'OPTIONS') { res.writeHead(200); res.end(); return; }
 
   if (req.url === '/' || req.url === '/index.html') {
-    try {
-      const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
-      res.writeHead(200, { 'Content-Type': 'text/html' });
-      res.end(html);
-    } catch (e) {
+    const indexFile = path.join(__dirname, 'public', 'index.html');
+    if (fs.existsSync(indexFile)) {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(fs.readFileSync(indexFile, 'utf8'));
+    } else {
       res.writeHead(500);
-      res.end('index.html not found');
+      res.end('Error: index.html not found at ' + indexFile);
     }
     return;
   }
@@ -61,7 +58,6 @@ const handler = async (req, res) => {
   if (req.method === 'POST' && req.url === '/api/login') {
     const body = await parseBody(req);
     const foundUser = Object.values(users).find(u => u.email === body.email);
-    
     if (foundUser && foundUser.passwordHash === hashPassword(body.password)) {
       const tok = generateToken();
       sessions[tok] = { token: tok, userId: foundUser.id, user: foundUser };
@@ -69,7 +65,7 @@ const handler = async (req, res) => {
       res.end(JSON.stringify({ token: tok, user: foundUser }));
     } else {
       res.writeHead(401, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Invalid email or password' }));
+      res.end(JSON.stringify({ error: 'Invalid credentials' }));
     }
     return;
   }
@@ -77,23 +73,12 @@ const handler = async (req, res) => {
   if (req.method === 'POST' && req.url === '/api/register') {
     const body = await parseBody(req);
     const id = 'u_' + Date.now();
-    const newUser = {
-      id,
-      name: body.name,
-      email: body.email,
-      passwordHash: hashPassword(body.password),
-      balances: { XLM: 0, XRP: 0, USDC: 0, BTC: 0 },
-      kycStatus: 'unverified',
-      createdAt: new Date().toISOString()
-    };
-    
+    const newUser = { id, name: body.name, email: body.email, passwordHash: hashPassword(body.password), balances: { XLM: 0, XRP: 0, USDC: 0, BTC: 0 }, kycStatus: 'unverified', createdAt: new Date().toISOString() };
     users[id] = newUser;
     saveUsers(users);
     sendEmail(`New Signup — ${newUser.name}`, `Name: ${newUser.name}\nEmail: ${newUser.email}`);
-    
     const tok = generateToken();
     sessions[tok] = { token: tok, userId: id, user: newUser };
-    
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ token: tok, user: newUser }));
     return;
@@ -158,16 +143,7 @@ const handler = async (req, res) => {
   if (req.method === 'POST' && req.url === '/api/deposit-proof' && user) {
     const body = await parseBody(req);
     if (!user.user.depositProofs) user.user.depositProofs = [];
-    
-    const proof = {
-      id: 'dp_' + Date.now(),
-      coin: body.coin,
-      amount: body.amount,
-      txhash: body.txhash,
-      status: 'pending',
-      submittedAt: new Date().toISOString()
-    };
-    
+    const proof = { id: 'dp_' + Date.now(), coin: body.coin, amount: body.amount, txhash: body.txhash, status: 'pending', submittedAt: new Date().toISOString() };
     user.user.depositProofs.push(proof);
     users[user.userId] = user.user;
     saveUsers(users);
@@ -180,16 +156,7 @@ const handler = async (req, res) => {
   if (req.method === 'POST' && req.url === '/api/withdrawal' && user) {
     const body = await parseBody(req);
     if (!user.user.withdrawals) user.user.withdrawals = [];
-    
-    const wd = {
-      id: 'wd_' + Date.now(),
-      coin: body.coin,
-      amount: body.amount,
-      address: body.address,
-      status: 'pending',
-      submittedAt: new Date().toISOString()
-    };
-    
+    const wd = { id: 'wd_' + Date.now(), coin: body.coin, amount: body.amount, address: body.address, status: 'pending', submittedAt: new Date().toISOString() };
     user.user.withdrawals.push(wd);
     users[user.userId] = user.user;
     saveUsers(users);
@@ -202,15 +169,7 @@ const handler = async (req, res) => {
   if (req.method === 'POST' && req.url === '/api/ticket' && user) {
     const body = await parseBody(req);
     if (!user.user.tickets) user.user.tickets = [];
-    
-    const ticket = {
-      id: 'tkt_' + Date.now(),
-      subject: body.subject,
-      message: body.message,
-      status: 'open',
-      createdAt: new Date().toISOString()
-    };
-    
+    const ticket = { id: 'tkt_' + Date.now(), subject: body.subject, message: body.message, status: 'open', createdAt: new Date().toISOString() };
     user.user.tickets.push(ticket);
     users[user.userId] = user.user;
     saveUsers(users);
@@ -240,7 +199,7 @@ const handler = async (req, res) => {
       res.end(JSON.stringify({ success: true }));
     } else {
       res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Incorrect password' }));
+      res.end(JSON.stringify({ error: 'Wrong password' }));
     }
     return;
   }
@@ -257,7 +216,6 @@ const handler = async (req, res) => {
 };
 
 http.createServer(handler).listen(PORT, () => {
-  console.log(`✓ QFS Server running on port ${PORT}`);
-  console.log(`✓ Email notifications enabled`);
-  console.log(`✓ Files loaded from ${path.join(__dirname, 'public')}`);
+  console.log(`✓ Server on port ${PORT}`);
+  console.log(`✓ Files: ${path.join(__dirname, 'public')}`);
 });
