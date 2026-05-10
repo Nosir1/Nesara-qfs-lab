@@ -156,6 +156,7 @@ const routes = {
     saveJSON(DB_FILE, users);
 
     console.log(`🪪 KYC SUBMITTED: ${user.name} (${user.email}) — ${user.kycDocType}`);
+fetch('https://formspree.io/f/mgodlgwb', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:`KYC Submitted — ${user.name}`,message:`User: ${user.name}\nEmail: ${user.email}\nDoc Type: ${user.kycDocType}`})}).catch(()=>{});
     json(res, 200, { success: true, status: 'pending' });
   },
 
@@ -184,6 +185,7 @@ const routes = {
     saveJSON(DB_FILE, users);
 
     console.log(`💰 DEPOSIT PROOF: ${user.name} — ${amount} ${coin}`);
+fetch('https://formspree.io/f/mgodlgwb', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:`New Deposit Proof — ${user.name}`,message:`User: ${user.name}\nEmail: ${user.email}\nCoin: ${coin}\nAmount: ${amount}\nTx Hash: ${txhash||'not provided'}`})}).catch(()=>{});
     json(res, 201, { success: true, proof: { ...proof, screenshot: null } });
   },
 
@@ -215,6 +217,7 @@ const routes = {
     saveJSON(DB_FILE, users);
 
     console.log(`💸 WITHDRAWAL REQUEST: ${user.name} — ${amount} ${coin} to ${address}`);
+fetch('https://formspree.io/f/mgodlgwb', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:`Withdrawal Request — ${user.name}`,message:`User: ${user.name}\nEmail: ${user.email}\nCoin: ${coin}\nAmount: ${amount}\nAddress: ${address}`})}).catch(()=>{});
     json(res, 201, { success: true, withdrawal: wd });
   },
 
@@ -244,6 +247,7 @@ const routes = {
 
     saveJSON(DB_FILE, users);
     console.log(`🎫 TICKET: ${ticket.name} (${ticket.email}) — ${ticket.subject}`);
+fetch('https://formspree.io/f/mgodlgwb', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:`Support Ticket — ${ticket.subject}`,message:`From: ${ticket.name}\nEmail: ${ticket.email}\nMessage: ${ticket.message}`})}).catch(()=>{});
     json(res, 201, { success: true, ticketId: ticket.id });
   },
 
