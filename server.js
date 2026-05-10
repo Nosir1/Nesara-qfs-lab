@@ -42,7 +42,16 @@ const handler = async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
   
   if (req.method === 'OPTIONS') { res.writeHead(200); res.end(); return; }
-
+if (req.url === '/admin' || req.url === '/admin.html') {
+    const adminFile = path.join(__dirname, 'public', 'admin.html');
+    if (fs.existsSync(adminFile)) {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(fs.readFileSync(adminFile, 'utf8'));
+    } else {
+      res.writeHead(404);
+      res.end('admin.html not found');
+    }
+    return;
   if (req.url === '/' || req.url === '/index.html') {
     const indexFile = path.join(__dirname, 'public', 'index.html');
     if (fs.existsSync(indexFile)) {
