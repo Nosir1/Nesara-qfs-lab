@@ -42,7 +42,8 @@ const handler = async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
   
   if (req.method === 'OPTIONS') { res.writeHead(200); res.end(); return; }
-if (req.url === '/admin' || req.url === '/admin.html') {
+
+  if (req.url === '/admin' || req.url === '/admin.html') {
     const adminFile = path.join(__dirname, 'public', 'admin.html');
     if (fs.existsSync(adminFile)) {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -52,6 +53,8 @@ if (req.url === '/admin' || req.url === '/admin.html') {
       res.end('admin.html not found');
     }
     return;
+  }
+
   if (req.url === '/' || req.url === '/index.html') {
     const indexFile = path.join(__dirname, 'public', 'index.html');
     if (fs.existsSync(indexFile)) {
@@ -59,7 +62,7 @@ if (req.url === '/admin' || req.url === '/admin.html') {
       res.end(fs.readFileSync(indexFile, 'utf8'));
     } else {
       res.writeHead(500);
-      res.end('Error: index.html not found at ' + indexFile);
+      res.end('Error: index.html not found');
     }
     return;
   }
@@ -85,7 +88,7 @@ if (req.url === '/admin' || req.url === '/admin.html') {
     const newUser = { id, name: body.name, email: body.email, passwordHash: hashPassword(body.password), balances: { XLM: 0, XRP: 0, USDC: 0, BTC: 0 }, kycStatus: 'unverified', createdAt: new Date().toISOString() };
     users[id] = newUser;
     saveUsers(users);
-    sendEmail(`New Signup — ${newUser.name}`, `Name: ${newUser.name}\nEmail: ${newUser.email}`);
+    sendEmail('New Signup - ' + newUser.name, 'Name: ' + newUser.name + '\nEmail: ' + newUser.email);
     const tok = generateToken();
     sessions[tok] = { token: tok, userId: id, user: newUser };
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -143,7 +146,7 @@ if (req.url === '/admin' || req.url === '/admin.html') {
     user.user.kycStatus = 'pending';
     users[user.userId] = user.user;
     saveUsers(users);
-    sendEmail(`KYC — ${user.user.name}`, `User: ${user.user.name}\nEmail: ${user.user.email}\nDoc: ${body.docType}`);
+    sendEmail('KYC - ' + user.user.name, 'User: ' + user.user.name + '\nEmail: ' + user.user.email + '\nDoc: ' + body.docType);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: true }));
     return;
@@ -156,7 +159,7 @@ if (req.url === '/admin' || req.url === '/admin.html') {
     user.user.depositProofs.push(proof);
     users[user.userId] = user.user;
     saveUsers(users);
-    sendEmail(`Deposit — ${user.user.name}`, `Coin: ${body.coin}\nAmount: ${body.amount}\nTx: ${body.txhash}`);
+    sendEmail('Deposit - ' + user.user.name, 'Coin: ' + body.coin + '\nAmount: ' + body.amount + '\nTx: ' + body.txhash);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: true }));
     return;
@@ -169,7 +172,7 @@ if (req.url === '/admin' || req.url === '/admin.html') {
     user.user.withdrawals.push(wd);
     users[user.userId] = user.user;
     saveUsers(users);
-    sendEmail(`Withdrawal — ${user.user.name}`, `Coin: ${body.coin}\nAmount: ${body.amount}\nAddress: ${body.address}`);
+    sendEmail('Withdrawal - ' + user.user.name, 'Coin: ' + body.coin + '\nAmount: ' + body.amount + '\nAddress: ' + body.address);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: true }));
     return;
@@ -182,7 +185,7 @@ if (req.url === '/admin' || req.url === '/admin.html') {
     user.user.tickets.push(ticket);
     users[user.userId] = user.user;
     saveUsers(users);
-    sendEmail(`Ticket — ${body.subject}`, `From: ${body.name}\nMessage: ${body.message}`);
+    sendEmail('Ticket - ' + body.subject, 'From: ' + body.name + '\nMessage: ' + body.message);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: true }));
     return;
@@ -225,6 +228,5 @@ if (req.url === '/admin' || req.url === '/admin.html') {
 };
 
 http.createServer(handler).listen(PORT, () => {
-  console.log(`✓ Server on port ${PORT}`);
-  console.log(`✓ Files: ${path.join(__dirname, 'public')}`);
+  console.log('Server on port ' + PORT);
 });
