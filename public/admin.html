@@ -1,990 +1,744 @@
-if (data.user && data.user.role !== 'admin') { msg.textContent = 'Access denied. Admin only.'; return; }<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>Nesara QFS Lab — Admin Portal</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · Nesara QFS Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --navy:#040d1a;--navy2:#071428;--navy3:#0a1e3d;--navy4:#0f2752;
-  --gold:#c9a227;--gold2:#e8b84b;--gold3:#ffd060;
-  --gold-dim:rgba(201,162,39,0.12);--gold-glow:rgba(201,162,39,0.3);
-  --text:#e8e8f0;--text2:#a0a8b8;
-  --green:#00d4aa;--red:#ff4466;--blue:#4488ff;--orange:#ff8800;
-  --border:rgba(201,162,39,0.2);--card:rgba(7,20,40,0.92);
-  --radius:12px;--shadow:0 8px 32px rgba(0,0,0,0.4);
-  --sidebar:240px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:var(--navy);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;overflow-x:hidden}
+:root{--navy:#0A0F1E;--navy2:#111827;--navy3:#1C2537;--gold:#C8A96E;--gold2:#E8CFA0;--gold3:#9A7A45;--teal:#00D4C8;--green:#00C48C;--red:#FF4D6D;--yellow:#FFB800;--white:#F0EDE8;--gray:#6B7280;--gray2:#9CA3AF;--border:rgba(200,169,110,0.12);--border2:rgba(200,169,110,0.28);}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh}
+h1,h2,h3,h4{font-family:'Syne',sans-serif}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--navy)}::-webkit-scrollbar-thumb{background:var(--gold3);border-radius:3px}
 
-/* LOADER */
-#loader{position:fixed;inset:0;z-index:9999;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
-.loader-logo{font-family:'Cinzel',serif;font-size:24px;color:var(--gold2);letter-spacing:3px}
-.loader-bar{width:180px;height:2px;background:var(--navy3);border-radius:2px;overflow:hidden}
-.loader-fill{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold3));animation:fill 1.4s ease forwards}
-@keyframes fill{to{width:100%}}
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:radial-gradient(ellipse at center top,rgba(200,169,110,0.06),transparent 70%),var(--navy)}
+.login-card{width:100%;max-width:420px;background:var(--navy2);border:1px solid var(--border2);border-radius:16px;padding:36px 30px;position:relative;overflow:hidden}
+.login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold3),var(--gold),var(--gold2))}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.login-logo-mark{width:40px;height:40px;background:linear-gradient(135deg,var(--gold3),var(--gold));border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--navy);font-size:1.3rem;font-weight:800}
+.login-title{font-size:1.3rem;font-weight:800;letter-spacing:-0.01em}
+.login-sub{font-size:0.7rem;color:var(--gold);font-family:'Space Mono',monospace;letter-spacing:0.15em;margin-bottom:28px}
+.login-card h2{font-size:1.1rem;font-weight:700;margin-bottom:6px}
+.login-card .desc{font-size:0.85rem;color:var(--gray2);margin-bottom:22px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:0.72rem;font-family:'Space Mono',monospace;color:var(--gray);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px}
+.fg input{width:100%;padding:11px 14px;background:var(--navy3);border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:0.92rem;outline:none;transition:all 0.2s}
+.fg input:focus{border-color:var(--gold);background:var(--navy)}
+.btn-primary{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--navy);font-family:'Syne',sans-serif;font-weight:700;border-radius:8px;cursor:pointer;font-size:0.95rem;letter-spacing:0.03em;transition:all 0.2s}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(200,169,110,0.35)}
+.btn-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+.err{display:none;background:rgba(255,77,109,0.1);border:1px solid rgba(255,77,109,0.3);color:#FF6B87;padding:10px 14px;border-radius:8px;font-size:0.82rem;margin-bottom:14px}
 
-/* AUTH */
-#adminAuth{position:fixed;inset:0;z-index:900;background:linear-gradient(135deg,var(--navy),var(--navy3));display:flex;align-items:center;justify-content:center;padding:20px}
-.auth-box{width:100%;max-width:400px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:40px 32px}
-.auth-logo{font-family:'Cinzel',serif;font-size:20px;color:var(--gold2);text-align:center;letter-spacing:2px;margin-bottom:4px}
-.auth-sub{text-align:center;font-size:11px;color:var(--red);letter-spacing:3px;text-transform:uppercase;margin-bottom:28px;padding:4px 10px;background:rgba(255,68,102,0.1);border-radius:4px}
-.form-group{margin-bottom:16px}
-.form-label{display:block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:6px}
-.form-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;outline:none;transition:.2s}
-.form-input:focus{border-color:var(--gold)}
-select.form-input{appearance:none}
-textarea.form-input{resize:vertical;min-height:80px}
-.btn{padding:11px 20px;border:none;border-radius:8px;font-family:'Cinzel',serif;font-size:13px;letter-spacing:1px;cursor:pointer;transition:.2s;font-weight:600}
-.btn-block{width:100%}
-.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy)}
-.btn-gold:hover{opacity:.9;transform:translateY(-1px)}
-.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2)}
-.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
-.btn-green{background:rgba(0,212,170,0.15);border:1px solid rgba(0,212,170,0.4);color:var(--green)}
-.btn-red{background:rgba(255,68,102,0.15);border:1px solid rgba(255,68,102,0.4);color:var(--red)}
-.btn-sm{padding:6px 14px;font-size:11px}
-.btn-xs{padding:4px 10px;font-size:10px}
-.auth-msg{margin-top:10px;text-align:center;font-size:13px;min-height:18px}
-.auth-msg.error{color:var(--red)}
-.auth-msg.success{color:var(--green)}
+/* MAIN ADMIN */
+#admin-app{display:none;min-height:100vh}
+.admin-nav{position:fixed;top:0;left:0;right:0;height:64px;z-index:100;background:rgba(10,15,30,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.admin-brand{display:flex;align-items:center;gap:10px}
+.admin-brand-mark{width:34px;height:34px;background:linear-gradient(135deg,var(--gold3),var(--gold));border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:800}
+.admin-brand-name{font-family:'Syne',sans-serif;font-weight:800;font-size:0.95rem}
+.admin-brand-tag{display:inline-block;margin-left:10px;padding:3px 10px;background:rgba(0,212,200,0.1);border:1px solid rgba(0,212,200,0.25);border-radius:4px;font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--teal);letter-spacing:0.1em}
+.admin-actions{display:flex;gap:10px;align-items:center}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--gold);padding:8px 16px;border-radius:6px;font-size:0.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.btn-ghost:hover{background:rgba(200,169,110,0.08)}
 
-/* LAYOUT */
-#adminApp{display:none;min-height:100vh}
-.admin-layout{display:flex;min-height:100vh}
+.admin-body{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 64px);padding-top:64px}
+.admin-sb{background:var(--navy2);border-right:1px solid var(--border);padding:20px 14px;position:fixed;top:64px;bottom:0;left:0;width:230px;overflow-y:auto}
+.sb-section{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--gray);text-transform:uppercase;letter-spacing:0.12em;padding:14px 12px 8px}
+.sb-item{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:8px;color:var(--gray2);cursor:pointer;transition:all 0.2s;font-size:0.88rem;font-weight:500;margin-bottom:2px;text-decoration:none;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
+.sb-item:hover{background:var(--navy3);color:var(--white)}
+.sb-item.active{background:rgba(200,169,110,0.1);color:var(--gold);border-left:3px solid var(--gold);padding-left:10px}
+.sb-item .ic{font-size:1.05rem}
+.sb-badge{margin-left:auto;background:var(--red);color:white;font-size:0.65rem;padding:2px 8px;border-radius:10px;font-weight:700}
 
-/* SIDEBAR */
-.sidebar{width:var(--sidebar);background:rgba(4,13,26,0.97);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:50;transition:.3s;overflow:hidden}
-.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
-.sidebar-logo-text{font-family:'Cinzel',serif;font-size:14px;color:var(--gold2);letter-spacing:1px}
-.sidebar-logo-sub{font-size:10px;color:var(--red);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
-.sidebar-nav{flex:1;padding:12px 0;overflow-y:auto}
-.nav-section{padding:12px 20px 4px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);opacity:.6}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;transition:.2s;font-size:14px;font-weight:500;color:var(--text2);border-left:3px solid transparent}
-.nav-item:hover{background:var(--gold-dim);color:var(--text)}
-.nav-item.active{color:var(--gold2);background:var(--gold-dim);border-left-color:var(--gold2)}
-.nav-item svg{width:18px;height:18px;flex-shrink:0;fill:currentColor}
-.sidebar-bottom{padding:16px 20px;border-top:1px solid var(--border)}
-.admin-badge{display:flex;align-items:center;gap:8px}
-.admin-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:14px;color:var(--navy);font-weight:700}
-.admin-name{font-size:13px;font-weight:600;color:var(--gold2)}
-.admin-role{font-size:10px;color:var(--red);text-transform:uppercase;letter-spacing:1px}
+.admin-main{margin-left:230px;padding:24px 32px}
+@media(max-width:768px){.admin-sb{display:none}.admin-main{margin-left:0;padding:18px}}
 
-/* MAIN */
-.main-content{margin-left:var(--sidebar);flex:1;padding:24px;min-height:100vh}
-.page{display:none;animation:fadeIn .3s ease}
-.page.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
-.page-title{font-family:'Cinzel',serif;font-size:20px;color:var(--gold2);letter-spacing:1.5px}
-.page-sub{font-size:13px;color:var(--text2);margin-top:4px}
+.welcome{margin-bottom:22px}
+.welcome h2{font-size:1.55rem;font-weight:800;letter-spacing:-0.01em;margin-bottom:5px}
+.welcome p{color:var(--gray2);font-size:0.9rem}
 
-/* CARDS */
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
-.card-title{font-family:'Cinzel',serif;font-size:14px;color:var(--gold2);letter-spacing:1px;margin-bottom:14px}
-.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold3),var(--gold))}
+.stat-label{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--gray);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px}
+.stat-val{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;color:var(--gold)}
+.stat-sub{font-size:0.75rem;color:var(--gray2);margin-top:3px}
 
-/* STAT CARDS */
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:20px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold3))}
-.stat-icon{font-size:24px;margin-bottom:8px}
-.stat-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:4px}
-.stat-val{font-family:'Cinzel',serif;font-size:24px;color:var(--gold2);font-weight:700}
-.stat-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.panel{display:none}
+.panel.active{display:block}
 
-/* TABLE */
-.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+.card{background:var(--navy2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:18px}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-head h3{font-size:1rem;font-weight:700}
+.card-body{padding:18px 20px}
+
 table{width:100%;border-collapse:collapse}
-th{background:var(--navy3);padding:10px 14px;text-align:left;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold2);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
-td{padding:10px 14px;font-size:13px;border-bottom:1px solid rgba(201,162,39,0.08);color:var(--text);vertical-align:middle}
+th{text-align:left;padding:11px 18px;background:var(--navy3);font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--gray);text-transform:uppercase;letter-spacing:0.08em;border-bottom:1px solid var(--border)}
+td{padding:13px 18px;border-bottom:1px solid var(--border);font-size:0.85rem;color:var(--white)}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(255,255,255,0.02)}
-.td-actions{display:flex;gap:6px;flex-wrap:wrap}
+tr:hover td{background:rgba(200,169,110,0.03)}
 
-/* BADGES */
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-.badge-pending{background:rgba(255,196,0,0.15);color:#ffc400;border:1px solid rgba(255,196,0,0.3)}
-.badge-approved,.badge-verified,.badge-completed,.badge-resolved{background:rgba(0,212,170,0.15);color:var(--green);border:1px solid rgba(0,212,170,0.3)}
-.badge-rejected,.badge-failed{background:rgba(255,68,102,0.15);color:var(--red);border:1px solid rgba(255,68,102,0.3)}
-.badge-processing{background:rgba(68,136,255,0.15);color:var(--blue);border:1px solid rgba(68,136,255,0.3)}
-.badge-open{background:rgba(255,136,0,0.15);color:var(--orange);border:1px solid rgba(255,136,0,0.3)}
-.badge-admin{background:rgba(201,162,39,0.2);color:var(--gold2);border:1px solid var(--border)}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:0.7rem;font-weight:700;letter-spacing:0.04em}
+.b-pending{background:rgba(255,184,0,0.12);color:var(--yellow);border:1px solid rgba(255,184,0,0.3)}
+.b-approved{background:rgba(0,196,140,0.12);color:var(--green);border:1px solid rgba(0,196,140,0.3)}
+.b-rejected{background:rgba(255,77,109,0.12);color:var(--red);border:1px solid rgba(255,77,109,0.3)}
+.b-verified{background:rgba(0,196,140,0.12);color:var(--green);border:1px solid rgba(0,196,140,0.3)}
+.b-unverified{background:rgba(107,114,128,0.15);color:var(--gray2);border:1px solid rgba(107,114,128,0.3)}
+.b-open{background:rgba(0,212,200,0.12);color:var(--teal);border:1px solid rgba(0,212,200,0.3)}
+.b-resolved{background:rgba(0,196,140,0.12);color:var(--green);border:1px solid rgba(0,196,140,0.3)}
 
-/* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px}
-.modal-overlay.open{display:flex}
-.modal-box{background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius);padding:28px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;position:relative}
-.modal-title{font-family:'Cinzel',serif;font-size:17px;color:var(--gold2);margin-bottom:18px}
-.modal-close{position:absolute;top:16px;right:16px;cursor:pointer;color:var(--text2);font-size:20px;line-height:1;background:none;border:none}
-.modal-actions{display:flex;gap:10px;margin-top:16px}
-.modal-actions .btn{flex:1}
-.modal-body{font-size:13px;color:var(--text);line-height:1.7}
-.detail-row{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
-.detail-key{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text2);min-width:120px;flex-shrink:0}
-.detail-val{font-size:13px;color:var(--text);word-break:break-all}
+.empty{padding:48px 20px;text-align:center;color:var(--gray2)}
+.empty .ico{font-size:2.5rem;margin-bottom:10px;opacity:0.6}
+.empty p{font-size:0.9rem}
 
-/* TOAST */
-#toast{position:fixed;top:20px;right:20px;z-index:9000;display:flex;flex-direction:column;gap:8px}
-.toast-msg{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:13px;min-width:220px;max-width:340px;animation:slideIn .3s ease;display:flex;align-items:center;gap:8px}
-.toast-msg.toast-ok{border-color:var(--green);background:rgba(0,212,170,0.1)}
-.toast-msg.toast-err{border-color:var(--red);background:rgba(255,68,102,0.1)}
-@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.act-btn{padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;margin-right:6px;transition:all 0.2s}
+.act-approve{background:var(--green);color:white}
+.act-approve:hover{background:#00a575}
+.act-reject{background:var(--red);color:white}
+.act-reject:hover{background:#e6435f}
+.act-view{background:var(--navy3);color:var(--white);border:1px solid var(--border2)}
+.act-view:hover{background:var(--gold);color:var(--navy)}
 
-/* SEARCH / FILTER */
-.filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.filter-input{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;outline:none;flex:1;min-width:160px}
-.filter-input:focus{border-color:var(--gold)}
-.filter-select{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;outline:none}
+.search-bar{padding:11px 14px;background:var(--navy3);border:1px solid var(--border);border-radius:8px;color:var(--white);width:100%;max-width:300px;font-size:0.88rem;outline:none}
+.search-bar:focus{border-color:var(--gold)}
 
-/* SPINNER */
-.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--gold2);border-radius:50%;animation:spin .6s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-row{text-align:center;padding:24px;color:var(--text2)}
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal-box{background:var(--navy2);border:1px solid var(--border2);border-radius:14px;padding:26px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;position:relative}
+.modal-x{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--gray2);font-size:1.4rem;cursor:pointer;line-height:1}
+.modal-box h3{font-size:1.1rem;margin-bottom:14px}
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem}
+.detail-row:last-child{border-bottom:none}
+.detail-row .lbl{color:var(--gray2)}
+.detail-row .val{color:var(--white);font-weight:600;font-family:'Space Mono',monospace;font-size:0.82rem;word-break:break-all;text-align:right;max-width:60%}
 
-/* ADDR */
-.addr-box{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px}
-.addr-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold2);margin-bottom:8px}
-.addr-value{font-family:monospace;font-size:12px;color:var(--text);word-break:break-all;line-height:1.6}
-.copy-btn{display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--text2);cursor:pointer;background:none;transition:.2s}
-.copy-btn:hover{border-color:var(--gold);color:var(--gold)}
-
-/* MOBILE SIDEBAR */
-#menuToggle{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:8px;cursor:pointer}
-@media(max-width:900px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:translateX(0)}
-  .main-content{margin-left:0}
-  #menuToggle{display:block}
-  .stat-grid{grid-template-columns:1fr 1fr}
-}
-
-/* KYC IMAGE */
-.kyc-img-wrap{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px;background:var(--navy3);text-align:center;padding:4px}
-.kyc-img-wrap img{max-width:100%;max-height:300px;object-fit:contain}
-
-/* REFRESH BTN */
-.refresh-btn{background:var(--gold-dim);border:1px solid var(--border);border-radius:6px;padding:6px 12px;color:var(--gold2);font-size:12px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:600}
-.refresh-btn:hover{background:var(--gold-glow)}
+.toast-wrap{position:fixed;top:80px;right:20px;z-index:9000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--navy3);border:1px solid var(--border2);border-radius:8px;padding:12px 18px;font-size:0.85rem;animation:slidein .3s ease;min-width:200px}
+.toast.ok{border-color:var(--green)}.toast.err{border-color:var(--red)}
+@keyframes slidein{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
 </style>
 </head>
 <body>
 
-<!-- LOADER -->
-<div id="loader">
-  <div class="loader-logo">⬡ QFS ADMIN</div>
-  <div class="loader-bar"><div class="loader-fill"></div></div>
-</div>
-
-<!-- ADMIN AUTH -->
-<div id="adminAuth">
-  <div class="auth-box">
-    <div class="auth-logo">⬡ NESARA QFS LAB</div>
-    <div class="auth-sub">🔐 Admin Access Only</div>
-    <div class="form-group">
-      <label class="form-label">Admin Email</label>
-      <input type="email" class="form-input" id="adminEmail" value="info@nesaraqfslab.com" placeholder="admin@nesaraqfslab.com"/>
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-mark">⚡</div>
+      <div>
+        <div class="login-title">Nesara QFS Lab</div>
+        <div class="login-sub">ADMIN CONSOLE</div>
+      </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Admin Password</label>
-      <input type="password" class="form-input" id="adminPass" placeholder="••••••••"/>
+    <h2>Sign in to Admin</h2>
+    <p class="desc">Enter the admin password to access the control panel.</p>
+    <div class="err" id="login-err"></div>
+    <div class="fg"><label>Admin Password</label><input type="password" id="admin-pwd" placeholder="••••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+    <button class="btn-primary" onclick="doAdminLogin()" id="login-btn">Sign In</button>
+    <div style="margin-top:18px;text-align:center;font-size:0.78rem;color:var(--gray2)">
+      Default password: <strong style="color:var(--gold)">Claude0511@</strong>
     </div>
-    <button class="btn btn-gold btn-block" onclick="adminLogin()">Access Admin Portal</button>
-    <div class="auth-msg error" id="adminLoginMsg"></div>
   </div>
 </div>
 
-<!-- TOAST -->
-<div id="toast"></div>
-
-<!-- MOBILE MENU TOGGLE -->
-<button id="menuToggle" onclick="toggleSidebar()">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold2)" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-</button>
-
 <!-- ADMIN APP -->
-<div id="adminApp">
-  <div class="admin-layout">
-
-    <!-- SIDEBAR -->
-    <div class="sidebar" id="sidebar">
-      <div class="sidebar-logo">
-        <div class="sidebar-logo-text">⬡ QFS Admin</div>
-        <div class="sidebar-logo-sub">Restricted Access</div>
+<div id="admin-app">
+  <nav class="admin-nav">
+    <div class="admin-brand">
+      <div class="admin-brand-mark">⚡</div>
+      <div>
+        <div class="admin-brand-name">Nesara QFS Lab</div>
       </div>
-
-      <div class="sidebar-nav">
-        <div class="nav-section">Overview</div>
-        <div class="nav-item active" onclick="goPage('dashboard')">
-          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-          Dashboard
-        </div>
-
-        <div class="nav-section">Users</div>
-        <div class="nav-item" onclick="goPage('users')">
-          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-          All Users
-        </div>
-        <div class="nav-item" onclick="goPage('kyc')">
-          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          KYC Queue
-        </div>
-
-        <div class="nav-section">Finance</div>
-        <div class="nav-item" onclick="goPage('deposits')">
-          <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-          Deposit Proofs
-        </div>
-        <div class="nav-item" onclick="goPage('withdrawals')">
-          <svg viewBox="0 0 24 24"><polyline points="1 6 10.5 15.5 15.5 10.5 23 19"/><polyline points="17 19 23 19 23 13"/></svg>
-          Withdrawals
-        </div>
-        <div class="nav-item" onclick="goPage('funds')">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-          Add Funds
-        </div>
-
-        <div class="nav-section">Support</div>
-        <div class="nav-item" onclick="goPage('tickets')">
-          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-          Tickets
-        </div>
-
-        <div class="nav-section">Settings</div>
-        <div class="nav-item" onclick="goPage('addresses')">
-          <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-          Deposit Addresses
-        </div>
-        <div class="nav-item" onclick="goPage('settings')">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-          Settings
-        </div>
-      </div>
-
-      <div class="sidebar-bottom">
-        <div class="admin-badge">
-          <div class="admin-avatar">A</div>
-          <div>
-            <div class="admin-name">Admin</div>
-            <div class="admin-role">Super Admin</div>
-          </div>
-          <button class="btn btn-outline btn-xs" style="margin-left:auto" onclick="adminLogout()">Out</button>
-        </div>
-      </div>
+      <span class="admin-brand-tag">ADMIN</span>
     </div>
+    <div class="admin-actions">
+      <button class="btn-ghost" onclick="refreshAll()">↻ Refresh</button>
+      <button class="btn-ghost" onclick="adminLogout()">Sign Out</button>
+    </div>
+  </nav>
 
-    <!-- MAIN -->
-    <div class="main-content">
+  <div class="admin-body">
+    <aside class="admin-sb">
+      <div class="sb-section">Overview</div>
+      <button class="sb-item active" onclick="switchPanel('dashboard',this)"><span class="ic">📊</span>Dashboard</button>
+
+      <div class="sb-section">Users</div>
+      <button class="sb-item" onclick="switchPanel('users',this)"><span class="ic">👥</span>All Users</button>
+
+      <div class="sb-section">Verifications</div>
+      <button class="sb-item" onclick="switchPanel('kyc',this)"><span class="ic">🪪</span>KYC Queue<span class="sb-badge" id="kyc-badge" style="display:none">0</span></button>
+
+      <div class="sb-section">Money</div>
+      <button class="sb-item" onclick="switchPanel('proofs',this)"><span class="ic">💰</span>Deposit Proofs<span class="sb-badge" id="proof-badge" style="display:none">0</span></button>
+      <button class="sb-item" onclick="switchPanel('withdrawals',this)"><span class="ic">💸</span>Withdrawals<span class="sb-badge" id="wd-badge" style="display:none">0</span></button>
+      <button class="sb-item" onclick="switchPanel('funds',this)"><span class="ic">💵</span>Manage Funds</button>
+
+      <div class="sb-section">Support</div>
+      <button class="sb-item" onclick="switchPanel('tickets',this)"><span class="ic">🎫</span>Tickets<span class="sb-badge" id="ticket-badge" style="display:none">0</span></button>
+
+      <div class="sb-section">Settings</div>
+      <button class="sb-item" onclick="switchPanel('settings',this)"><span class="ic">⚙️</span>Settings</button>
+    </aside>
+
+    <main class="admin-main">
 
       <!-- DASHBOARD -->
-      <div class="page active" id="page-dashboard">
-        <div class="page-header">
-          <div>
-            <div class="page-title">Dashboard</div>
-            <div class="page-sub">Nesara QFS Lab — Overview</div>
-          </div>
-          <button class="refresh-btn" onclick="loadDashboard()">↻ Refresh</button>
+      <div class="panel active" id="panel-dashboard">
+        <div class="welcome">
+          <h2>Admin Dashboard</h2>
+          <p>Real-time overview of platform activity</p>
         </div>
-
-        <div class="stat-grid" id="statsGrid">
-          <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-label">Total Users</div><div class="stat-val" id="statUsers">—</div></div>
-          <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-label">KYC Verified</div><div class="stat-val" id="statKyc">—</div></div>
-          <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-label">Pending KYC</div><div class="stat-val" id="statKycPending">—</div></div>
-          <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Pending Deposits</div><div class="stat-val" id="statDepPending">—</div></div>
-          <div class="stat-card"><div class="stat-icon">💸</div><div class="stat-label">Pending Withdrawals</div><div class="stat-val" id="statWdPending">—</div></div>
-          <div class="stat-card"><div class="stat-icon">🎫</div><div class="stat-label">Open Tickets</div><div class="stat-val" id="statTickets">—</div></div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-val" id="stat-users">0</div><div class="stat-sub">Registered accounts</div></div>
+          <div class="stat-card"><div class="stat-label">KYC Pending</div><div class="stat-val" id="stat-kyc">0</div><div class="stat-sub">Awaiting review</div></div>
+          <div class="stat-card"><div class="stat-label">Deposit Proofs</div><div class="stat-val" id="stat-proofs">0</div><div class="stat-sub">Pending approval</div></div>
+          <div class="stat-card"><div class="stat-label">Withdrawals</div><div class="stat-val" id="stat-withdrawals">0</div><div class="stat-sub">Pending requests</div></div>
+          <div class="stat-card"><div class="stat-label">Open Tickets</div><div class="stat-val" id="stat-tickets">0</div><div class="stat-sub">Awaiting response</div></div>
+          <div class="stat-card"><div class="stat-label">Verified Users</div><div class="stat-val" id="stat-verified">0</div><div class="stat-sub">KYC approved</div></div>
         </div>
-
         <div class="card">
-          <div class="card-title">Recent Users</div>
-          <div id="recentUsersTable"><div class="loading-row"><div class="spinner"></div></div></div>
+          <div class="card-head"><h3>Recent Signups</h3></div>
+          <div id="recent-signups"></div>
         </div>
       </div>
 
       <!-- USERS -->
-      <div class="page" id="page-users">
-        <div class="page-header">
-          <div><div class="page-title">User Management</div><div class="page-sub" id="usersCount">Loading…</div></div>
-          <button class="refresh-btn" onclick="loadUsers()">↻ Refresh</button>
-        </div>
-        <div class="filter-bar">
-          <input type="text" class="filter-input" id="userSearch" placeholder="Search by name or email…" oninput="filterUsers()"/>
-          <select class="filter-select" id="kycFilter" onchange="filterUsers()">
-            <option value="">All KYC</option>
-            <option value="verified">Verified</option>
-            <option value="pending">Pending</option>
-            <option value="not_submitted">Not Submitted</option>
-          </select>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>User</th><th>Email</th><th>Country</th><th>KYC</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
-            <tbody id="usersTableBody"><tr><td colspan="7" class="loading-row"><div class="spinner"></div></td></tr></tbody>
-          </table>
-        </div>
+      <div class="panel" id="panel-users">
+        <div class="welcome"><h2>All Users</h2><p>Complete list of registered users on the platform</p></div>
+        <div style="margin-bottom:16px"><input type="text" class="search-bar" id="user-search" placeholder="Search by name or email..." oninput="renderUsers()"></div>
+        <div class="card"><div id="users-table"></div></div>
       </div>
 
       <!-- KYC -->
-      <div class="page" id="page-kyc">
-        <div class="page-header">
-          <div><div class="page-title">KYC Queue</div><div class="page-sub">Review identity submissions</div></div>
-          <button class="refresh-btn" onclick="loadKYCQueue()">↻ Refresh</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>User</th><th>Doc Type</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="kycTableBody"><tr><td colspan="5" class="loading-row"><div class="spinner"></div></td></tr></tbody>
-          </table>
-        </div>
+      <div class="panel" id="panel-kyc">
+        <div class="welcome"><h2>KYC Queue</h2><p>Review and approve identity verification submissions</p></div>
+        <div class="card"><div id="kyc-table"></div></div>
       </div>
 
-      <!-- DEPOSITS -->
-      <div class="page" id="page-deposits">
-        <div class="page-header">
-          <div><div class="page-title">Deposit Proofs</div><div class="page-sub">Review and approve deposit submissions</div></div>
-          <button class="refresh-btn" onclick="loadDepositsAdmin()">↻ Refresh</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>User</th><th>Coin</th><th>Amount</th><th>Tx Hash</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="depositsTableBody"><tr><td colspan="7" class="loading-row"><div class="spinner"></div></td></tr></tbody>
-          </table>
-        </div>
+      <!-- PROOFS -->
+      <div class="panel" id="panel-proofs">
+        <div class="welcome"><h2>Deposit Proofs</h2><p>Verify and credit user deposits</p></div>
+        <div class="card"><div id="proofs-table"></div></div>
       </div>
 
       <!-- WITHDRAWALS -->
-      <div class="page" id="page-withdrawals">
-        <div class="page-header">
-          <div><div class="page-title">Withdrawals</div><div class="page-sub">Manage withdrawal requests</div></div>
-          <button class="refresh-btn" onclick="loadWithdrawalsAdmin()">↻ Refresh</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>User</th><th>Currency</th><th>Amount</th><th>Address</th><th>Network</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="withdrawalsTableBody"><tr><td colspan="8" class="loading-row"><div class="spinner"></div></td></tr></tbody>
-          </table>
-        </div>
+      <div class="panel" id="panel-withdrawals">
+        <div class="welcome"><h2>Withdrawal Requests</h2><p>Approve or reject user withdrawal requests</p></div>
+        <div class="card"><div id="withdrawals-table"></div></div>
       </div>
 
-      <!-- ADD FUNDS -->
-      <div class="page" id="page-funds">
-        <div class="page-header">
-          <div><div class="page-title">Add Funds</div><div class="page-sub">Manually credit user accounts</div></div>
+      <!-- FUNDS -->
+      <div class="panel" id="panel-funds">
+        <div class="welcome"><h2>Manage Funds</h2><p>Add, set, or deduct any coin balance for any user</p></div>
+        <div class="card">
+          <div class="card-body">
+            <div class="fg"><label>Select User</label><select id="fund-user" class="search-bar" style="max-width:100%"></select></div>
+            <div class="fg"><label>Coin</label>
+              <select id="fund-coin" class="search-bar" style="max-width:100%">
+                <option value="XLM">⭐ XLM (Stellar)</option>
+                <option value="XRP">💧 XRP (Ripple)</option>
+                <option value="USDC">💵 USDC</option>
+                <option value="BTC">₿ BTC (Bitcoin)</option>
+              </select>
+            </div>
+            <div class="fg"><label>Action</label>
+              <select id="fund-action" class="search-bar" style="max-width:100%">
+                <option value="add">➕ Add to balance</option>
+                <option value="set">🎯 Set balance to</option>
+                <option value="deduct">➖ Deduct from balance</option>
+              </select>
+            </div>
+            <div class="fg"><label>Amount</label><input type="number" class="search-bar" style="max-width:100%" id="fund-amount" placeholder="0.00" step="any"></div>
+            <button class="btn-primary" onclick="updateFunds()">Update Balance</button>
+          </div>
         </div>
-        <div class="card" style="max-width:500px">
-          <div class="card-title">Credit User Account</div>
-          <div class="form-group">
-            <label class="form-label">Search User</label>
-            <input type="text" class="form-input" id="fundsUserSearch" placeholder="Type email to search…" oninput="searchFundsUser()" style="font-size:16px"/>
-            <div id="fundsUserDropdown" style="margin-top:6px;display:none"></div>
-          </div>
-          <div id="selectedUserInfo" style="display:none;background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;font-size:13px">
-            <div class="detail-row"><div class="detail-key">Selected</div><div class="detail-val" id="fundsUserName">—</div></div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Currency</label>
-            <select class="form-input" id="fundsCurrency" style="font-size:16px">
-              <option value="USD">USD</option>
-              <option value="BTC">BTC</option>
-              <option value="XLM">XLM</option>
-              <option value="XRP">XRP</option>
-              <option value="USDC">USDC</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Amount</label>
-            <input type="number" class="form-input" id="fundsAmount" placeholder="0.00" style="font-size:16px"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Note / Reason</label>
-            <input type="text" class="form-input" id="fundsNote" placeholder="e.g. Manual deposit credit" style="font-size:16px"/>
-          </div>
-          <button class="btn btn-gold btn-block" onclick="addFunds()">Add Funds</button>
-          <div class="auth-msg" id="fundsMsg"></div>
+        <div class="card">
+          <div class="card-head"><h3>Current Balances</h3></div>
+          <div id="balances-table"></div>
         </div>
       </div>
 
       <!-- TICKETS -->
-      <div class="page" id="page-tickets">
-        <div class="page-header">
-          <div><div class="page-title">Support Tickets</div><div class="page-sub">Manage user support requests</div></div>
-          <button class="refresh-btn" onclick="loadTicketsAdmin()">↻ Refresh</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>User</th><th>Category</th><th>Subject</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="ticketsTableBody"><tr><td colspan="6" class="loading-row"><div class="spinner"></div></td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- ADDRESSES -->
-      <div class="page" id="page-addresses">
-        <div class="page-header">
-          <div><div class="page-title">Deposit Addresses</div><div class="page-sub">Platform receiving addresses</div></div>
-        </div>
-        <div class="card" style="max-width:600px">
-          <div class="card-title">Active Receiving Addresses</div>
-          <div class="addr-box">
-            <div class="addr-label">Stellar (XLM)</div>
-            <div class="addr-value">GARYAMRNNLJEPV2Z2RTSGIKQGMBE2Q5EETNSRHIPUZ3KT5OV6HXAPWTX</div>
-            <button class="copy-btn" onclick="copyText(this,'GARYAMRNNLJEPV2Z2RTSGIKQGMBE2Q5EETNSRHIPUZ3KT5OV6HXAPWTX')">📋 Copy</button>
-          </div>
-          <div class="addr-box">
-            <div class="addr-label">Ripple (XRP)</div>
-            <div class="addr-value">r91kk7dkrRkh73FqCbdg6PbFH65jDkoYgk</div>
-            <button class="copy-btn" onclick="copyText(this,'r91kk7dkrRkh73FqCbdg6PbFH65jDkoYgk')">📋 Copy</button>
-          </div>
-          <div class="addr-box">
-            <div class="addr-label">USDC (ERC20)</div>
-            <div class="addr-value">0x3b5B532ca9837878a276e90D9c16208849f3aBC0</div>
-            <button class="copy-btn" onclick="copyText(this,'0x3b5B532ca9837878a276e90D9c16208849f3aBC0')">📋 Copy</button>
-          </div>
-          <div class="addr-box">
-            <div class="addr-label">Bitcoin (BTC)</div>
-            <div class="addr-value">bc1pmzvfnf4pngf2a9xu7wx0w3fdra7dmhu460wkxxget6nr7ert7kwqlwh04f</div>
-            <button class="copy-btn" onclick="copyText(this,'bc1pmzvfnf4pngf2a9xu7wx0w3fdra7dmhu460wkxxget6nr7ert7kwqlwh04f')">📋 Copy</button>
-          </div>
-        </div>
+      <div class="panel" id="panel-tickets">
+        <div class="welcome"><h2>Support Tickets</h2><p>Manage and respond to user support requests</p></div>
+        <div class="card"><div id="tickets-table"></div></div>
       </div>
 
       <!-- SETTINGS -->
-      <div class="page" id="page-settings">
-        <div class="page-header">
-          <div><div class="page-title">Settings</div><div class="page-sub">Admin account management</div></div>
+      <div class="panel" id="panel-settings">
+        <div class="welcome"><h2>Settings</h2><p>Configure admin account and platform options</p></div>
+        <div class="card">
+          <div class="card-head"><h3>Change Admin Password</h3></div>
+          <div class="card-body">
+            <div class="fg"><label>Current Password</label><input type="password" class="search-bar" style="max-width:100%" id="cp-current"></div>
+            <div class="fg"><label>New Password</label><input type="password" class="search-bar" style="max-width:100%" id="cp-new"></div>
+            <div class="fg"><label>Confirm New Password</label><input type="password" class="search-bar" style="max-width:100%" id="cp-confirm"></div>
+            <button class="btn-primary" onclick="changeAdminPwd()">Update Password</button>
+          </div>
         </div>
-        <div class="card" style="max-width:460px">
-          <div class="card-title">Change Admin Password</div>
-          <div class="form-group">
-            <label class="form-label">Current Password</label>
-            <input type="password" class="form-input" id="cpOld" style="font-size:16px"/>
+        <div class="card">
+          <div class="card-head"><h3>Deposit Addresses</h3></div>
+          <div class="card-body">
+            <div class="detail-row"><span class="lbl">⭐ XLM</span><span class="val">GARYAMRNNLJEPV2Z2RTSGIKQGMBE2Q5EETNSRHIPUZ3KT5OV6HXAPWTX</span></div>
+            <div class="detail-row"><span class="lbl">💧 XRP</span><span class="val">r91kk7dkrRkh73FqCbdg6PbFH65jDkoYgk</span></div>
+            <div class="detail-row"><span class="lbl">💵 USDC</span><span class="val">0x3b5B532ca9837878a276e90D9c16208849f3aBC0</span></div>
+            <div class="detail-row"><span class="lbl">₿ BTC</span><span class="val">bc1pmzvfnf4pngf2a9xu7wx0w3fdra7dmhu460wkxxget6nr7ert7kwqlwh04f</span></div>
           </div>
-          <div class="form-group">
-            <label class="form-label">New Password</label>
-            <input type="password" class="form-input" id="cpNew" style="font-size:16px"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Confirm Password</label>
-            <input type="password" class="form-input" id="cpConfirm" style="font-size:16px"/>
-          </div>
-          <button class="btn btn-gold" onclick="changeAdminPass()">Update Password</button>
-          <div class="auth-msg" id="cpMsg"></div>
         </div>
-        <div class="card" style="max-width:460px">
-          <div class="card-title">Contact Info</div>
-          <div class="modal-body">
-            <div class="detail-row"><div class="detail-key">Address</div><div class="detail-val">1309 Coffeen Avenue STE 1200, Sheridan, Wyoming 82801</div></div>
-            <div class="detail-row"><div class="detail-key">Email</div><div class="detail-val">info@nesaraqfslab.com</div></div>
-            <div class="detail-row"><div class="detail-key">Phone</div><div class="detail-val">+1 (206) 251-7105</div></div>
+        <div class="card">
+          <div class="card-head"><h3>Danger Zone</h3></div>
+          <div class="card-body">
+            <p style="font-size:0.85rem;color:var(--gray2);margin-bottom:14px">⚠️ This will permanently delete ALL user data, KYC submissions, deposit proofs, withdrawals, and tickets. Cannot be undone.</p>
+            <button class="btn-primary" style="background:var(--red);max-width:240px" onclick="resetAllData()">Reset All Platform Data</button>
           </div>
         </div>
       </div>
 
-    </div><!-- /main-content -->
+    </main>
   </div>
-</div><!-- /adminApp -->
+</div>
 
 <!-- USER DETAIL MODAL -->
-<div class="modal-overlay" id="userModal">
-  <div class="modal-box" style="max-width:560px">
-    <button class="modal-close" onclick="closeModal('userModal')">✕</button>
-    <div class="modal-title">User Detail</div>
-    <div id="userModalBody" class="modal-body"></div>
-    <div class="modal-actions">
-      <button class="btn btn-red" id="userDeleteBtn" onclick="confirmDeleteUser()">Delete User</button>
-      <button class="btn btn-outline" onclick="closeModal('userModal')">Close</button>
-    </div>
+<div class="modal-bg" id="user-modal">
+  <div class="modal-box">
+    <button class="modal-x" onclick="closeModal('user-modal')">✕</button>
+    <h3>User Details</h3>
+    <div id="user-detail-body"></div>
   </div>
 </div>
 
-<!-- KYC REVIEW MODAL -->
-<div class="modal-overlay" id="kycModal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('kycModal')">✕</button>
-    <div class="modal-title">KYC Review</div>
-    <div id="kycModalBody" class="modal-body"></div>
-    <div class="form-group" style="margin-top:14px">
-      <label class="form-label">Admin Note (optional)</label>
-      <textarea class="form-input" id="kycNote" placeholder="Reason for rejection or notes…" style="font-size:14px"></textarea>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-green" id="kycApproveBtn">✓ Approve</button>
-      <button class="btn btn-red" id="kycRejectBtn">✗ Reject</button>
-      <button class="btn btn-outline" onclick="closeModal('kycModal')">Cancel</button>
-    </div>
-    <div class="auth-msg" id="kycActionMsg"></div>
-  </div>
-</div>
-
-<!-- TICKET REPLY MODAL -->
-<div class="modal-overlay" id="ticketModal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('ticketModal')">✕</button>
-    <div class="modal-title">Resolve Ticket</div>
-    <div id="ticketModalBody" class="modal-body" style="margin-bottom:14px"></div>
-    <div class="form-group">
-      <label class="form-label">Resolution / Reply</label>
-      <textarea class="form-input" id="ticketReply" placeholder="Enter resolution message…" style="font-size:14px;min-height:100px"></textarea>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-green" id="ticketResolveBtn">Mark Resolved</button>
-      <button class="btn btn-outline" onclick="closeModal('ticketModal')">Cancel</button>
-    </div>
-    <div class="auth-msg" id="ticketActionMsg"></div>
-  </div>
-</div>
+<!-- TOAST -->
+<div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
-const API = 'https://nesara-qfs-lab-production.up.railway.app';
-let token = null;
-let allUsers = [];
-let selectedFundsUserId = null;
-let currentKycUserId = null;
-let currentTicketId = null;
-let currentDeleteUserId = null;
+const ADMIN_PWD_KEY = 'nqfs_admin_pwd';
+const ADMIN_AUTH_KEY = 'nqfs_admin_auth';
+const USERS_KEY = 'nqfs_users';
 
-const setToken = t => { token = t; sessionStorage.setItem('qfs_admin_token', t); };
-const getToken = () => token || sessionStorage.getItem('qfs_admin_token');
-const clearToken = () => { token = null; sessionStorage.removeItem('qfs_admin_token'); };
+function getAdminPwd() { return localStorage.getItem(ADMIN_PWD_KEY) || 'Claude0511@'; }
+function setAdminPwd(p) { localStorage.setItem(ADMIN_PWD_KEY, p); }
+function isAuthed() { return sessionStorage.getItem(ADMIN_AUTH_KEY) === '1'; }
+function setAuthed(v) { sessionStorage.setItem(ADMIN_AUTH_KEY, v ? '1' : '0'); }
+function getUsers() { try { return JSON.parse(localStorage.getItem(USERS_KEY) || '[]'); } catch(e){ return []; } }
+function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
 
-// ── API ──
-async function api(method, path, body, isForm) {
-  const opts = { method, headers: {} };
-  const t = getToken();
-  if (t) opts.headers['Authorization'] = 'Bearer ' + t;
-  if (body && !isForm) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
-  else if (body) opts.body = body;
-  const r = await fetch(API + path, opts);
-  if (!r.ok) {
-    let msg = 'Request failed';
-    try { const e = await r.json(); msg = e.error || e.message || msg; } catch(e){}
-    throw new Error(msg);
-  }
-  return r.json();
-}
-
-// ── TOAST ──
-function toast(msg, type = 'ok') {
+function toast(msg, type='ok') {
   const el = document.createElement('div');
-  el.className = `toast-msg toast-${type}`;
-  el.innerHTML = (type==='ok'?'✓ ':'✗ ') + msg;
-  document.getElementById('toast').appendChild(el);
-  setTimeout(() => el.remove(), 3500);
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.getElementById('toast-wrap').appendChild(el);
+  setTimeout(()=>el.remove(), 3500);
 }
 
-// ── AUTH ──
-async function adminLogin() {
-  const email = document.getElementById('adminEmail').value.trim();
-  const pass = document.getElementById('adminPass').value;
-  const msg = document.getElementById('adminLoginMsg');
-  msg.textContent = '';
-  try {
-    const data = await api('POST', '/api/login', { email, password: pass });
-    setToken(data.token);
-    document.getElementById('adminAuth').style.display = 'none';
-    document.getElementById('adminApp').style.display = 'block';
-    loadDashboard();
-  } catch(e) { msg.textContent = e.message; }
+function doAdminLogin() {
+  const pwd = document.getElementById('admin-pwd').value;
+  const errEl = document.getElementById('login-err');
+  if (pwd === getAdminPwd()) {
+    setAuthed(true);
+    showAdmin();
+  } else {
+    errEl.textContent = '✗ Incorrect password';
+    errEl.style.display = 'block';
+    setTimeout(()=>{ errEl.style.display='none'; }, 3000);
+  }
 }
 
-async function adminLogout() {
-  try { await api('POST', '/api/logout'); } catch(e) {}
-  clearToken();
-  location.reload();
+function adminLogout() {
+  setAuthed(false);
+  document.getElementById('admin-app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('admin-pwd').value = '';
 }
 
-// ── NAVIGATION ──
-function goPage(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + page)?.classList.add('active');
-  document.querySelector(`.nav-item[onclick="goPage('${page}')"]`)?.classList.add('active');
-  // Lazy load
-  if (page === 'users') loadUsers();
-  if (page === 'kyc') loadKYCQueue();
-  if (page === 'deposits') loadDepositsAdmin();
-  if (page === 'withdrawals') loadWithdrawalsAdmin();
-  if (page === 'tickets') loadTicketsAdmin();
-  // Mobile: close sidebar
-  document.getElementById('sidebar').classList.remove('open');
+function showAdmin() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-app').style.display = 'block';
+  refreshAll();
 }
 
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+function switchPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  refreshAll();
+}
+
+function refreshAll() {
+  const users = getUsers();
+  
+  // Stats
+  const kycPending = users.filter(u => u.kycStatus === 'pending').length;
+  const kycApproved = users.filter(u => u.kycStatus === 'verified' || u.kycStatus === 'approved').length;
+  let proofsPending = 0;
+  let withdrawalsPending = 0;
+  let openTickets = 0;
+  users.forEach(u => {
+    (u.depositProofs||[]).forEach(p => { if (p.status==='pending') proofsPending++; });
+    (u.withdrawals||[]).forEach(w => { if (w.status==='pending') withdrawalsPending++; });
+    (u.tickets||[]).forEach(t => { if (t.status==='open' || !t.status) openTickets++; });
+  });
+  
+  document.getElementById('stat-users').textContent = users.length;
+  document.getElementById('stat-kyc').textContent = kycPending;
+  document.getElementById('stat-proofs').textContent = proofsPending;
+  document.getElementById('stat-withdrawals').textContent = withdrawalsPending;
+  document.getElementById('stat-tickets').textContent = openTickets;
+  document.getElementById('stat-verified').textContent = kycApproved;
+  
+  // Sidebar badges
+  setBadge('kyc-badge', kycPending);
+  setBadge('proof-badge', proofsPending);
+  setBadge('wd-badge', withdrawalsPending);
+  setBadge('ticket-badge', openTickets);
+  
+  renderRecentSignups();
+  renderUsers();
+  renderKYC();
+  renderProofs();
+  renderWithdrawals();
+  renderTickets();
+  renderFundsControls();
+  renderBalancesTable();
+}
+
+function setBadge(id, n) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (n > 0) { el.textContent = n; el.style.display = 'inline-block'; }
+  else el.style.display = 'none';
+}
+
+function renderRecentSignups() {
+  const users = getUsers().sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0,5);
+  const c = document.getElementById('recent-signups');
+  if (!users.length) { c.innerHTML = '<div class="empty"><div class="ico">👥</div><p>No users registered yet</p></div>'; return; }
+  c.innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>KYC</th><th>Joined</th></tr></thead><tbody>${users.map(u => `<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${kycBadge(u.kycStatus)}</td><td>${fmtDate(u.createdAt)}</td></tr>`).join('')}</tbody></table>`;
+}
+
+function renderUsers() {
+  const search = (document.getElementById('user-search')?.value || '').toLowerCase();
+  let users = getUsers();
+  if (search) users = users.filter(u => (u.name||'').toLowerCase().includes(search) || (u.email||'').toLowerCase().includes(search));
+  const c = document.getElementById('users-table');
+  if (!users.length) { c.innerHTML = '<div class="empty"><div class="ico">👥</div><p>No users found</p></div>'; return; }
+  c.innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>KYC</th><th>Total Balance</th><th>Joined</th><th>Actions</th></tr></thead><tbody>${users.map(u => {
+    const total = totalUsdValue(u);
+    return `<tr>
+      <td>${esc(u.name)}</td>
+      <td>${esc(u.email)}</td>
+      <td>${kycBadge(u.kycStatus)}</td>
+      <td style="color:var(--gold);font-weight:700">$${total.toFixed(2)}</td>
+      <td>${fmtDate(u.createdAt)}</td>
+      <td><button class="act-btn act-view" onclick="viewUser('${u.id}')">View</button><button class="act-btn act-reject" onclick="deleteUser('${u.id}')">Delete</button></td>
+    </tr>`;
+  }).join('')}</tbody></table>`;
+}
+
+function totalUsdValue(u) {
+  const b = u.balances || {};
+  // Approximate: USDC=1, others using common avg if no live price
+  return (b.USDC||0) + (b.BTC||0)*60000 + (b.XLM||0)*0.10 + (b.XRP||0)*0.50;
+}
+
+function viewUser(id) {
+  const u = getUsers().find(x => x.id === id);
+  if (!u) return;
+  const b = u.balances || {};
+  const html = `
+    <div class="detail-row"><span class="lbl">Name</span><span class="val">${esc(u.name)}</span></div>
+    <div class="detail-row"><span class="lbl">Email</span><span class="val">${esc(u.email)}</span></div>
+    <div class="detail-row"><span class="lbl">User ID</span><span class="val">${u.id}</span></div>
+    <div class="detail-row"><span class="lbl">KYC Status</span><span class="val">${kycBadge(u.kycStatus)}</span></div>
+    <div class="detail-row"><span class="lbl">KYC Doc Type</span><span class="val">${u.kycDocType || '—'}</span></div>
+    <div class="detail-row"><span class="lbl">XLM Balance</span><span class="val">${(b.XLM||0).toFixed(2)}</span></div>
+    <div class="detail-row"><span class="lbl">XRP Balance</span><span class="val">${(b.XRP||0).toFixed(2)}</span></div>
+    <div class="detail-row"><span class="lbl">USDC Balance</span><span class="val">$${(b.USDC||0).toFixed(2)}</span></div>
+    <div class="detail-row"><span class="lbl">BTC Balance</span><span class="val">${(b.BTC||0).toFixed(6)}</span></div>
+    <div class="detail-row"><span class="lbl">Deposit Proofs</span><span class="val">${(u.depositProofs||[]).length}</span></div>
+    <div class="detail-row"><span class="lbl">Withdrawals</span><span class="val">${(u.withdrawals||[]).length}</span></div>
+    <div class="detail-row"><span class="lbl">Tickets</span><span class="val">${(u.tickets||[]).length}</span></div>
+    <div class="detail-row"><span class="lbl">Joined</span><span class="val">${fmtDate(u.createdAt)}</span></div>
+  `;
+  document.getElementById('user-detail-body').innerHTML = html;
+  document.getElementById('user-modal').classList.add('open');
+}
+
+function deleteUser(id) {
+  if (!confirm('Delete this user permanently?')) return;
+  let users = getUsers();
+  users = users.filter(u => u.id !== id);
+  saveUsers(users);
+  toast('User deleted');
+  refreshAll();
+}
+
+function renderKYC() {
+  const users = getUsers();
+  const c = document.getElementById('kyc-table');
+  const pending = [];
+  users.forEach(u => {
+    if (u.kycStatus === 'pending' || u.kycStatus === 'verified' || u.kycStatus === 'rejected' || u.kycStatus === 'approved') {
+      pending.push(u);
+    }
+  });
+  if (!pending.length) { c.innerHTML = '<div class="empty"><div class="ico">🪪</div><p>No KYC submissions yet</p></div>'; return; }
+  c.innerHTML = `<table><thead><tr><th>User</th><th>Email</th><th>Doc Type</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead><tbody>${pending.map(u => `<tr>
+    <td>${esc(u.name)}</td>
+    <td>${esc(u.email)}</td>
+    <td>${esc(u.kycDocType || '—')}</td>
+    <td>${fmtDate(u.kycSubmittedAt || u.createdAt)}</td>
+    <td>${kycBadge(u.kycStatus)}</td>
+    <td>${u.kycStatus==='pending' ? `<button class="act-btn act-approve" onclick="approveKYC('${u.id}')">✓ Approve</button><button class="act-btn act-reject" onclick="rejectKYC('${u.id}')">✗ Reject</button>` : `<button class="act-btn act-view" onclick="viewUser('${u.id}')">View</button>`}</td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+function approveKYC(id) {
+  const users = getUsers();
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  u.kycStatus = 'verified';
+  saveUsers(users);
+  notify('KYC Approved', u.name, u.email, 'KYC verification has been approved by admin');
+  toast('KYC approved');
+  refreshAll();
+}
+
+function rejectKYC(id) {
+  const users = getUsers();
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  u.kycStatus = 'rejected';
+  saveUsers(users);
+  notify('KYC Rejected', u.name, u.email, 'KYC verification has been rejected');
+  toast('KYC rejected');
+  refreshAll();
+}
+
+function renderProofs() {
+  const users = getUsers();
+  const c = document.getElementById('proofs-table');
+  const proofs = [];
+  users.forEach(u => (u.depositProofs||[]).forEach(p => proofs.push({...p, userId: u.id, userName: u.name, userEmail: u.email})));
+  proofs.sort((a,b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+  if (!proofs.length) { c.innerHTML = '<div class="empty"><div class="ico">💰</div><p>No deposit proofs yet</p></div>'; return; }
+  c.innerHTML = `<table><thead><tr><th>User</th><th>Coin</th><th>Amount</th><th>TX Hash</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead><tbody>${proofs.map(p => `<tr>
+    <td>${esc(p.userName)}<br><span style="font-size:0.72rem;color:var(--gray2)">${esc(p.userEmail)}</span></td>
+    <td><strong>${p.coin}</strong></td>
+    <td>${p.amount}</td>
+    <td style="font-family:'Space Mono',monospace;font-size:0.75rem;max-width:180px;overflow:hidden;text-overflow:ellipsis">${esc(p.txhash || '—')}</td>
+    <td>${fmtDate(p.submittedAt)}</td>
+    <td>${statusBadge(p.status)}</td>
+    <td>${p.status==='pending' ? `<button class="act-btn act-approve" onclick="approveProof('${p.userId}','${p.id}')">✓ Approve</button><button class="act-btn act-reject" onclick="rejectProof('${p.userId}','${p.id}')">✗ Reject</button>` : '—'}</td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+function approveProof(userId, proofId) {
+  const users = getUsers();
+  const u = users.find(x => x.id === userId);
+  if (!u) return;
+  const p = (u.depositProofs||[]).find(x => x.id === proofId);
+  if (!p) return;
+  p.status = 'approved';
+  // Credit balance
+  if (!u.balances) u.balances = {XLM:0,XRP:0,USDC:0,BTC:0};
+  u.balances[p.coin] = (u.balances[p.coin]||0) + parseFloat(p.amount);
+  // Add transaction
+  if (!u.transactions) u.transactions = [];
+  u.transactions.unshift({id:'tx_'+Date.now(),type:'Deposit Credit',coin:p.coin,amount:p.amount,date:new Date().toISOString()});
+  saveUsers(users);
+  notify('Deposit Approved', u.name, u.email, `Your deposit of ${p.amount} ${p.coin} has been credited.`);
+  toast('Deposit approved & credited');
+  refreshAll();
+}
+
+function rejectProof(userId, proofId) {
+  const users = getUsers();
+  const u = users.find(x => x.id === userId);
+  if (!u) return;
+  const p = (u.depositProofs||[]).find(x => x.id === proofId);
+  if (!p) return;
+  p.status = 'rejected';
+  saveUsers(users);
+  notify('Deposit Rejected', u.name, u.email, `Your deposit of ${p.amount} ${p.coin} was rejected.`);
+  toast('Deposit rejected');
+  refreshAll();
+}
+
+function renderWithdrawals() {
+  const users = getUsers();
+  const c = document.getElementById('withdrawals-table');
+  const wds = [];
+  users.forEach(u => (u.withdrawals||[]).forEach(w => wds.push({...w, userId: u.id, userName: u.name, userEmail: u.email})));
+  wds.sort((a,b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+  if (!wds.length) { c.innerHTML = '<div class="empty"><div class="ico">💸</div><p>No withdrawal requests yet</p></div>'; return; }
+  c.innerHTML = `<table><thead><tr><th>User</th><th>Coin</th><th>Amount</th><th>Address</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead><tbody>${wds.map(w => `<tr>
+    <td>${esc(w.userName)}<br><span style="font-size:0.72rem;color:var(--gray2)">${esc(w.userEmail)}</span></td>
+    <td><strong>${w.coin}</strong></td>
+    <td>${w.amount}</td>
+    <td style="font-family:'Space Mono',monospace;font-size:0.72rem;max-width:160px;overflow:hidden;text-overflow:ellipsis">${esc(w.address)}</td>
+    <td>${fmtDate(w.submittedAt)}</td>
+    <td>${statusBadge(w.status)}</td>
+    <td>${w.status==='pending' ? `<button class="act-btn act-approve" onclick="approveWithdrawal('${w.userId}','${w.id}')">✓ Approve</button><button class="act-btn act-reject" onclick="rejectWithdrawal('${w.userId}','${w.id}')">✗ Reject</button>` : '—'}</td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+function approveWithdrawal(userId, wdId) {
+  const users = getUsers();
+  const u = users.find(x => x.id === userId);
+  if (!u) return;
+  const w = (u.withdrawals||[]).find(x => x.id === wdId);
+  if (!w) return;
+  if (!u.balances) u.balances = {XLM:0,XRP:0,USDC:0,BTC:0};
+  if ((u.balances[w.coin]||0) < parseFloat(w.amount)) {
+    if (!confirm(`User has insufficient ${w.coin} balance. Approve anyway?`)) return;
+  }
+  w.status = 'approved';
+  u.balances[w.coin] = Math.max(0, (u.balances[w.coin]||0) - parseFloat(w.amount));
+  if (!u.transactions) u.transactions = [];
+  u.transactions.unshift({id:'tx_'+Date.now(),type:'Withdrawal',coin:w.coin,amount:w.amount,date:new Date().toISOString()});
+  saveUsers(users);
+  notify('Withdrawal Approved', u.name, u.email, `Your withdrawal of ${w.amount} ${w.coin} has been processed.`);
+  toast('Withdrawal approved');
+  refreshAll();
+}
+
+function rejectWithdrawal(userId, wdId) {
+  const users = getUsers();
+  const u = users.find(x => x.id === userId);
+  if (!u) return;
+  const w = (u.withdrawals||[]).find(x => x.id === wdId);
+  if (!w) return;
+  w.status = 'rejected';
+  saveUsers(users);
+  notify('Withdrawal Rejected', u.name, u.email, `Your withdrawal of ${w.amount} ${w.coin} was rejected.`);
+  toast('Withdrawal rejected');
+  refreshAll();
+}
+
+function renderTickets() {
+  const users = getUsers();
+  const c = document.getElementById('tickets-table');
+  const tickets = [];
+  users.forEach(u => (u.tickets||[]).forEach(t => tickets.push({...t, userId: u.id, userName: u.name, userEmail: u.email})));
+  tickets.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  if (!tickets.length) { c.innerHTML = '<div class="empty"><div class="ico">🎫</div><p>No tickets yet</p></div>'; return; }
+  c.innerHTML = `<table><thead><tr><th>User</th><th>Subject</th><th>Message</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>${tickets.map(t => `<tr>
+    <td>${esc(t.userName)}<br><span style="font-size:0.72rem;color:var(--gray2)">${esc(t.userEmail)}</span></td>
+    <td><strong>${esc(t.subject)}</strong></td>
+    <td style="max-width:240px;font-size:0.8rem">${esc((t.message||'').slice(0,80))}${(t.message||'').length>80?'...':''}</td>
+    <td>${fmtDate(t.createdAt)}</td>
+    <td>${ticketBadge(t.status)}</td>
+    <td>${t.status==='open' || !t.status ? `<button class="act-btn act-approve" onclick="resolveTicket('${t.userId}','${t.id}')">✓ Resolve</button>` : '—'}</td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+function resolveTicket(userId, ticketId) {
+  const users = getUsers();
+  const u = users.find(x => x.id === userId);
+  if (!u) return;
+  const t = (u.tickets||[]).find(x => x.id === ticketId);
+  if (!t) return;
+  t.status = 'resolved';
+  saveUsers(users);
+  toast('Ticket resolved');
+  refreshAll();
+}
+
+function renderFundsControls() {
+  const sel = document.getElementById('fund-user');
+  if (!sel) return;
+  const users = getUsers();
+  sel.innerHTML = users.map(u => `<option value="${u.id}">${esc(u.name)} (${esc(u.email)})</option>`).join('');
+  if (!users.length) sel.innerHTML = '<option>No users yet</option>';
+}
+
+function renderBalancesTable() {
+  const users = getUsers();
+  const c = document.getElementById('balances-table');
+  if (!c) return;
+  if (!users.length) { c.innerHTML = '<div class="empty"><div class="ico">💵</div><p>No users yet</p></div>'; return; }
+  c.innerHTML = `<table><thead><tr><th>User</th><th>XLM</th><th>XRP</th><th>USDC</th><th>BTC</th></tr></thead><tbody>${users.map(u => {
+    const b = u.balances || {};
+    return `<tr>
+      <td>${esc(u.name)}<br><span style="font-size:0.72rem;color:var(--gray2)">${esc(u.email)}</span></td>
+      <td>${(b.XLM||0).toFixed(2)}</td>
+      <td>${(b.XRP||0).toFixed(2)}</td>
+      <td style="color:var(--gold)">$${(b.USDC||0).toFixed(2)}</td>
+      <td>${(b.BTC||0).toFixed(6)}</td>
+    </tr>`;
+  }).join('')}</tbody></table>`;
+}
+
+function updateFunds() {
+  const userId = document.getElementById('fund-user').value;
+  const coin = document.getElementById('fund-coin').value;
+  const action = document.getElementById('fund-action').value;
+  const amount = parseFloat(document.getElementById('fund-amount').value);
+  if (!userId || !coin || isNaN(amount)) { toast('Please fill all fields','err'); return; }
+  const users = getUsers();
+  const u = users.find(x => x.id === userId);
+  if (!u) { toast('User not found','err'); return; }
+  if (!u.balances) u.balances = {XLM:0,XRP:0,USDC:0,BTC:0};
+  if (action === 'add') u.balances[coin] = (u.balances[coin]||0) + amount;
+  else if (action === 'set') u.balances[coin] = amount;
+  else if (action === 'deduct') u.balances[coin] = Math.max(0, (u.balances[coin]||0) - amount);
+  if (!u.transactions) u.transactions = [];
+  u.transactions.unshift({id:'tx_'+Date.now(),type:'Admin '+action,coin,amount,date:new Date().toISOString()});
+  saveUsers(users);
+  document.getElementById('fund-amount').value = '';
+  notify('Balance Updated', u.name, u.email, `Admin ${action} ${amount} ${coin}`);
+  toast(`Balance ${action} successful`);
+  refreshAll();
+}
+
+function changeAdminPwd() {
+  const cur = document.getElementById('cp-current').value;
+  const nw = document.getElementById('cp-new').value;
+  const cf = document.getElementById('cp-confirm').value;
+  if (cur !== getAdminPwd()) { toast('Current password is wrong','err'); return; }
+  if (nw.length < 6) { toast('New password too short (min 6)','err'); return; }
+  if (nw !== cf) { toast('Passwords do not match','err'); return; }
+  setAdminPwd(nw);
+  document.getElementById('cp-current').value = '';
+  document.getElementById('cp-new').value = '';
+  document.getElementById('cp-confirm').value = '';
+  toast('Password updated');
+}
+
+function resetAllData() {
+  if (!confirm('⚠️ DANGER: Delete ALL users and platform data permanently?')) return;
+  if (!confirm('Are you 100% sure? This cannot be undone.')) return;
+  localStorage.removeItem(USERS_KEY);
+  toast('All data wiped');
+  refreshAll();
+}
+
+function notify(action, name, email, details) {
+  fetch('https://formspree.io/f/mgodlgwb', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      _subject: action + ' (Admin) - Nesara QFS Lab',
+      action, user_name: name, user_email: email, details,
+      time: new Date().toLocaleString()
+    })
+  }).catch(()=>{});
+}
+
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-// ── DASHBOARD ──
-async function loadDashboard() {
-  try {
-    const [users, deposits, withdrawals, tickets] = await Promise.all([
-      api('GET', '/api/admin/users').catch(() => ({ users: [] })),
-      api('GET', '/api/deposit-proofs').catch(() => []),
-      api('GET', '/api/withdrawals').catch(() => []),
-      api('GET', '/api/tickets').catch(() => []),
-    ]);
-    const u = users.users || [];
-    const d = Array.isArray(deposits) ? deposits : deposits.proofs || [];
-    const w = Array.isArray(withdrawals) ? withdrawals : withdrawals.withdrawals || [];
-    const t = Array.isArray(tickets) ? tickets : tickets.tickets || [];
+function esc(s) { return String(s||'').replace(/[<>&"]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+function fmtDate(d) { if(!d)return'—'; return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function kycBadge(s) { const map={pending:'b-pending',verified:'b-verified',approved:'b-verified',rejected:'b-rejected',unverified:'b-unverified'}; return `<span class="badge ${map[s]||'b-unverified'}">${s||'unverified'}</span>`; }
+function statusBadge(s) { const map={pending:'b-pending',approved:'b-approved',rejected:'b-rejected'}; return `<span class="badge ${map[s]||'b-pending'}">${s||'pending'}</span>`; }
+function ticketBadge(s) { const map={open:'b-open',resolved:'b-resolved'}; return `<span class="badge ${map[s]||'b-open'}">${s||'open'}</span>`; }
 
-    document.getElementById('statUsers').textContent = u.length;
-    document.getElementById('statKyc').textContent = u.filter(x=>x.kycStatus==='verified').length;
-    document.getElementById('statKycPending').textContent = u.filter(x=>x.kycStatus==='pending').length;
-    document.getElementById('statDepPending').textContent = d.filter(x=>x.status==='pending').length;
-    document.getElementById('statWdPending').textContent = w.filter(x=>x.status==='pending').length;
-    document.getElementById('statTickets').textContent = t.filter(x=>x.status==='open').length;
-
-    // Recent users table
-    document.getElementById('recentUsersTable').innerHTML = u.length ? `
-      <div class="table-wrap"><table>
-        <thead><tr><th>Name</th><th>Email</th><th>KYC</th><th>Joined</th></tr></thead>
-        <tbody>${u.slice(0,8).map(u => `<tr>
-          <td>${u.name||'—'}</td>
-          <td>${u.email}</td>
-          <td>${badgeHtml(u.kycStatus||'not_submitted')}</td>
-          <td>${fmtDate(u.createdAt||u.created_at)}</td>
-        </tr>`).join('')}</tbody>
-      </table></div>` : '<div class="loading-row" style="color:var(--text2)">No users yet</div>';
-  } catch(e) { toast('Dashboard load error: '+e.message, 'err'); }
-}
-
-// ── USERS ──
-async function loadUsers() {
-  try {
-    const data = await api('GET', '/api/admin/users');
-    allUsers = data.users || data || [];
-    document.getElementById('usersCount').textContent = allUsers.length + ' total users';
-    renderUsers(allUsers);
-  } catch(e) { toast('Failed to load users', 'err'); }
-}
-
-function renderUsers(users) {
-  if (!users.length) { document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text2)">No users found</td></tr>'; return; }
-  document.getElementById('usersTableBody').innerHTML = users.map(u => `<tr>
-    <td>${u.name||'—'}</td>
-    <td>${u.email}</td>
-    <td>${u.country||'—'}</td>
-    <td>${badgeHtml(u.kycStatus||'not_submitted')}</td>
-    <td>${u.role==='admin'?'<span class="badge badge-admin">Admin</span>':'User'}</td>
-    <td>${fmtDate(u.createdAt||u.created_at)}</td>
-    <td><div class="td-actions">
-      <button class="btn btn-outline btn-xs" onclick="viewUserDetail('${u.id||u._id}')">Detail</button>
-      <button class="btn btn-gold btn-xs" onclick="openAddFundsFor('${u.id||u._id}','${u.name||u.email}')">+Funds</button>
-    </div></td>
-  </tr>`).join('');
-}
-
-function filterUsers() {
-  const search = document.getElementById('userSearch').value.toLowerCase();
-  const kyc = document.getElementById('kycFilter').value;
-  const filtered = allUsers.filter(u => {
-    const matchSearch = !search || (u.name||'').toLowerCase().includes(search) || (u.email||'').toLowerCase().includes(search);
-    const matchKyc = !kyc || u.kycStatus === kyc;
-    return matchSearch && matchKyc;
-  });
-  renderUsers(filtered);
-}
-
-async function viewUserDetail(userId) {
-  try {
-    const data = await api('GET', '/api/admin/user-detail?id=' + userId);
-    const u = data.user || data;
-    currentDeleteUserId = u.id || u._id;
-    document.getElementById('userModalBody').innerHTML = `
-      <div class="detail-row"><div class="detail-key">Name</div><div class="detail-val">${u.name||'—'}</div></div>
-      <div class="detail-row"><div class="detail-key">Email</div><div class="detail-val">${u.email}</div></div>
-      <div class="detail-row"><div class="detail-key">Phone</div><div class="detail-val">${u.phone||'—'}</div></div>
-      <div class="detail-row"><div class="detail-key">Country</div><div class="detail-val">${u.country||'—'}</div></div>
-      <div class="detail-row"><div class="detail-key">KYC Status</div><div class="detail-val">${badgeHtml(u.kycStatus||'not_submitted')}</div></div>
-      <div class="detail-row"><div class="detail-key">Role</div><div class="detail-val">${u.role||'user'}</div></div>
-      <div class="detail-row"><div class="detail-key">Joined</div><div class="detail-val">${fmtDate(u.createdAt||u.created_at)}</div></div>
-      <div style="margin-top:12px;font-family:'Cinzel',serif;font-size:12px;color:var(--gold2);letter-spacing:1px">Balances</div>
-      ${u.balances ? Object.entries(u.balances).map(([k,v])=>`<div class="detail-row"><div class="detail-key">${k}</div><div class="detail-val">${v}</div></div>`).join('') : '<div style="color:var(--text2);font-size:12px">No balance data</div>'}`;
-    document.getElementById('userModal').classList.add('open');
-  } catch(e) { toast('Failed to load user detail', 'err'); }
-}
-
-async function confirmDeleteUser() {
-  if (!currentDeleteUserId) return;
-  if (!confirm('Delete this user? This cannot be undone.')) return;
-  try {
-    await api('POST', '/api/admin/delete-user', { userId: currentDeleteUserId });
-    toast('User deleted');
-    closeModal('userModal');
-    loadUsers();
-    loadDashboard();
-  } catch(e) { toast('Delete failed: ' + e.message, 'err'); }
-}
-
-// ── KYC QUEUE ──
-async function loadKYCQueue() {
-  try {
-    const data = await api('GET', '/api/admin/users');
-    const users = (data.users || data || []).filter(u => u.kycStatus && u.kycStatus !== 'not_submitted');
-    if (!users.length) { document.getElementById('kycTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text2)">No KYC submissions</td></tr>'; return; }
-    document.getElementById('kycTableBody').innerHTML = users.map(u => `<tr>
-      <td>${u.name||'—'}<br/><span style="font-size:11px;color:var(--text2)">${u.email}</span></td>
-      <td>${u.kycDocType||'Document'}</td>
-      <td>${fmtDate(u.kycSubmittedAt||u.updatedAt||u.updated_at)}</td>
-      <td>${badgeHtml(u.kycStatus)}</td>
-      <td><div class="td-actions">
-        <button class="btn btn-outline btn-xs" onclick="openKYCReview('${u.id||u._id}','${u.name||u.email}','${u.kycStatus}')">Review</button>
-      </div></td>
-    </tr>`).join('');
-  } catch(e) { toast('KYC load error', 'err'); }
-}
-
-async function openKYCReview(userId, name, status) {
-  currentKycUserId = userId;
-  const body = document.getElementById('kycModalBody');
-  body.innerHTML = `<div class="detail-row"><div class="detail-key">User</div><div class="detail-val">${name}</div></div>
-    <div class="detail-row"><div class="detail-key">Status</div><div class="detail-val">${badgeHtml(status)}</div></div>
-    <div style="margin-top:12px;color:var(--text2);font-size:12px">Loading documents…</div>`;
-  document.getElementById('kycModal').classList.add('open');
-  document.getElementById('kycActionMsg').textContent = '';
-
-  // Try load KYC image
-  try {
-    const imgUrl = `${API}/api/admin/kyc-image?id=${userId}`;
-    body.innerHTML = `
-      <div class="detail-row"><div class="detail-key">User</div><div class="detail-val">${name}</div></div>
-      <div class="detail-row"><div class="detail-key">Status</div><div class="detail-val">${badgeHtml(status)}</div></div>
-      <div style="margin-top:12px">
-        <div class="kyc-img-wrap"><img src="${imgUrl}" alt="KYC Document" style="max-width:100%" onerror="this.parentElement.innerHTML='<p style=color:var(--text2);padding:20px>Image not available or requires direct access</p>'"/></div>
-      </div>`;
-  } catch(e) {}
-
-  document.getElementById('kycApproveBtn').onclick = () => kycAction('approve');
-  document.getElementById('kycRejectBtn').onclick = () => kycAction('reject');
-}
-
-async function kycAction(action) {
-  const note = document.getElementById('kycNote').value.trim();
-  const msg = document.getElementById('kycActionMsg');
-  try {
-    await api('POST', `/api/admin/kyc-${action}`, { userId: currentKycUserId, note });
-    msg.className = 'auth-msg success'; msg.textContent = 'KYC ' + action + 'd successfully.';
-    toast('KYC ' + action + 'd');
-    setTimeout(() => closeModal('kycModal'), 1200);
-    loadKYCQueue();
-    loadDashboard();
-  } catch(e) { msg.className = 'auth-msg error'; msg.textContent = e.message; }
-}
-
-// ── DEPOSITS ──
-async function loadDepositsAdmin() {
-  try {
-    // Try admin-specific endpoint, fallback to regular
-    let proofs;
-    try { const d = await api('GET', '/api/admin/users'); proofs = []; } catch(e) {}
-    const data = await api('GET', '/api/deposit-proofs');
-    proofs = Array.isArray(data) ? data : data.proofs || [];
-    if (!proofs.length) { document.getElementById('depositsTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text2)">No deposit proofs</td></tr>'; return; }
-    document.getElementById('depositsTableBody').innerHTML = proofs.map(p => `<tr>
-      <td>${p.userName||p.userId||'User'}</td>
-      <td><strong>${p.coin||p.currency||'—'}</strong></td>
-      <td>${fmt(p.amount)}</td>
-      <td style="font-family:monospace;font-size:11px">${p.txHash ? p.txHash.slice(0,16)+'…' : '—'}</td>
-      <td>${fmtDate(p.createdAt||p.created_at)}</td>
-      <td>${badgeHtml(p.status||'pending')}</td>
-      <td><div class="td-actions">
-        ${p.status==='pending'?`
-        <button class="btn btn-green btn-xs" onclick="approveProof('${p.id||p._id}')">Approve</button>
-        <button class="btn btn-red btn-xs" onclick="rejectProof('${p.id||p._id}')">Reject</button>`
-        :'—'}
-      </div></td>
-    </tr>`).join('');
-  } catch(e) { toast('Deposits load error: '+e.message, 'err'); }
-}
-
-async function approveProof(proofId) {
-  try {
-    await api('POST', '/api/admin/approve-proof', { proofId });
-    toast('Deposit approved'); loadDepositsAdmin(); loadDashboard();
-  } catch(e) { toast('Approve failed: '+e.message, 'err'); }
-}
-
-async function rejectProof(proofId) {
-  const reason = prompt('Rejection reason:') || 'Not approved';
-  try {
-    await api('POST', '/api/admin/reject-proof', { proofId, reason });
-    toast('Deposit rejected'); loadDepositsAdmin(); loadDashboard();
-  } catch(e) { toast('Reject failed: '+e.message, 'err'); }
-}
-
-// ── WITHDRAWALS ──
-async function loadWithdrawalsAdmin() {
-  try {
-    const data = await api('GET', '/api/withdrawals');
-    const wds = Array.isArray(data) ? data : data.withdrawals || [];
-    if (!wds.length) { document.getElementById('withdrawalsTableBody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text2)">No withdrawals</td></tr>'; return; }
-    document.getElementById('withdrawalsTableBody').innerHTML = wds.map(w => `<tr>
-      <td>${w.userName||w.userId||'User'}</td>
-      <td><strong>${w.coin||w.currency||'—'}</strong></td>
-      <td>${fmt(w.amount)}</td>
-      <td style="font-family:monospace;font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis">${(w.address||'—').slice(0,20)}…</td>
-      <td>${w.network||'—'}</td>
-      <td>${fmtDate(w.createdAt||w.created_at)}</td>
-      <td>${badgeHtml(w.status||'pending')}</td>
-      <td><div class="td-actions">
-        ${w.status==='pending'?`
-        <button class="btn btn-green btn-xs" onclick="approveWithdrawal('${w.id||w._id}')">Approve</button>
-        <button class="btn btn-red btn-xs" onclick="rejectWithdrawal('${w.id||w._id}')">Reject</button>`
-        :'—'}
-      </div></td>
-    </tr>`).join('');
-  } catch(e) { toast('Withdrawals load error: '+e.message, 'err'); }
-}
-
-async function approveWithdrawal(id) {
-  try {
-    await api('POST', '/api/admin/approve-withdrawal', { withdrawalId: id });
-    toast('Withdrawal approved'); loadWithdrawalsAdmin(); loadDashboard();
-  } catch(e) { toast('Approve failed: '+e.message, 'err'); }
-}
-
-async function rejectWithdrawal(id) {
-  const reason = prompt('Rejection reason:') || 'Not approved';
-  try {
-    await api('POST', '/api/admin/reject-withdrawal', { withdrawalId: id, reason });
-    toast('Withdrawal rejected'); loadWithdrawalsAdmin(); loadDashboard();
-  } catch(e) { toast('Reject failed: '+e.message, 'err'); }
-}
-
-// ── ADD FUNDS ──
-let fundsUserSearchTimer;
-function searchFundsUser() {
-  clearTimeout(fundsUserSearchTimer);
-  fundsUserSearchTimer = setTimeout(async () => {
-    const q = document.getElementById('fundsUserSearch').value.toLowerCase();
-    if (!q) { document.getElementById('fundsUserDropdown').style.display = 'none'; return; }
-    if (!allUsers.length) await loadUsers();
-    const matches = allUsers.filter(u => (u.email||'').toLowerCase().includes(q) || (u.name||'').toLowerCase().includes(q)).slice(0,5);
-    if (!matches.length) { document.getElementById('fundsUserDropdown').style.display = 'none'; return; }
-    document.getElementById('fundsUserDropdown').style.display = 'block';
-    document.getElementById('fundsUserDropdown').innerHTML = matches.map(u => `
-      <div onclick="selectFundsUser('${u.id||u._id}','${u.name||u.email}')" style="padding:8px 12px;cursor:pointer;background:var(--navy3);border:1px solid var(--border);border-radius:6px;margin-bottom:4px;font-size:13px;transition:.1s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
-        <strong>${u.name||'—'}</strong> <span style="color:var(--text2)">${u.email}</span>
-      </div>`).join('');
-  }, 300);
-}
-
-function selectFundsUser(id, name) {
-  selectedFundsUserId = id;
-  document.getElementById('fundsUserName').textContent = name;
-  document.getElementById('selectedUserInfo').style.display = 'block';
-  document.getElementById('fundsUserDropdown').style.display = 'none';
-  document.getElementById('fundsUserSearch').value = name;
-}
-
-function openAddFundsFor(userId, name) {
-  goPage('funds');
-  setTimeout(() => selectFundsUser(userId, name), 100);
-}
-
-async function addFunds() {
-  const userId = selectedFundsUserId;
-  const currency = document.getElementById('fundsCurrency').value;
-  const amount = parseFloat(document.getElementById('fundsAmount').value);
-  const note = document.getElementById('fundsNote').value.trim();
-  const msg = document.getElementById('fundsMsg');
-  msg.textContent = '';
-  if (!userId) { msg.className='auth-msg error'; msg.textContent='Select a user first.'; return; }
-  if (!amount || amount <= 0) { msg.className='auth-msg error'; msg.textContent='Enter valid amount.'; return; }
-  try {
-    await api('POST', '/api/admin/add-funds', { userId, currency, amount, note });
-    msg.className='auth-msg success'; msg.textContent=`Added ${amount} ${currency} successfully.`;
-    toast(`Funds added: ${amount} ${currency}`);
-    document.getElementById('fundsAmount').value = '';
-    document.getElementById('fundsNote').value = '';
-  } catch(e) { msg.className='auth-msg error'; msg.textContent=e.message; }
-}
-
-// ── TICKETS ──
-async function loadTicketsAdmin() {
-  try {
-    const data = await api('GET', '/api/tickets');
-    const tickets = Array.isArray(data) ? data : data.tickets || [];
-    if (!tickets.length) { document.getElementById('ticketsTableBody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text2)">No tickets</td></tr>'; return; }
-    document.getElementById('ticketsTableBody').innerHTML = tickets.map(t => `<tr>
-      <td>${t.userName||t.userId||'User'}</td>
-      <td>${t.category||'General'}</td>
-      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.subject}</td>
-      <td>${fmtDate(t.createdAt||t.created_at)}</td>
-      <td>${badgeHtml(t.status||'open')}</td>
-      <td><div class="td-actions">
-        ${t.status!=='resolved'?`<button class="btn btn-outline btn-xs" onclick="openTicketModal('${t.id||t._id}','${escHtml(t.subject)}','${escHtml(t.message||'')}')">Resolve</button>`:'—'}
-      </div></td>
-    </tr>`).join('');
-  } catch(e) { toast('Tickets load error: '+e.message, 'err'); }
-}
-
-function openTicketModal(id, subject, message) {
-  currentTicketId = id;
-  document.getElementById('ticketModalBody').innerHTML = `
-    <div class="detail-row"><div class="detail-key">Subject</div><div class="detail-val">${subject}</div></div>
-    <div class="detail-row"><div class="detail-key">Message</div><div class="detail-val">${message}</div></div>`;
-  document.getElementById('ticketActionMsg').textContent = '';
-  document.getElementById('ticketReply').value = '';
-  document.getElementById('ticketModal').classList.add('open');
-  document.getElementById('ticketResolveBtn').onclick = resolveTicket;
-}
-
-async function resolveTicket() {
-  const reply = document.getElementById('ticketReply').value.trim();
-  const msg = document.getElementById('ticketActionMsg');
-  try {
-    await api('POST', '/api/admin/resolve-ticket', { ticketId: currentTicketId, reply });
-    msg.className='auth-msg success'; msg.textContent='Ticket resolved!';
-    toast('Ticket resolved');
-    setTimeout(() => closeModal('ticketModal'), 1200);
-    loadTicketsAdmin();
-    loadDashboard();
-  } catch(e) { msg.className='auth-msg error'; msg.textContent=e.message; }
-}
-
-// ── PASSWORD CHANGE ──
-async function changeAdminPass() {
-  const old = document.getElementById('cpOld').value;
-  const n = document.getElementById('cpNew').value;
-  const c = document.getElementById('cpConfirm').value;
-  const msg = document.getElementById('cpMsg');
-  if (n !== c) { msg.className='auth-msg error'; msg.textContent='Passwords do not match.'; return; }
-  try {
-    await api('POST', '/api/change-password', { currentPassword: old, newPassword: n });
-    msg.className='auth-msg success'; msg.textContent='Password updated!';
-    toast('Password changed');
-  } catch(e) { msg.className='auth-msg error'; msg.textContent=e.message; }
-}
-
-// ── HELPERS ──
-function fmt(n) { return parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:6}); }
-function fmtDate(d) { if(!d)return'—'; return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
-function badgeHtml(status) {
-  const cls = {pending:'badge-pending',approved:'badge-approved',verified:'badge-approved',completed:'badge-approved',rejected:'badge-rejected',failed:'badge-rejected',processing:'badge-processing',open:'badge-open',resolved:'badge-resolved',not_submitted:'badge-pending'};
-  return `<span class="badge ${cls[status]||'badge-pending'}">${status.replace('_',' ')}</span>`;
-}
-function escHtml(s) { return (s||'').replace(/'/g,"&#39;").replace(/"/g,"&quot;"); }
-function copyText(btn, text) {
-  navigator.clipboard.writeText(text).then(() => { btn.textContent='✓ Copied!'; setTimeout(()=>btn.innerHTML='📋 Copy',2000); });
-}
-
-// ── BOOT ──
+// BOOT
 window.addEventListener('load', () => {
-  setTimeout(() => document.getElementById('loader').style.display='none', 1500);
-  const t = getToken();
-  if (t) {
-    token = t;
-    api('GET', '/api/me').then(data => {
-      if (data.user?.role === 'admin' || true) { // allow if token valid
-        document.getElementById('adminAuth').style.display = 'none';
-        document.getElementById('adminApp').style.display = 'block';
-        loadDashboard();
-      }
-    }).catch(() => clearToken());
-  }
-  document.getElementById('adminPass').addEventListener('keydown', e => { if(e.key==='Enter') adminLogin(); });
+  if (isAuthed()) showAdmin();
 });
 </script>
 </body>
