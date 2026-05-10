@@ -1365,12 +1365,14 @@ let depModalCoin = '';
 try { users = JSON.parse(localStorage.getItem('nqfs_users')||'[]'); } catch(e){}
 try { 
   const s = localStorage.getItem('nqfs_session'); 
-  if(s){ 
+  if(s && getAuthToken()){ 
     currentUser = JSON.parse(s); 
     updateUIState();
     // Show dashboard immediately on refresh if logged in
     document.getElementById('site-main').classList.add('hidden');
     document.getElementById('dashboard').classList.add('active');
+    // Sync from server in background
+    setTimeout(syncUserData, 100);
   } 
 } catch(e){}
 
@@ -1456,7 +1458,26 @@ function refreshAuthUI() {
 
 function toggleAuth() { authMode = authMode === 'login' ? 'register' : 'login'; refreshAuthUI(); }
 
-function handleAuth(e) {
+// ─── API HELPER ───
+function getAuthToken() { return localStorage.getItem('nqfs_token') || ''; }
+function setAuthToken(t) { localStorage.setItem('nqfs_token', t); }
+function clearAuthToken() { localStorage.removeItem('nqfs_token'); }
+
+async function apiCall(method, path, body) {
+  const opts = { method, headers: {} };
+  const t = getAuthToken();
+  if (t) opts.headers['Authorization'] = 'Bearer ' + t;
+  if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+  const r = await fetch(API + path, opts);
+  if (!r.ok) {
+    let msg = 'Request failed';
+    try { const e = await r.json(); msg = e.error || msg; } catch(e){}
+    throw new Error(msg);
+  }
+  return r.json();
+}
+
+async function handleAuth(e) {
   e.preventDefault();
   const email = document.getElementById('f-email').value.trim().toLowerCase();
   const pass = document.getElementById('f-pass').value;
@@ -1470,54 +1491,64 @@ function handleAuth(e) {
     if(pass.length < 6) { showAuthErr('Password must be at least 6 characters.'); return; }
     if(pass !== conf) { showAuthErr('Passwords do not match.'); return; }
     if(!terms) { showAuthErr('Please accept the Terms of Service.'); return; }
-    if(users.find(u => u.email === email)) { showAuthErr('This email is already registered.'); return; }
     btn.disabled = true; btn.textContent = 'Creating account...';
-    setTimeout(function(){ btn.disabled = false; btn.textContent = 'Create Account'; }, 5000);
-    const user = {
-      id: Date.now().toString(), name, email, password: pass,
-      kycStatus: 'unverified', kycFile: null, kycDocType: null,
-      balances: {XLM:0,XRP:0,USDC:0,BTC:0}, transactions: [], tickets: [],
-      depositProofs: [], withdrawals: [], createdAt: new Date().toISOString(),
-    };
-    users.push(user); saveUsers();
-    // Email admin about new signup
-    notifyAdmin('New User Registration', name, email, 'A new user just registered on Nesara QFS Lab');
-    // Notify backend
-    fetch(API + '/api/register', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,password:pass})}).catch(()=>{});
-    loginWith(user);
+    try {
+      const d = await apiCall('POST', '/api/register', { name, email, password: pass });
+      setAuthToken(d.token);
+      notifyAdmin('New User Registration', name, email, 'A new user just registered on Nesara QFS Lab');
+      loginWith(d.user);
+    } catch(err) {
+      showAuthErr(err.message || 'Registration failed');
+      btn.disabled = false; btn.textContent = 'Create Account';
+    }
   } else {
-    const user = users.find(u => u.email === email);
-    if(!user || user.password !== pass) { showAuthErr('Invalid email or password.'); return; }
     btn.disabled = true; btn.textContent = 'Signing in...';
-    setTimeout(function(){ btn.disabled = false; btn.textContent = 'Sign In'; }, 5000);
-    fetch(API + '/api/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pass})}).catch(()=>{});
-    loginWith(user);
+    try {
+      const d = await apiCall('POST', '/api/login', { email, password: pass });
+      setAuthToken(d.token);
+      loginWith(d.user);
+    } catch(err) {
+      showAuthErr(err.message || 'Invalid email or password.');
+      btn.disabled = false; btn.textContent = 'Sign In';
+    }
   }
 }
 
 async function loginWith(user) {
   currentUser = user;
   localStorage.setItem('nqfs_session', JSON.stringify(user));
-  // Sync user to Railway
-  try {
-    const r = await fetch(API + '/api/me');
-    if(r.ok) {
-      const d = await r.json();
-      if(d.user) {
-        currentUser = {...user, ...d.user, password: user.password};
-        localStorage.setItem('nqfs_session', JSON.stringify(currentUser));
-      }
-    }
-  } catch(e){}
   closeAuth();
   updateUIState();
   showDash();
+  // Sync fresh data
+  await syncUserData();
+}
+
+async function syncUserData() {
+  if (!getAuthToken()) return;
+  try {
+    const d = await apiCall('GET', '/api/me');
+    if (d.user) {
+      currentUser = d.user;
+      localStorage.setItem('nqfs_session', JSON.stringify(currentUser));
+      updateUIState();
+      refreshDash();
+    }
+  } catch(e) {
+    // Token invalid or expired
+    clearAuthToken();
+    currentUser = null;
+    localStorage.removeItem('nqfs_session');
+    updateUIState();
+    hideDash();
+  }
 }
 
 function logout() {
+  apiCall('POST', '/api/logout').catch(()=>{});
   currentUser = null;
+  clearAuthToken();
   localStorage.removeItem('nqfs_session');
-  fetch(API + '/api/logout', {method:'POST'}).catch(()=>{});
   updateUIState();
   hideDash();
 }
@@ -1542,6 +1573,10 @@ function updateUIState() {
   document.getElementById('nav-user').classList.toggle('hidden', !has);
   document.getElementById('mob-auth').classList.toggle('hidden', has);
   document.getElementById('mob-user').classList.toggle('hidden', !has);
+  // Hide marketing nav links when logged in
+  const navLinks = document.querySelector('.nav-links');
+  if (navLinks) navLinks.style.display = has ? 'none' : '';
+  document.querySelectorAll('.mobile-nav > a').forEach(a => { a.style.display = has ? 'none' : ''; });
   if(has) {
     setText('nav-name', currentUser.name);
     setText('dash-name', currentUser.name);
@@ -1671,24 +1706,26 @@ function handleKycFile(input) {
   reader.readAsDataURL(file);
 }
 
-function submitKYC() {
+async function submitKYC() {
   if(!kycFileData && currentUser.kycStatus === 'unverified') { toast('Please select an ID document first', 'error'); return; }
   if(currentUser.kycStatus === 'verified') { toast('Your KYC is already verified ✅', 'success'); return; }
-  currentUser.kycStatus = 'pending';
-  currentUser.kycFile = kycFileData;
-  currentUser.kycDocType = kycDocType;
-  saveCurrentUser();
-  // Email admin about KYC
-  notifyAdmin('KYC Document Uploaded', currentUser.name, currentUser.email, 'Document type: ' + kycDocType + ' - Please review in admin panel');
-  // Notify backend
-  fetch(API + '/api/kyc/submit', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fileData: kycFileData ? '[FILE_UPLOADED]' : null, docType: kycDocType})}).catch(()=>{});
-  refreshDash();
-  refreshKycPanel();
-  toast('KYC submitted! Our team will review within 24 hours.', 'success');
-  // Update UI to show pending state
-  document.getElementById('kyc-submit-btn').textContent = '⏳ Submitted — Under Review';
-  document.getElementById('kyc-submit-btn').disabled = true;
-  document.getElementById('kyc-submit-btn').style.opacity = '0.6';
+  try {
+    await apiCall('POST', '/api/kyc/submit', { docType: kycDocType, fullName: currentUser.name, dob: '' });
+    currentUser.kycStatus = 'pending';
+    currentUser.kycDocType = kycDocType;
+    saveCurrentUser();
+    notifyAdmin('KYC Document Uploaded', currentUser.name, currentUser.email, 'Document type: ' + kycDocType);
+    refreshDash();
+    refreshKycPanel();
+    toast('KYC submitted! Our team will review within 24 hours.', 'success');
+    document.getElementById('kyc-submit-btn').textContent = '⏳ Submitted — Under Review';
+    document.getElementById('kyc-submit-btn').disabled = true;
+    document.getElementById('kyc-submit-btn').style.opacity = '0.6';
+    // Refresh from server
+    setTimeout(syncUserData, 500);
+  } catch(err) {
+    toast(err.message || 'Failed to submit KYC', 'error');
+  }
 }
 
 function refreshKycPanel() {
@@ -1729,22 +1766,19 @@ async function submitProof(e) {
   if(!amount || amount <= 0) { toast('Enter a valid amount', 'error'); return; }
   const btn = document.getElementById('proof-submit-btn');
   btn.disabled = true; btn.textContent = 'Submitting...';
-  const proof = {id: Date.now().toString(), coin, amount, txhash, screenshot: proofFileData, status: 'pending', submittedAt: new Date().toISOString()};
-  if(!currentUser.depositProofs) currentUser.depositProofs = [];
-  currentUser.depositProofs.unshift(proof);
-  saveCurrentUser();
-  // Email admin
-  notifyAdmin('💰 Deposit Proof Submitted', currentUser.name, currentUser.email, 'Coin: ' + coin + ' | Amount: ' + amount + ' | TX Hash: ' + (txhash || 'Not provided'));
-  // Notify backend
   try {
-    await fetch(API + '/api/deposit-proof', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({coin, amount, txhash, screenshot: proofFileData ? '[SCREENSHOT_UPLOADED]' : null})});
-  } catch(err){}
-  e.target.reset(); proofFileData = null;
-  document.getElementById('proof-fname').style.display = 'none';
-  document.getElementById('proof-upload-box').style.borderColor = '';
-  document.getElementById('proof-ok').style.display = 'block';
+    await apiCall('POST', '/api/deposit-proof', { coin, amount, txhash });
+    notifyAdmin('💰 Deposit Proof Submitted', currentUser.name, currentUser.email, 'Coin: ' + coin + ' | Amount: ' + amount + ' | TX Hash: ' + (txhash || 'Not provided'));
+    e.target.reset(); proofFileData = null;
+    document.getElementById('proof-fname').style.display = 'none';
+    document.getElementById('proof-upload-box').style.borderColor = '';
+    document.getElementById('proof-ok').style.display = 'block';
+    await syncUserData();
+    renderUserProofs();
+  } catch(err) {
+    toast(err.message || 'Failed to submit', 'error');
+  }
   btn.disabled = false; btn.textContent = '📤 Submit Proof →';
-  renderUserProofs();
 }
 
 function renderUserProofs() {
@@ -1767,18 +1801,17 @@ async function submitWithdrawal(e) {
   if((b[coin]||0) < amount) { toast('Insufficient ' + coin + ' balance', 'error'); return; }
   const btn = document.getElementById('wd-btn');
   btn.disabled = true; btn.textContent = 'Submitting...';
-  const wd = {id: Date.now().toString(), coin, amount, address: addr, note, status: 'pending', submittedAt: new Date().toISOString()};
-  if(!currentUser.withdrawals) currentUser.withdrawals = [];
-  currentUser.withdrawals.unshift(wd);
-  saveCurrentUser();
-  // Email admin
-  notifyAdmin('💸 Withdrawal Request', currentUser.name, currentUser.email, 'Coin: ' + coin + ' | Amount: ' + amount + ' | To: ' + addr);
-  // Notify via ticket
-  await fetch(API + '/api/ticket', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:currentUser.name,email:currentUser.email,subject:'Withdrawal Request',message:`User ${currentUser.name} (${currentUser.email}) has requested a withdrawal of ${amount} ${coin} to address: ${addr}. Note: ${note||'None'}`,userId:currentUser.id})}).catch(()=>{});
-  document.getElementById('withdraw-ok').style.display = 'block';
+  try {
+    await apiCall('POST', '/api/withdrawal', { coin, amount, address: addr, note });
+    notifyAdmin('💸 Withdrawal Request', currentUser.name, currentUser.email, 'Coin: ' + coin + ' | Amount: ' + amount + ' | To: ' + addr);
+    document.getElementById('withdraw-ok').style.display = 'block';
+    e.target.reset();
+    await syncUserData();
+    renderWithdrawals();
+  } catch(err) {
+    toast(err.message || 'Failed to submit', 'error');
+  }
   btn.disabled = false; btn.textContent = 'Request Withdrawal →';
-  e.target.reset();
-  renderWithdrawals();
 }
 
 function renderWithdrawals() {
@@ -1838,18 +1871,17 @@ async function submitDashTicket(e) {
   if(!message.trim()) { toast('Please enter a message', 'error'); return; }
   const btn = document.getElementById('dt-btn');
   btn.disabled = true; btn.textContent = 'Submitting...';
-  const ticket = {id: Date.now().toString(), subject, message, status: 'open', createdAt: new Date().toISOString()};
-  if(!currentUser.tickets) currentUser.tickets = [];
-  currentUser.tickets.unshift(ticket);
-  saveCurrentUser();
-  notifyAdmin('🎫 Support Ticket', currentUser.name, currentUser.email, 'Subject: ' + subject + ' | Message: ' + message.substring(0, 100));
   try {
-    await fetch(API + '/api/ticket', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:currentUser.name,email:currentUser.email,subject,message,userId:currentUser.id})});
-  } catch(err) {}
-  document.getElementById('dash-ticket-ok').style.display = 'block';
+    await apiCall('POST', '/api/ticket', { subject, message });
+    notifyAdmin('🎫 Support Ticket', currentUser.name, currentUser.email, 'Subject: ' + subject + ' | Message: ' + message.substring(0, 100));
+    document.getElementById('dash-ticket-ok').style.display = 'block';
+    e.target.reset();
+    await syncUserData();
+    renderUserTickets();
+  } catch(err) {
+    toast(err.message || 'Failed to submit', 'error');
+  }
   btn.disabled = false; btn.textContent = 'Submit Ticket →';
-  e.target.reset();
-  renderUserTickets();
 }
 
 function renderUserTickets() {

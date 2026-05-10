@@ -1,6 +1,7 @@
 {
   "name": "nesara-qfs-lab",
-  "version": "7.0.0",
+  "version": "8.0.0",
+  "description": "Nesara QFS Lab Backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

@@ -131,7 +131,7 @@ td .sub{display:block;font-size:0.72rem;color:var(--gray2);margin-top:2px}
     <p class="desc">Enter the admin password to access the control panel.</p>
     <div class="err" id="login-err"></div>
     <div class="fg"><label>Admin Password</label><input type="password" id="admin-pwd" placeholder="••••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
-    <button class="btn-primary" onclick="doAdminLogin()">Sign In</button>
+    <button class="btn-primary" onclick="doAdminLogin()" id="login-btn">Sign In</button>
     <div style="margin-top:18px;text-align:center;font-size:0.78rem;color:var(--gray2)">Default password: <strong style="color:var(--gold)">Claude0511@</strong></div>
   </div>
 </div>
@@ -168,7 +168,6 @@ td .sub{display:block;font-size:0.72rem;color:var(--gray2);margin-top:2px}
     </aside>
 
     <main class="admin-main">
-
       <div class="panel active" id="panel-dashboard">
         <div class="welcome"><h2>Admin Dashboard</h2><p>Real-time overview of platform activity</p></div>
         <div class="stat-grid">
@@ -234,12 +233,7 @@ td .sub{display:block;font-size:0.72rem;color:var(--gray2);margin-top:2px}
           <div class="detail-row"><span class="lbl">💵 USDC</span><span class="val">0x3b5B532ca9837878a276e90D9c16208849f3aBC0</span></div>
           <div class="detail-row"><span class="lbl">₿ BTC</span><span class="val">bc1pmzvfnf4pngf2a9xu7wx0w3fdra7dmhu460wkxxget6nr7ert7kwqlwh04f</span></div>
         </div></div>
-        <div class="card"><div class="card-head"><h3 style="color:var(--red)">Danger Zone</h3></div><div class="card-body">
-          <p style="font-size:0.85rem;color:var(--gray2);margin-bottom:14px">⚠️ This will permanently delete ALL platform data.</p>
-          <button class="btn-primary" style="background:var(--red);max-width:240px" onclick="resetAllData()">Reset All Platform Data</button>
-        </div></div>
       </div>
-
     </main>
   </div>
 </div>
@@ -255,34 +249,62 @@ td .sub{display:block;font-size:0.72rem;color:var(--gray2);margin-top:2px}
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
-const ADMIN_PWD_KEY = 'nqfs_admin_pwd';
-const ADMIN_AUTH_KEY = 'nqfs_admin_auth';
-const USERS_KEY = 'nqfs_users';
+const API = window.location.origin;
+const TOKEN_KEY = 'nqfs_admin_token';
 
-function getAdminPwd() { return localStorage.getItem(ADMIN_PWD_KEY) || 'Claude0511@'; }
-function setAdminPwd(p) { localStorage.setItem(ADMIN_PWD_KEY, p); }
-function isAuthed() { return sessionStorage.getItem(ADMIN_AUTH_KEY) === '1'; }
-function setAuthed(v) { sessionStorage.setItem(ADMIN_AUTH_KEY, v ? '1' : '0'); }
-function getUsers() { try { return JSON.parse(localStorage.getItem(USERS_KEY) || '[]'); } catch(e){ return []; } }
-function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+let cache = { users: [], kyc: [], proofs: [], withdrawals: [], tickets: [], dashboard: null };
+
+const getToken = () => localStorage.getItem(TOKEN_KEY) || '';
+const setToken = (t) => localStorage.setItem(TOKEN_KEY, t);
+const clearToken = () => localStorage.removeItem(TOKEN_KEY);
+
+async function api(method, path, body) {
+  const opts = { method, headers: {} };
+  const t = getToken();
+  if (t) opts.headers['Authorization'] = 'Bearer ' + t;
+  if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+  const r = await fetch(API + path, opts);
+  if (r.status === 401) { clearToken(); showLogin(); throw new Error('Unauthorized'); }
+  if (!r.ok) {
+    let msg = 'Request failed';
+    try { const e = await r.json(); msg = e.error || msg; } catch{}
+    throw new Error(msg);
+  }
+  return r.json();
+}
 
 function toast(msg, type='ok') {
   const el = document.createElement('div');
-  el.className = `toast ${type}`;
+  el.className = 'toast ' + type;
   el.textContent = (type==='ok'?'✓ ':'✗ ') + msg;
   document.getElementById('toast-wrap').appendChild(el);
   setTimeout(()=>el.remove(), 3500);
 }
 
-function doAdminLogin() {
+async function doAdminLogin() {
   const pwd = document.getElementById('admin-pwd').value;
   const errEl = document.getElementById('login-err');
-  if (pwd === getAdminPwd()) { setAuthed(true); showAdmin(); }
-  else { errEl.textContent = '✗ Incorrect password'; errEl.style.display = 'block'; setTimeout(()=>{errEl.style.display='none';},3000); }
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  try {
+    const d = await api('POST', '/api/admin/login', { password: pwd });
+    setToken(d.token);
+    showAdmin();
+  } catch(err) {
+    errEl.textContent = '✗ ' + (err.message || 'Wrong password');
+    errEl.style.display = 'block';
+    setTimeout(()=>{errEl.style.display='none';}, 3000);
+  }
+  btn.disabled = false; btn.textContent = 'Sign In';
 }
 
 function adminLogout() {
-  setAuthed(false);
+  api('POST', '/api/admin/logout').catch(()=>{});
+  clearToken();
+  showLogin();
+}
+
+function showLogin() {
   document.getElementById('admin-app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('admin-pwd').value = '';
@@ -302,27 +324,22 @@ function switchPanel(id, btn) {
   refreshAll();
 }
 
-function refreshAll() {
-  const users = getUsers();
-  const kycPending = users.filter(u => u.kycStatus === 'pending').length;
-  const kycApproved = users.filter(u => u.kycStatus === 'verified' || u.kycStatus === 'approved').length;
-  let proofsPending = 0, withdrawalsPending = 0, openTickets = 0;
-  users.forEach(u => {
-    (u.depositProofs||[]).forEach(p => { if (p.status==='pending') proofsPending++; });
-    (u.withdrawals||[]).forEach(w => { if (w.status==='pending') withdrawalsPending++; });
-    (u.tickets||[]).forEach(t => { if (t.status==='open' || !t.status) openTickets++; });
-  });
-  document.getElementById('stat-users').textContent = users.length;
-  document.getElementById('stat-kyc').textContent = kycPending;
-  document.getElementById('stat-proofs').textContent = proofsPending;
-  document.getElementById('stat-withdrawals').textContent = withdrawalsPending;
-  document.getElementById('stat-tickets').textContent = openTickets;
-  document.getElementById('stat-verified').textContent = kycApproved;
-  setBadge('kyc-badge', kycPending);
-  setBadge('proof-badge', proofsPending);
-  setBadge('wd-badge', withdrawalsPending);
-  setBadge('ticket-badge', openTickets);
-  renderRecentSignups(); renderUsers(); renderKYC(); renderProofs(); renderWithdrawals(); renderTickets(); renderFundsControls(); renderBalancesTable();
+async function refreshAll() {
+  if (!getToken()) { showLogin(); return; }
+  try {
+    const [dash, users, kyc, proofs, wds, tickets] = await Promise.all([
+      api('GET', '/api/admin/dashboard'),
+      api('GET', '/api/admin/users'),
+      api('GET', '/api/admin/kyc-list'),
+      api('GET', '/api/admin/proofs'),
+      api('GET', '/api/admin/withdrawals'),
+      api('GET', '/api/admin/tickets')
+    ]);
+    cache = { dashboard: dash, users: users.users || [], kyc: kyc.kyc || [], proofs: proofs.proofs || [], withdrawals: wds.withdrawals || [], tickets: tickets.tickets || [] };
+    renderDashboard(); renderUsers(); renderKYC(); renderProofs(); renderWithdrawals(); renderTickets(); renderFundsControls(); renderBalancesTable();
+  } catch(err) {
+    if (err.message !== 'Unauthorized') toast('Failed to load data: ' + err.message, 'err');
+  }
 }
 
 function setBadge(id, n) {
@@ -331,27 +348,38 @@ function setBadge(id, n) {
   if (n > 0) { el.textContent = n; el.style.display = 'inline-block'; } else el.style.display = 'none';
 }
 
-function renderRecentSignups() {
-  const users = getUsers().slice().sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0)).slice(0,5);
+function renderDashboard() {
+  const d = cache.dashboard || {};
+  document.getElementById('stat-users').textContent = d.totalUsers || 0;
+  document.getElementById('stat-kyc').textContent = d.kycPending || 0;
+  document.getElementById('stat-proofs').textContent = d.proofsPending || 0;
+  document.getElementById('stat-withdrawals').textContent = d.wdPending || 0;
+  document.getElementById('stat-tickets').textContent = d.ticketsOpen || 0;
+  document.getElementById('stat-verified').textContent = d.kycVerified || 0;
+  setBadge('kyc-badge', d.kycPending || 0);
+  setBadge('proof-badge', d.proofsPending || 0);
+  setBadge('wd-badge', d.wdPending || 0);
+  setBadge('ticket-badge', d.ticketsOpen || 0);
+  const recents = d.recentSignups || [];
   const c = document.getElementById('recent-signups');
-  if (!users.length) { c.innerHTML = '<div class="empty"><div class="ico">👥</div><p>No users registered yet</p></div>'; return; }
-  c.innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>KYC</th><th>Joined</th></tr></thead><tbody>${users.map(u => `<tr><td><strong>${esc(u.name)}</strong></td><td>${esc(u.email)}</td><td>${kycBadge(u.kycStatus)}</td><td>${fmtDate(u.createdAt)}</td></tr>`).join('')}</tbody></table>`;
+  if (!recents.length) { c.innerHTML = '<div class="empty"><div class="ico">👥</div><p>No users yet</p></div>'; return; }
+  c.innerHTML = '<table><thead><tr><th>Name</th><th>Email</th><th>KYC</th><th>Joined</th></tr></thead><tbody>' + recents.map(u => `<tr><td><strong>${esc(u.name)}</strong></td><td>${esc(u.email)}</td><td>${kycBadge(u.kycStatus)}</td><td>${fmtDate(u.createdAt)}</td></tr>`).join('') + '</tbody></table>';
 }
 
 function renderUsers() {
   const search = (document.getElementById('user-search')?.value || '').toLowerCase();
-  let users = getUsers();
+  let users = cache.users.slice();
   if (search) users = users.filter(u => (u.name||'').toLowerCase().includes(search) || (u.email||'').toLowerCase().includes(search));
   const c = document.getElementById('users-table');
   if (!users.length) { c.innerHTML = '<div class="empty"><div class="ico">👥</div><p>No users yet — register on the user portal first</p></div>'; return; }
-  c.innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>KYC</th><th>USDC</th><th>Joined</th><th>Actions</th></tr></thead><tbody>${users.map(u => {
+  c.innerHTML = '<table><thead><tr><th>Name</th><th>Email</th><th>KYC</th><th>USDC</th><th>Joined</th><th>Actions</th></tr></thead><tbody>' + users.map(u => {
     const b = u.balances || {};
     return `<tr><td><strong>${esc(u.name)}</strong></td><td>${esc(u.email)}</td><td>${kycBadge(u.kycStatus)}</td><td style="color:var(--gold);font-weight:700">$${(b.USDC||0).toFixed(2)}</td><td>${fmtDate(u.createdAt)}</td><td><button class="act-btn act-view" onclick="viewUser('${u.id}')">View</button><button class="act-btn act-reject" onclick="deleteUser('${u.id}')">Delete</button></td></tr>`;
-  }).join('')}</tbody></table>`;
+  }).join('') + '</tbody></table>';
 }
 
 function viewUser(id) {
-  const u = getUsers().find(x => x.id === id);
+  const u = cache.users.find(x => x.id === id);
   if (!u) return;
   const b = u.balances || {};
   document.getElementById('user-detail-body').innerHTML = `
@@ -371,50 +399,43 @@ function viewUser(id) {
   document.getElementById('user-modal').classList.add('open');
 }
 
-function deleteUser(id) {
+async function deleteUser(id) {
   if (!confirm('Delete this user permanently?')) return;
-  saveUsers(getUsers().filter(u => u.id !== id));
-  toast('User deleted'); refreshAll();
+  try {
+    await api('POST', '/api/admin/delete-user', { userId: id });
+    toast('User deleted');
+    refreshAll();
+  } catch(err) { toast(err.message, 'err'); }
 }
 
 function renderKYC() {
-  const users = getUsers();
   const c = document.getElementById('kyc-table');
-  const list = users.filter(u => u.kycStatus && u.kycStatus !== 'unverified');
+  const list = cache.kyc;
   if (!list.length) { c.innerHTML = '<div class="empty"><div class="ico">🪪</div><p>No KYC submissions yet</p></div>'; return; }
-  c.innerHTML = `<table><thead><tr><th>User</th><th>Doc Type</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>${list.map(u => `<tr>
+  c.innerHTML = '<table><thead><tr><th>User</th><th>Doc Type</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>' + list.map(u => `<tr>
     <td><strong>${esc(u.name)}</strong><span class="sub">${esc(u.email)}</span></td>
     <td>${esc(u.kycDocType || '—')}</td>
     <td>${kycBadge(u.kycStatus)}</td>
-    <td>${fmtDate(u.kycSubmittedAt || u.createdAt)}</td>
+    <td>${fmtDate(u.kycSubmittedAt)}</td>
     <td>${u.kycStatus==='pending' ? `<button class="act-btn act-approve" onclick="approveKYC('${u.id}')">✓ Approve</button><button class="act-btn act-reject" onclick="rejectKYC('${u.id}')">✗ Reject</button>` : `<button class="act-btn act-view" onclick="viewUser('${u.id}')">View</button>`}</td>
-  </tr>`).join('')}</tbody></table>`;
+  </tr>`).join('') + '</tbody></table>';
 }
 
-function approveKYC(id) {
-  const users = getUsers();
-  const u = users.find(x => x.id === id); if (!u) return;
-  u.kycStatus = 'verified'; saveUsers(users);
-  notify('KYC Approved', u.name, u.email, 'KYC verified by admin');
-  toast('KYC approved'); refreshAll();
+async function approveKYC(id) {
+  try { await api('POST', '/api/admin/kyc-approve', { userId: id }); toast('KYC approved'); refreshAll(); }
+  catch(err) { toast(err.message, 'err'); }
 }
 
-function rejectKYC(id) {
-  const users = getUsers();
-  const u = users.find(x => x.id === id); if (!u) return;
-  u.kycStatus = 'rejected'; saveUsers(users);
-  notify('KYC Rejected', u.name, u.email, 'KYC rejected');
-  toast('KYC rejected'); refreshAll();
+async function rejectKYC(id) {
+  try { await api('POST', '/api/admin/kyc-reject', { userId: id }); toast('KYC rejected'); refreshAll(); }
+  catch(err) { toast(err.message, 'err'); }
 }
 
 function renderProofs() {
-  const users = getUsers();
   const c = document.getElementById('proofs-table');
-  const proofs = [];
-  users.forEach(u => (u.depositProofs||[]).forEach(p => proofs.push({...p, userId: u.id, userName: u.name, userEmail: u.email})));
-  proofs.sort((a,b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0));
+  const proofs = cache.proofs;
   if (!proofs.length) { c.innerHTML = '<div class="empty"><div class="ico">💰</div><p>No deposit proofs yet</p></div>'; return; }
-  c.innerHTML = `<table><thead><tr><th>User</th><th>Coin</th><th>Amount</th><th>TX Hash</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>${proofs.map(p => `<tr>
+  c.innerHTML = '<table><thead><tr><th>User</th><th>Coin</th><th>Amount</th><th>TX Hash</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + proofs.map(p => `<tr>
     <td><strong>${esc(p.userName)}</strong><span class="sub">${esc(p.userEmail)}</span></td>
     <td><strong>${p.coin}</strong></td>
     <td>${p.amount}</td>
@@ -422,40 +443,24 @@ function renderProofs() {
     <td>${fmtDate(p.submittedAt)}</td>
     <td>${statusBadge(p.status)}</td>
     <td>${p.status==='pending' ? `<button class="act-btn act-approve" onclick="approveProof('${p.userId}','${p.id}')">✓ Approve</button><button class="act-btn act-reject" onclick="rejectProof('${p.userId}','${p.id}')">✗ Reject</button>` : '—'}</td>
-  </tr>`).join('')}</tbody></table>`;
+  </tr>`).join('') + '</tbody></table>';
 }
 
-function approveProof(userId, proofId) {
-  const users = getUsers();
-  const u = users.find(x => x.id === userId); if (!u) return;
-  const p = (u.depositProofs||[]).find(x => x.id === proofId); if (!p) return;
-  p.status = 'approved';
-  if (!u.balances) u.balances = {XLM:0,XRP:0,USDC:0,BTC:0};
-  u.balances[p.coin] = (u.balances[p.coin]||0) + parseFloat(p.amount);
-  if (!u.transactions) u.transactions = [];
-  u.transactions.unshift({id:'tx_'+Date.now(),type:'Deposit Credit',coin:p.coin,amount:p.amount,date:new Date().toISOString()});
-  saveUsers(users);
-  notify('Deposit Approved', u.name, u.email, `${p.amount} ${p.coin} credited`);
-  toast('Deposit approved & credited'); refreshAll();
+async function approveProof(userId, proofId) {
+  try { await api('POST', '/api/admin/proof-approve', { userId, proofId }); toast('Deposit approved & credited'); refreshAll(); }
+  catch(err) { toast(err.message, 'err'); }
 }
 
-function rejectProof(userId, proofId) {
-  const users = getUsers();
-  const u = users.find(x => x.id === userId); if (!u) return;
-  const p = (u.depositProofs||[]).find(x => x.id === proofId); if (!p) return;
-  p.status = 'rejected'; saveUsers(users);
-  notify('Deposit Rejected', u.name, u.email, `${p.amount} ${p.coin} rejected`);
-  toast('Deposit rejected'); refreshAll();
+async function rejectProof(userId, proofId) {
+  try { await api('POST', '/api/admin/proof-reject', { userId, proofId }); toast('Deposit rejected'); refreshAll(); }
+  catch(err) { toast(err.message, 'err'); }
 }
 
 function renderWithdrawals() {
-  const users = getUsers();
   const c = document.getElementById('withdrawals-table');
-  const wds = [];
-  users.forEach(u => (u.withdrawals||[]).forEach(w => wds.push({...w, userId: u.id, userName: u.name, userEmail: u.email})));
-  wds.sort((a,b) => new Date(b.submittedAt||0) - new Date(a.submittedAt||0));
+  const wds = cache.withdrawals;
   if (!wds.length) { c.innerHTML = '<div class="empty"><div class="ico">💸</div><p>No withdrawal requests yet</p></div>'; return; }
-  c.innerHTML = `<table><thead><tr><th>User</th><th>Coin</th><th>Amount</th><th>Address</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>${wds.map(w => `<tr>
+  c.innerHTML = '<table><thead><tr><th>User</th><th>Coin</th><th>Amount</th><th>Address</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + wds.map(w => `<tr>
     <td><strong>${esc(w.userName)}</strong><span class="sub">${esc(w.userEmail)}</span></td>
     <td><strong>${w.coin}</strong></td>
     <td>${w.amount}</td>
@@ -463,124 +468,80 @@ function renderWithdrawals() {
     <td>${fmtDate(w.submittedAt)}</td>
     <td>${statusBadge(w.status)}</td>
     <td>${w.status==='pending' ? `<button class="act-btn act-approve" onclick="approveWithdrawal('${w.userId}','${w.id}')">✓</button><button class="act-btn act-reject" onclick="rejectWithdrawal('${w.userId}','${w.id}')">✗</button>` : '—'}</td>
-  </tr>`).join('')}</tbody></table>`;
+  </tr>`).join('') + '</tbody></table>';
 }
 
-function approveWithdrawal(userId, wdId) {
-  const users = getUsers();
-  const u = users.find(x => x.id === userId); if (!u) return;
-  const w = (u.withdrawals||[]).find(x => x.id === wdId); if (!w) return;
-  if (!u.balances) u.balances = {XLM:0,XRP:0,USDC:0,BTC:0};
-  if ((u.balances[w.coin]||0) < parseFloat(w.amount)) {
-    if (!confirm(`User has insufficient ${w.coin}. Approve anyway?`)) return;
-  }
-  w.status = 'approved';
-  u.balances[w.coin] = Math.max(0, (u.balances[w.coin]||0) - parseFloat(w.amount));
-  if (!u.transactions) u.transactions = [];
-  u.transactions.unshift({id:'tx_'+Date.now(),type:'Withdrawal',coin:w.coin,amount:w.amount,date:new Date().toISOString()});
-  saveUsers(users);
-  notify('Withdrawal Approved', u.name, u.email, `${w.amount} ${w.coin} sent`);
-  toast('Withdrawal approved'); refreshAll();
+async function approveWithdrawal(userId, wdId) {
+  try { await api('POST', '/api/admin/withdrawal-approve', { userId, wdId }); toast('Withdrawal approved'); refreshAll(); }
+  catch(err) { toast(err.message, 'err'); }
 }
 
-function rejectWithdrawal(userId, wdId) {
-  const users = getUsers();
-  const u = users.find(x => x.id === userId); if (!u) return;
-  const w = (u.withdrawals||[]).find(x => x.id === wdId); if (!w) return;
-  w.status = 'rejected'; saveUsers(users);
-  notify('Withdrawal Rejected', u.name, u.email, `${w.amount} ${w.coin} rejected`);
-  toast('Withdrawal rejected'); refreshAll();
+async function rejectWithdrawal(userId, wdId) {
+  try { await api('POST', '/api/admin/withdrawal-reject', { userId, wdId }); toast('Withdrawal rejected'); refreshAll(); }
+  catch(err) { toast(err.message, 'err'); }
 }
 
 function renderTickets() {
-  const users = getUsers();
   const c = document.getElementById('tickets-table');
-  const tickets = [];
-  users.forEach(u => (u.tickets||[]).forEach(t => tickets.push({...t, userId: u.id, userName: u.name, userEmail: u.email})));
-  tickets.sort((a,b) => new Date(b.createdAt||0) - new Date(a.createdAt||0));
+  const tickets = cache.tickets;
   if (!tickets.length) { c.innerHTML = '<div class="empty"><div class="ico">🎫</div><p>No tickets yet</p></div>'; return; }
-  c.innerHTML = `<table><thead><tr><th>User</th><th>Subject</th><th>Message</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>${tickets.map(t => `<tr>
+  c.innerHTML = '<table><thead><tr><th>User</th><th>Subject</th><th>Message</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + tickets.map(t => `<tr>
     <td><strong>${esc(t.userName)}</strong><span class="sub">${esc(t.userEmail)}</span></td>
     <td><strong>${esc(t.subject)}</strong></td>
     <td style="max-width:240px;font-size:0.8rem">${esc((t.message||'').slice(0,80))}${(t.message||'').length>80?'...':''}</td>
     <td>${fmtDate(t.createdAt)}</td>
     <td>${ticketBadge(t.status)}</td>
-    <td>${t.status==='open' || !t.status ? `<button class="act-btn act-approve" onclick="resolveTicket('${t.userId}','${t.id}')">✓ Resolve</button>` : '—'}</td>
-  </tr>`).join('')}</tbody></table>`;
+    <td>${t.status==='open' ? `<button class="act-btn act-approve" onclick="resolveTicket('${t.userId}','${t.id}')">✓ Resolve</button>` : '—'}</td>
+  </tr>`).join('') + '</tbody></table>';
 }
 
-function resolveTicket(userId, ticketId) {
-  const users = getUsers();
-  const u = users.find(x => x.id === userId); if (!u) return;
-  const t = (u.tickets||[]).find(x => x.id === ticketId); if (!t) return;
-  t.status = 'resolved'; saveUsers(users);
-  toast('Ticket resolved'); refreshAll();
+async function resolveTicket(userId, ticketId) {
+  try { await api('POST', '/api/admin/ticket-resolve', { userId, ticketId }); toast('Ticket resolved'); refreshAll(); }
+  catch(err) { toast(err.message, 'err'); }
 }
 
 function renderFundsControls() {
   const sel = document.getElementById('fund-user');
   if (!sel) return;
-  const users = getUsers();
-  if (!users.length) { sel.innerHTML = '<option>No users yet</option>'; return; }
-  sel.innerHTML = users.map(u => `<option value="${u.id}">${esc(u.name)} (${esc(u.email)})</option>`).join('');
+  if (!cache.users.length) { sel.innerHTML = '<option>No users yet</option>'; return; }
+  sel.innerHTML = cache.users.map(u => `<option value="${u.id}">${esc(u.name)} (${esc(u.email)})</option>`).join('');
 }
 
 function renderBalancesTable() {
-  const users = getUsers();
   const c = document.getElementById('balances-table');
   if (!c) return;
-  if (!users.length) { c.innerHTML = '<div class="empty"><div class="ico">💵</div><p>No users yet</p></div>'; return; }
-  c.innerHTML = `<table><thead><tr><th>User</th><th>XLM</th><th>XRP</th><th>USDC</th><th>BTC</th></tr></thead><tbody>${users.map(u => {
+  if (!cache.users.length) { c.innerHTML = '<div class="empty"><div class="ico">💵</div><p>No users yet</p></div>'; return; }
+  c.innerHTML = '<table><thead><tr><th>User</th><th>XLM</th><th>XRP</th><th>USDC</th><th>BTC</th></tr></thead><tbody>' + cache.users.map(u => {
     const b = u.balances || {};
     return `<tr><td><strong>${esc(u.name)}</strong><span class="sub">${esc(u.email)}</span></td><td>${(b.XLM||0).toFixed(2)}</td><td>${(b.XRP||0).toFixed(2)}</td><td style="color:var(--gold)">$${(b.USDC||0).toFixed(2)}</td><td>${(b.BTC||0).toFixed(6)}</td></tr>`;
-  }).join('')}</tbody></table>`;
+  }).join('') + '</tbody></table>';
 }
 
-function updateFunds() {
+async function updateFunds() {
   const userId = document.getElementById('fund-user').value;
   const coin = document.getElementById('fund-coin').value;
   const action = document.getElementById('fund-action').value;
   const amount = parseFloat(document.getElementById('fund-amount').value);
   if (!userId || !coin || isNaN(amount)) { toast('Please fill all fields','err'); return; }
-  const users = getUsers();
-  const u = users.find(x => x.id === userId); if (!u) { toast('User not found','err'); return; }
-  if (!u.balances) u.balances = {XLM:0,XRP:0,USDC:0,BTC:0};
-  if (action === 'add') u.balances[coin] = (u.balances[coin]||0) + amount;
-  else if (action === 'set') u.balances[coin] = amount;
-  else if (action === 'deduct') u.balances[coin] = Math.max(0, (u.balances[coin]||0) - amount);
-  if (!u.transactions) u.transactions = [];
-  u.transactions.unshift({id:'tx_'+Date.now(),type:'Admin '+action,coin,amount,date:new Date().toISOString()});
-  saveUsers(users);
-  document.getElementById('fund-amount').value = '';
-  notify('Balance Updated', u.name, u.email, `${action} ${amount} ${coin}`);
-  toast(`Balance ${action} successful`); refreshAll();
+  try {
+    await api('POST', '/api/admin/funds', { userId, coin, action, amount });
+    document.getElementById('fund-amount').value = '';
+    toast('Balance ' + action + ' successful');
+    refreshAll();
+  } catch(err) { toast(err.message, 'err'); }
 }
 
-function changeAdminPwd() {
+async function changeAdminPwd() {
   const cur = document.getElementById('cp-current').value;
   const nw = document.getElementById('cp-new').value;
   const cf = document.getElementById('cp-confirm').value;
-  if (cur !== getAdminPwd()) { toast('Current password is wrong','err'); return; }
   if (nw.length < 6) { toast('New password too short','err'); return; }
   if (nw !== cf) { toast('Passwords do not match','err'); return; }
-  setAdminPwd(nw);
-  ['cp-current','cp-new','cp-confirm'].forEach(id => document.getElementById(id).value='');
-  toast('Password updated');
-}
-
-function resetAllData() {
-  if (!confirm('⚠️ Delete ALL platform data?')) return;
-  if (!confirm('Are you 100% sure?')) return;
-  localStorage.removeItem(USERS_KEY);
-  toast('All data wiped'); refreshAll();
-}
-
-function notify(action, name, email, details) {
-  fetch('https://formspree.io/f/mgodlgwb', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({_subject: action + ' (Admin)', action, user_name: name, user_email: email, details, time: new Date().toLocaleString()})
-  }).catch(()=>{});
+  try {
+    await api('POST', '/api/admin/change-password', { currentPassword: cur, newPassword: nw });
+    ['cp-current','cp-new','cp-confirm'].forEach(id => document.getElementById(id).value='');
+    toast('Password updated');
+  } catch(err) { toast(err.message, 'err'); }
 }
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
@@ -590,7 +551,10 @@ function kycBadge(s) { const map={pending:'b-pending',verified:'b-verified',appr
 function statusBadge(s) { const map={pending:'b-pending',approved:'b-approved',rejected:'b-rejected'}; return `<span class="badge ${map[s]||'b-pending'}">${s||'pending'}</span>`; }
 function ticketBadge(s) { const map={open:'b-open',resolved:'b-resolved'}; return `<span class="badge ${map[s]||'b-open'}">${s||'open'}</span>`; }
 
-window.addEventListener('load', () => { if (isAuthed()) showAdmin(); });
+window.addEventListener('load', () => { if (getToken()) showAdmin(); });
+
+// Auto-refresh every 15 seconds
+setInterval(() => { if (getToken() && document.getElementById('admin-app').style.display !== 'none') refreshAll(); }, 15000);
 </script>
 </body>
 </html>
