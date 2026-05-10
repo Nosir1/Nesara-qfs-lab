@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Nesara QFS Lab — Quantum Financial System</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy: #040d1a;
+  --navy2: #071428;
+  --navy3: #0a1e3d;
+  --navy4: #0f2752;
+  --gold: #c9a227;
+  --gold2: #e8b84b;
+  --gold3: #ffd060;
+  --gold-dim: rgba(201,162,39,0.15);
+  --gold-glow: rgba(201,162,39,0.35);
+  --text: #e8e8f0;
+  --text2: #a0a8b8;
+  --text3: #6070880;
+  --green: #00d4aa;
+  --red: #ff4466;
+  --blue: #4488ff;
+  --border: rgba(201,162,39,0.2);
+  --card: rgba(7,20,40,0.9);
+  --radius: 12px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--navy);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;overflow-x:hidden}
+body{padding-bottom:70px}
+
+/* ── LOADER ── */
+#loader{position:fixed;inset:0;z-index:9999;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+.loader-logo{font-family:'Cinzel',serif;font-size:28px;color:var(--gold2);letter-spacing:3px;text-shadow:0 0 30px var(--gold)}
+.loader-bar{width:200px;height:2px;background:var(--navy3);border-radius:2px;overflow:hidden}
+.loader-fill{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold3));animation:load 1.5s ease forwards}
+@keyframes load{to{width:100%}}
+.loader-sub{font-size:12px;color:var(--text2);letter-spacing:4px;text-transform:uppercase}
+
+/* ── AUTH OVERLAY ── */
+#authOverlay{position:fixed;inset:0;z-index:900;background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-box{width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:36px 28px;backdrop-filter:blur(20px)}
+.auth-logo{font-family:'Cinzel',serif;font-size:22px;color:var(--gold2);text-align:center;letter-spacing:2px;margin-bottom:4px}
+.auth-sub{text-align:center;color:var(--text2);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:24px}
+.auth-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;color:var(--text2);border-bottom:2px solid transparent;transition:.2s}
+.auth-tab.active{color:var(--gold2);border-bottom-color:var(--gold2)}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:6px}
+.form-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;outline:none;transition:.2s}
+.form-input:focus{border-color:var(--gold);background:rgba(201,162,39,0.05)}
+.btn{width:100%;padding:13px;border:none;border-radius:8px;font-family:'Cinzel',serif;font-size:14px;letter-spacing:1.5px;cursor:pointer;transition:.2s;font-weight:600}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy)}
+.btn-gold:hover{background:linear-gradient(135deg,var(--gold2),var(--gold3));transform:translateY(-1px)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sm{padding:8px 16px;width:auto;font-size:12px}
+.btn-danger{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff}
+.auth-msg{margin-top:12px;text-align:center;font-size:13px;min-height:20px}
+.auth-msg.error{color:var(--red)}
+.auth-msg.success{color:var(--green)}
+
+/* ── TOP BAR ── */
+#topBar{display:none;position:fixed;top:0;left:0;right:0;z-index:100;height:56px;background:rgba(4,13,26,0.95);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);display:none;align-items:center;padding:0 16px;gap:12px}
+.topbar-logo{font-family:'Cinzel',serif;font-size:16px;color:var(--gold2);letter-spacing:1px;flex:1}
+.topbar-user{font-size:13px;color:var(--text2)}
+.topbar-bal{font-size:14px;font-weight:700;color:var(--gold2)}
+.topbar-notif{width:32px;height:32px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.notif-dot{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1px solid var(--navy)}
+
+/* ── BOTTOM NAV ── */
+#bottomNav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;height:64px;background:rgba(4,13,26,0.97);border-top:1px solid var(--border);backdrop-filter:blur(20px)}
+.bnav{display:flex;height:100%}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:.2s;position:relative}
+.bnav-item svg{width:22px;height:22px;fill:var(--text2);transition:.2s}
+.bnav-item span{font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--text2);transition:.2s;font-weight:600}
+.bnav-item.active svg,.bnav-item.active span{fill:var(--gold2);color:var(--gold2)}
+.bnav-item.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:32px;height:2px;background:var(--gold2);border-radius:0 0 4px 4px}
+
+/* ── MAIN CONTENT ── */
+#mainContent{display:none;padding-top:56px;min-height:100vh}
+.page{display:none;padding:16px;animation:fadeIn .3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;backdrop-filter:blur(8px)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-family:'Cinzel',serif;font-size:14px;color:var(--gold2);letter-spacing:1px}
+.card-badge{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--gold-dim);color:var(--gold2);border:1px solid var(--border)}
+.section-title{font-family:'Cinzel',serif;font-size:16px;color:var(--gold2);letter-spacing:1.5px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* ── PRICE TICKER ── */
+#priceTicker{background:linear-gradient(90deg,var(--navy2),var(--navy3));border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:16px;overflow:hidden;white-space:nowrap}
+.ticker-inner{display:inline-flex;gap:24px;animation:ticker 30s linear infinite}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker-coin{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.ticker-symbol{color:var(--gold2)}
+.ticker-price{color:var(--text)}
+.ticker-change{font-size:11px;font-weight:700}
+.ticker-change.up{color:var(--green)}
+.ticker-change.down{color:var(--red)}
+
+/* ── WALLET GRID ── */
+.wallet-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.wallet-card{background:linear-gradient(135deg,var(--navy3),var(--navy4));border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden}
+.wallet-card::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:var(--gold-dim);pointer-events:none}
+.wallet-icon{width:32px;height:32px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:8px}
+.wallet-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:4px}
+.wallet-amount{font-family:'Cinzel',serif;font-size:18px;color:var(--gold2);font-weight:700}
+.wallet-usd{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-item{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:12px}
+.stat-label{font-size:11px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.stat-val{font-size:18px;font-weight:700;color:var(--text)}
+.stat-val.gold{color:var(--gold2)}
+.stat-val.green{color:var(--green)}
+
+/* ── TABLES / LISTS ── */
+.tx-list{display:flex;flex-direction:column;gap:8px}
+.tx-item{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;align-items:center;gap:12px}
+.tx-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.tx-icon.in{background:rgba(0,212,170,0.15);border:1px solid rgba(0,212,170,0.3)}
+.tx-icon.out{background:rgba(255,68,102,0.15);border:1px solid rgba(255,68,102,0.3)}
+.tx-info{flex:1;min-width:0}
+.tx-title{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-date{font-size:11px;color:var(--text2)}
+.tx-amount{font-size:14px;font-weight:700;white-space:nowrap}
+.tx-amount.credit{color:var(--green)}
+.tx-amount.debit{color:var(--red)}
+
+/* ── STATUS BADGES ── */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.badge-pending{background:rgba(255,196,0,0.15);color:#ffc400;border:1px solid rgba(255,196,0,0.3)}
+.badge-approved,.badge-verified,.badge-completed{background:rgba(0,212,170,0.15);color:var(--green);border:1px solid rgba(0,212,170,0.3)}
+.badge-rejected,.badge-failed{background:rgba(255,68,102,0.15);color:var(--red);border:1px solid rgba(255,68,102,0.3)}
+.badge-processing{background:rgba(68,136,255,0.15);color:var(--blue);border:1px solid rgba(68,136,255,0.3)}
+
+/* ── DEPOSIT ADDRESSES ── */
+.addr-box{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px}
+.addr-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.addr-value{font-family:monospace;font-size:12px;color:var(--text);word-break:break-all;line-height:1.5}
+.addr-copy{display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:4px 10px;border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--text2);cursor:pointer;transition:.2s}
+.addr-copy:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── UPLOAD / FILE ── */
+.file-drop{border:2px dashed var(--border);border-radius:var(--radius);padding:28px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:12px}
+.file-drop:hover,.file-drop.dragover{border-color:var(--gold);background:var(--gold-dim)}
+.file-drop-icon{font-size:32px;margin-bottom:8px}
+.file-drop-text{font-size:13px;color:var(--text2)}
+.file-drop-sub{font-size:11px;color:var(--text2);margin-top:4px;opacity:.7}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;gap:2px}
+.tab{padding:10px 16px;font-size:13px;font-weight:600;letter-spacing:.5px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;transition:.2s}
+.tab.active{color:var(--gold2);border-bottom-color:var(--gold2)}
+
+/* ── INVESTMENT PLANS ── */
+.plan-card{background:linear-gradient(135deg,var(--navy3),var(--navy4));border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px;position:relative;overflow:hidden}
+.plan-card.featured{border-color:var(--gold)}
+.plan-card.featured::before{content:'★ POPULAR';position:absolute;top:12px;right:-28px;background:var(--gold);color:var(--navy);font-size:9px;font-weight:700;letter-spacing:1px;padding:4px 36px;transform:rotate(35deg)}
+.plan-name{font-family:'Cinzel',serif;font-size:16px;color:var(--gold2);margin-bottom:4px}
+.plan-roi{font-size:28px;font-weight:700;color:var(--gold3)}
+.plan-roi-label{font-size:12px;color:var(--text2)}
+.plan-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.plan-meta-item{background:rgba(255,255,255,0.03);border-radius:6px;padding:8px}
+.plan-meta-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+.plan-meta-val{font-size:14px;font-weight:600;color:var(--text)}
+
+/* ── KYC ── */
+.kyc-step{display:flex;align-items:center;gap:12px;padding:12px;background:var(--navy3);border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
+.kyc-num{width:28px;height:28px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--gold2);flex-shrink:0}
+.kyc-info{flex:1}
+.kyc-info-title{font-size:13px;font-weight:600;color:var(--text)}
+.kyc-info-desc{font-size:11px;color:var(--text2)}
+
+/* ── CARDS SECTION ── */
+.qfs-card{background:linear-gradient(135deg,#0a1e3d,#1a3060);border:1px solid var(--gold);border-radius:16px;padding:22px;position:relative;overflow:hidden;margin-bottom:12px}
+.qfs-card::after{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,39,0.2),transparent)}
+.qfs-card-num{font-family:monospace;font-size:16px;letter-spacing:3px;color:var(--text);margin-bottom:12px}
+.qfs-card-holder{font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--gold2)}
+.qfs-card-type{position:absolute;bottom:16px;right:16px;font-family:'Cinzel',serif;font-size:12px;color:var(--gold2);opacity:.7}
+
+/* ── TICKET / CHAT ── */
+.ticket-item{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;cursor:pointer;transition:.2s}
+.ticket-item:hover{border-color:var(--gold)}
+.ticket-subject{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.ticket-preview{font-size:12px;color:var(--text2);margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ticket-meta{display:flex;align-items:center;gap:8px}
+
+/* ── SELECT / TEXTAREA ── */
+select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='%23c9a227'%3E%3Cpath d='M6 8L0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+textarea.form-input{resize:vertical;min-height:80px}
+
+/* ── MODALS ── */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--navy2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto}
+.modal-title{font-family:'Cinzel',serif;font-size:16px;color:var(--gold2);margin-bottom:16px}
+.modal-close{position:absolute;top:14px;right:14px;cursor:pointer;color:var(--text2);font-size:20px;line-height:1}
+.modal-actions{display:flex;gap:10px;margin-top:16px}
+.modal-actions .btn{flex:1}
+
+/* ── TOAST ── */
+#toast{position:fixed;top:70px;right:16px;z-index:9000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast-msg{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--text);min-width:200px;max-width:300px;animation:slideIn .3s ease;pointer-events:auto;display:flex;align-items:center;gap:8px}
+.toast-msg.toast-ok{border-color:var(--green);background:rgba(0,212,170,0.1)}
+.toast-msg.toast-err{border-color:var(--red);background:rgba(255,68,102,0.1)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+/* ── LOADING SPINNER ── */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--gold2);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:32px 16px;color:var(--text2)}
+.empty-state-icon{font-size:40px;margin-bottom:12px;opacity:.5}
+.empty-state-text{font-size:14px}
+
+/* ── PROFILE ── */
+.avatar-circle{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:28px;color:var(--navy);font-weight:700;margin:0 auto 12px}
+.profile-name{font-family:'Cinzel',serif;font-size:20px;color:var(--gold2);text-align:center}
+.profile-email{font-size:13px;color:var(--text2);text-align:center;margin-bottom:16px}
+
+/* ── EXCHANGE ── */
+.exchange-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.exchange-sel{flex:1}
+.exchange-swap{width:36px;height:36px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:18px;transition:.2s}
+.exchange-swap:hover{background:var(--gold);color:var(--navy)}
+.rate-display{background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--gold2);text-align:center;margin-bottom:12px}
+
+/* ── RESPONSIVE DESKTOP ── */
+@media(min-width:768px){
+  body{padding-bottom:0}
+  #bottomNav{display:none!important}
+  /* side nav could be added here for desktop */
+}
+
+/* ── PROGRESS BAR ── */
+.progress-bar{height:6px;background:var(--navy3);border-radius:3px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--gold3));transition:width .5s ease}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">NESARA QFS LAB</div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+  <div class="loader-sub">Quantum Financial System</div>
+</div>
+
+<!-- AUTH OVERLAY -->
+<div id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-logo">⬡ NESARA QFS LAB</div>
+    <div class="auth-sub">Quantum Financial System</div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuth('login')">Sign In</div>
+      <div class="auth-tab" onclick="switchAuth('register')">Register</div>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-input" id="loginEmail" placeholder="your@email.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="loginPass" placeholder="••••••••"/>
+      </div>
+      <button class="btn btn-gold" onclick="doLogin()">Access Portal</button>
+      <div class="auth-msg" id="loginMsg"></div>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="registerForm" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-input" id="regName" placeholder="John Doe"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-input" id="regEmail" placeholder="your@email.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" class="form-input" id="regPhone" placeholder="+1 000 000 0000"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Country</label>
+        <input type="text" class="form-input" id="regCountry" placeholder="United States"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="regPass" placeholder="Min 8 characters"/>
+      </div>
+      <button class="btn btn-gold" onclick="doRegister()">Create Account</button>
+      <div class="auth-msg" id="registerMsg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<div id="topBar">
+  <div class="topbar-logo">⬡ QFS</div>
+  <div style="flex:1"></div>
+  <div class="topbar-user" id="topUser">—</div>
+  <div class="topbar-notif" onclick="navTo('tickets')">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--text2)"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+    <div class="notif-dot" id="notifDot" style="display:none"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div id="bottomNav">
+  <div class="bnav">
+    <div class="bnav-item active" data-page="dashboard" onclick="navTo('dashboard')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </div>
+    <div class="bnav-item" data-page="deposit" onclick="navTo('deposit')">
+      <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+      <span>Deposit</span>
+    </div>
+    <div class="bnav-item" data-page="withdraw" onclick="navTo('withdraw')">
+      <svg viewBox="0 0 24 24"><polyline points="1 6 10.5 15.5 15.5 10.5 23 19"/><polyline points="17 19 23 19 23 13"/></svg>
+      <span>Withdraw</span>
+    </div>
+    <div class="bnav-item" data-page="invest" onclick="navTo('invest')">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      <span>Invest</span>
+    </div>
+    <div class="bnav-item" data-page="profile" onclick="navTo('profile')">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Account</span>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div id="priceTicker"><div class="ticker-inner" id="tickerInner">Loading prices…</div></div>
+
+  <!-- Balance cards -->
+  <div class="wallet-grid" id="walletGrid">
+    <div class="wallet-card">
+      <div class="wallet-icon">$</div>
+      <div class="wallet-label">USD Balance</div>
+      <div class="wallet-amount" id="balUSD">—</div>
+      <div class="wallet-usd">Fiat Wallet</div>
+    </div>
+    <div class="wallet-card">
+      <div class="wallet-icon">₿</div>
+      <div class="wallet-label">BTC Balance</div>
+      <div class="wallet-amount" id="balBTC">—</div>
+      <div class="wallet-usd" id="btcUsd">—</div>
+    </div>
+    <div class="wallet-card">
+      <div class="wallet-icon">✦</div>
+      <div class="wallet-label">XLM Balance</div>
+      <div class="wallet-amount" id="balXLM">—</div>
+      <div class="wallet-usd" id="xlmUsd">—</div>
+    </div>
+    <div class="wallet-card">
+      <div class="wallet-icon">◈</div>
+      <div class="wallet-label">XRP Balance</div>
+      <div class="wallet-amount" id="balXRP">—</div>
+      <div class="wallet-usd" id="xrpUsd">—</div>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-item">
+      <div class="stat-label">KYC Status</div>
+      <div id="kycStatusBadge">—</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Total Profit</div>
+      <div class="stat-val green" id="totalProfit">$0.00</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Recent Transactions</div>
+      <div class="card-badge" id="txCount">0</div>
+    </div>
+    <div class="tx-list" id="txList"><div class="empty-state"><div class="spinner"></div></div></div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">Quick Actions</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
+      <div onclick="navTo('deposit')" style="cursor:pointer;padding:12px 4px;background:var(--navy3);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-size:20px;margin-bottom:4px">⬇</div><div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">Deposit</div>
+      </div>
+      <div onclick="navTo('withdraw')" style="cursor:pointer;padding:12px 4px;background:var(--navy3);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-size:20px;margin-bottom:4px">⬆</div><div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">Withdraw</div>
+      </div>
+      <div onclick="navTo('exchange')" style="cursor:pointer;padding:12px 4px;background:var(--navy3);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-size:20px;margin-bottom:4px">⇄</div><div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">Exchange</div>
+      </div>
+      <div onclick="navTo('kyc')" style="cursor:pointer;padding:12px 4px;background:var(--navy3);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-size:20px;margin-bottom:4px">✓</div><div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">KYC</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DEPOSIT -->
+<div class="page" id="page-deposit">
+  <div class="section-title">Deposit Funds</div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">Supported Networks</div>
+
+    <div class="addr-box">
+      <div class="addr-label">⭑ Stellar (XLM)</div>
+      <div class="addr-value">GARYAMRNNLJEPV2Z2RTSGIKQGMBE2Q5EETNSRHIPUZ3KT5OV6HXAPWTX</div>
+      <div class="addr-copy" onclick="copyAddr(this,'GARYAMRNNLJEPV2Z2RTSGIKQGMBE2Q5EETNSRHIPUZ3KT5OV6HXAPWTX')">📋 Copy Address</div>
+    </div>
+
+    <div class="addr-box">
+      <div class="addr-label">⭑ Ripple (XRP)</div>
+      <div class="addr-value">r91kk7dkrRkh73FqCbdg6PbFH65jDkoYgk</div>
+      <div class="addr-copy" onclick="copyAddr(this,'r91kk7dkrRkh73FqCbdg6PbFH65jDkoYgk')">📋 Copy Address</div>
+    </div>
+
+    <div class="addr-box">
+      <div class="addr-label">⭑ USDC (ERC20)</div>
+      <div class="addr-value">0x3b5B532ca9837878a276e90D9c16208849f3aBC0</div>
+      <div class="addr-copy" onclick="copyAddr(this,'0x3b5B532ca9837878a276e90D9c16208849f3aBC0')">📋 Copy Address</div>
+    </div>
+
+    <div class="addr-box">
+      <div class="addr-label">⭑ Bitcoin (BTC)</div>
+      <div class="addr-value">bc1pmzvfnf4pngf2a9xu7wx0w3fdra7dmhu460wkxxget6nr7ert7kwqlwh04f</div>
+      <div class="addr-copy" onclick="copyAddr(this,'bc1pmzvfnf4pngf2a9xu7wx0w3fdra7dmhu460wkxxget6nr7ert7kwqlwh04f')">📋 Copy Address</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">Upload Payment Proof</div>
+    <div class="form-group">
+      <label class="form-label">Coin / Network</label>
+      <select class="form-input" id="proofCoin">
+        <option value="XLM">XLM — Stellar</option>
+        <option value="XRP">XRP — Ripple</option>
+        <option value="USDC">USDC — ERC20</option>
+        <option value="BTC">BTC — Bitcoin</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Amount Sent</label>
+      <input type="number" class="form-input" id="proofAmount" placeholder="0.00" style="font-size:16px"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Transaction Hash / ID</label>
+      <input type="text" class="form-input" id="proofTxHash" placeholder="Paste transaction hash" style="font-size:16px"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Screenshot / Proof</label>
+      <div class="file-drop" id="proofDrop" onclick="document.getElementById('proofFile').click()">
+        <div class="file-drop-icon">📎</div>
+        <div class="file-drop-text">Tap to upload screenshot</div>
+        <div class="file-drop-sub">PNG, JPG, PDF — Max 5MB</div>
+      </div>
+      <input type="file" id="proofFile" accept="image/*,.pdf" style="display:none" onchange="handleProofFile(this)"/>
+      <div id="proofFileName" style="font-size:12px;color:var(--gold2);display:none"></div>
+    </div>
+    <button class="btn btn-gold" onclick="submitDepositProof()">Submit Proof</button>
+    <div class="auth-msg" id="proofMsg"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">My Deposit Proofs</div></div>
+    <div id="proofsList"><div class="empty-state"><div class="spinner"></div></div></div>
+  </div>
+</div>
+
+<!-- WITHDRAW -->
+<div class="page" id="page-withdraw">
+  <div class="section-title">Withdraw Funds</div>
+
+  <div class="card" id="withdrawBalCard">
+    <div class="card-title" style="margin-bottom:12px">Available Balances</div>
+    <div class="stat-grid" id="wdBalGrid">
+      <div class="stat-item"><div class="stat-label">USD</div><div class="stat-val gold" id="wdBalUSD">—</div></div>
+      <div class="stat-item"><div class="stat-label">BTC</div><div class="stat-val gold" id="wdBalBTC">—</div></div>
+      <div class="stat-item"><div class="stat-label">XLM</div><div class="stat-val gold" id="wdBalXLM">—</div></div>
+      <div class="stat-item"><div class="stat-label">XRP</div><div class="stat-val gold" id="wdBalXRP">—</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">New Withdrawal Request</div>
+    <div class="form-group">
+      <label class="form-label">Currency</label>
+      <select class="form-input" id="wdCoin">
+        <option value="USD">USD</option>
+        <option value="BTC">BTC</option>
+        <option value="XLM">XLM</option>
+        <option value="XRP">XRP</option>
+        <option value="USDC">USDC</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Amount</label>
+      <input type="number" class="form-input" id="wdAmount" placeholder="0.00" style="font-size:16px"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Wallet Address / Bank Details</label>
+      <input type="text" class="form-input" id="wdAddress" placeholder="Destination wallet or bank" style="font-size:16px"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Network (if crypto)</label>
+      <input type="text" class="form-input" id="wdNetwork" placeholder="e.g. ERC20, BEP20, mainnet" style="font-size:16px"/>
+    </div>
+    <button class="btn btn-gold" onclick="submitWithdrawal()">Request Withdrawal</button>
+    <div class="auth-msg" id="wdMsg"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">Withdrawal History</div></div>
+    <div id="withdrawalList"><div class="empty-state"><div class="spinner"></div></div></div>
+  </div>
+</div>
+
+<!-- INVEST -->
+<div class="page" id="page-invest">
+  <div class="section-title">Investment Plans</div>
+
+  <div class="plan-card">
+    <div class="plan-name">Starter</div>
+    <div class="plan-roi">5% <span class="plan-roi-label">/ month</span></div>
+    <div class="plan-meta">
+      <div class="plan-meta-item"><div class="plan-meta-label">Min</div><div class="plan-meta-val">$500</div></div>
+      <div class="plan-meta-item"><div class="plan-meta-label">Max</div><div class="plan-meta-val">$4,999</div></div>
+      <div class="plan-meta-item"><div class="plan-meta-label">Duration</div><div class="plan-meta-val">30 days</div></div>
+      <div class="plan-meta-item"><div class="plan-meta-label">Payout</div><div class="plan-meta-val">Monthly</div></div>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="openInvestModal('Starter','5%','$500–$4,999')">Invest Now</button>
+  </div>
+
+  <div class="plan-card featured">
+    <div class="plan-name">Silver QFS</div>
+    <div class="plan-roi">12% <span class="plan-roi-label">/ month</span></div>
+    <div class="plan-meta">
+      <div class="plan-meta-item"><div class="plan-meta-label">Min</div><div class="plan-meta-val">$5,000</div></div>
+      <div class="plan-meta-item"><div class="plan-meta-label">Max</div><div class="plan-meta-val">$24,999</div></div>
+      <div class="plan-meta-item"><div class="plan-meta-label">Duration</div><div class="plan-meta-val">60 days</div></div>
+      <div class="plan-meta-item"><div class="plan-meta-label">Payout</div><div class="plan-meta-val">Bi-weekly</div></div>
+    </div>
+    <button class="btn btn-gold btn-sm" onclick="openInvestModal('Silver QFS','12%','$5,000–$24,999')">Invest Now</button>
+  </div>
+
+  <div class="plan-card">
+    <div class="plan-name">Gold QFS</div>
+    <div class="plan-roi">20% <span class="plan-roi-label">/ month</span></div>
+    <div class="plan-meta">
+      <div class="plan-meta-item"><div class="plan-meta-label">Min</div><div class="plan-meta-val">$25,000</div></div>
+      <div class="plan-meta-item"><div class="plan-meta-label">Max</div><div class="plan-meta-val">$99,999</div></div>
+      <div class="plan-meta-item"><div class="plan-meta-label">Duration</div><div class="plan-meta-val">90 days</div></div>
+      <div class="plan-meta-item"><div class="plan-meta-label">Payout</div><div class="plan-meta-val">Weekly</div></div>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="openInvestModal('Gold QFS','20%','$25,000–$99,999')">Invest Now</button>
+  </div>
+
+  <div class="plan-card">
+    <div class="plan-name">Platinum Quantum</div>
+    <div class="plan-roi">35% <span class="plan-roi-label">/ month</span></div>
+    <div class="plan-meta">
+      <div class="plan-meta-item"><div class="plan-meta-label">Min</div><div class="plan-meta-val">$100,000</div></div>
+      <div class="plan-meta-item"><div class="plan-meta-label">Max</div><div class="plan-meta-val">Unlimited</div></div>
+      <div class="plan-meta-item"><div class="plan-meta-label">Duration</div><div class="plan-meta-val">120 days</div></div>
+      <div class="plan-meta-item"><div class="plan-meta-label">Payout</div><div class="plan-meta-val">Daily</div></div>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="openInvestModal('Platinum Quantum','35%','$100,000+')">Invest Now</button>
+  </div>
+</div>
+
+<!-- EXCHANGE -->
+<div class="page" id="page-exchange">
+  <div class="section-title">Exchange</div>
+  <div class="card">
+    <div class="exchange-row">
+      <div class="exchange-sel">
+        <label class="form-label">From</label>
+        <select class="form-input" id="exchFrom" onchange="calcExchange()">
+          <option>BTC</option><option>XLM</option><option>XRP</option><option selected>USDC</option>
+        </select>
+      </div>
+      <div class="exchange-swap" onclick="swapExchange()">⇄</div>
+      <div class="exchange-sel">
+        <label class="form-label">To</label>
+        <select class="form-input" id="exchTo" onchange="calcExchange()">
+          <option>USD</option><option>BTC</option><option selected>XLM</option><option>XRP</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Amount</label>
+      <input type="number" class="form-input" id="exchAmount" placeholder="0.00" oninput="calcExchange()" style="font-size:16px"/>
+    </div>
+    <div class="rate-display" id="exchRate">Enter an amount to see exchange rate</div>
+    <div class="form-group">
+      <label class="form-label">You Receive (estimate)</label>
+      <input type="text" class="form-input" id="exchReceive" readonly placeholder="—"/>
+    </div>
+    <button class="btn btn-gold" onclick="submitExchange()">Exchange Now</button>
+    <div class="auth-msg" id="exchMsg"></div>
+  </div>
+</div>
+
+<!-- WALLETS -->
+<div class="page" id="page-wallets">
+  <div class="section-title">My Wallets</div>
+  <div id="fullWalletGrid" style="display:grid;gap:12px"></div>
+</div>
+
+<!-- KYC -->
+<div class="page" id="page-kyc">
+  <div class="section-title">Identity Verification</div>
+
+  <div class="card" id="kycStatusCard">
+    <div class="card-title" style="margin-bottom:10px">KYC Status</div>
+    <div id="kycCurrentStatus"><div class="spinner"></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">Verification Steps</div>
+    <div class="kyc-step">
+      <div class="kyc-num">1</div>
+      <div class="kyc-info"><div class="kyc-info-title">Government ID</div><div class="kyc-info-desc">Passport, Driver's License, or National ID</div></div>
+    </div>
+    <div class="kyc-step">
+      <div class="kyc-num">2</div>
+      <div class="kyc-info"><div class="kyc-info-title">Selfie with ID</div><div class="kyc-info-desc">Clear photo holding your document</div></div>
+    </div>
+    <div class="kyc-step">
+      <div class="kyc-num">3</div>
+      <div class="kyc-info"><div class="kyc-info-title">Proof of Address</div><div class="kyc-info-desc">Utility bill or bank statement (last 3 months)</div></div>
+    </div>
+  </div>
+
+  <div class="card" id="kycUploadSection">
+    <div class="card-title" style="margin-bottom:12px">Upload Documents</div>
+    <div class="form-group">
+      <label class="form-label">Document Type</label>
+      <select class="form-input" id="kycDocType">
+        <option value="passport">Passport</option>
+        <option value="drivers_license">Driver's License</option>
+        <option value="national_id">National ID</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Full Name (as on document)</label>
+      <input type="text" class="form-input" id="kycFullName" placeholder="John Doe" style="font-size:16px"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date of Birth</label>
+      <input type="date" class="form-input" id="kycDob" style="font-size:16px"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Document Front</label>
+      <div class="file-drop" onclick="document.getElementById('kycFront').click()">
+        <div class="file-drop-icon">🪪</div>
+        <div class="file-drop-text" id="kycFrontName">Tap to upload front of document</div>
+        <div class="file-drop-sub">JPG, PNG — Max 5MB</div>
+      </div>
+      <input type="file" id="kycFront" accept="image/*" style="display:none" onchange="document.getElementById('kycFrontName').textContent=this.files[0]?.name||'Tap to upload'"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Selfie with Document</label>
+      <div class="file-drop" onclick="document.getElementById('kycSelfie').click()">
+        <div class="file-drop-icon">🤳</div>
+        <div class="file-drop-text" id="kycSelfieName">Tap to upload selfie</div>
+        <div class="file-drop-sub">JPG, PNG — Max 5MB</div>
+      </div>
+      <input type="file" id="kycSelfie" accept="image/*" style="display:none" onchange="document.getElementById('kycSelfieName').textContent=this.files[0]?.name||'Tap to upload'"/>
+    </div>
+    <button class="btn btn-gold" onclick="submitKYC()">Submit KYC</button>
+    <div class="auth-msg" id="kycMsg"></div>
+  </div>
+</div>
+
+<!-- QFS CARDS -->
+<div class="page" id="page-cards">
+  <div class="section-title">QFS Cards</div>
+
+  <div class="qfs-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-family:'Cinzel',serif;font-size:12px;color:var(--gold2);letter-spacing:2px">NESARA QFS</div>
+      <div style="width:36px;height:24px;background:linear-gradient(135deg,#ffd060,#c9a227);border-radius:4px"></div>
+    </div>
+    <div class="qfs-card-num" id="cardNumber">•••• •••• •••• ••••</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end">
+      <div>
+        <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Card Holder</div>
+        <div class="qfs-card-holder" id="cardHolder">—</div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Expires</div>
+        <div style="font-size:12px;color:var(--gold2)">12/28</div>
+      </div>
+    </div>
+    <div class="qfs-card-type">VIRTUAL • QUANTUM</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">Card Features</div>
+    <div class="tx-list">
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:20px">🌐</span>
+        <div><div style="font-size:13px;font-weight:600">Global Acceptance</div><div style="font-size:11px;color:var(--text2)">Use anywhere VISA is accepted</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:20px">⚡</span>
+        <div><div style="font-size:13px;font-weight:600">Instant Top-Up</div><div style="font-size:11px;color:var(--text2)">Fund from your QFS wallet instantly</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0">
+        <span style="font-size:20px">🔒</span>
+        <div><div style="font-size:13px;font-weight:600">Quantum Security</div><div style="font-size:11px;color:var(--text2)">256-bit quantum encryption</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">Request Physical Card</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Complete KYC and maintain a minimum balance of $1,000 to apply for a physical card.</p>
+    <button class="btn btn-gold" onclick="requestCard()">Apply for Card</button>
+  </div>
+</div>
+
+<!-- TICKETS -->
+<div class="page" id="page-tickets">
+  <div class="section-title">Support Tickets</div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">New Ticket</div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select class="form-input" id="ticketCategory">
+        <option value="deposit">Deposit Issue</option>
+        <option value="withdrawal">Withdrawal Issue</option>
+        <option value="kyc">KYC Question</option>
+        <option value="account">Account Problem</option>
+        <option value="investment">Investment Query</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Subject</label>
+      <input type="text" class="form-input" id="ticketSubject" placeholder="Brief description of your issue" style="font-size:16px"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Message</label>
+      <textarea class="form-input" id="ticketMessage" placeholder="Provide full details of your issue…" style="font-size:16px;min-height:100px"></textarea>
+    </div>
+    <button class="btn btn-gold" onclick="submitTicket()">Submit Ticket</button>
+    <div class="auth-msg" id="ticketMsg"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">My Tickets</div></div>
+    <div id="ticketList"><div class="empty-state"><div class="spinner"></div></div></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="page-profile">
+  <div class="section-title">My Account</div>
+
+  <div class="card" style="text-align:center">
+    <div class="avatar-circle" id="profileAvatar">?</div>
+    <div class="profile-name" id="profileName">—</div>
+    <div class="profile-email" id="profileEmail">—</div>
+    <div id="profileKycBadge" style="text-align:center;margin-bottom:12px"></div>
+    <button class="btn btn-outline btn-sm" style="width:auto;margin:0 auto" onclick="doLogout()">Sign Out</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">Update Profile</div>
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input type="text" class="form-input" id="updName" style="font-size:16px"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Phone</label>
+      <input type="tel" class="form-input" id="updPhone" style="font-size:16px"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Country</label>
+      <input type="text" class="form-input" id="updCountry" style="font-size:16px"/>
+    </div>
+    <button class="btn btn-gold" onclick="updateProfile()">Save Changes</button>
+    <div class="auth-msg" id="profileMsg"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">Change Password</div>
+    <div class="form-group">
+      <label class="form-label">Current Password</label>
+      <input type="password" class="form-input" id="cpOld" style="font-size:16px"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">New Password</label>
+      <input type="password" class="form-input" id="cpNew" style="font-size:16px"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Confirm New Password</label>
+      <input type="password" class="form-input" id="cpConfirm" style="font-size:16px"/>
+    </div>
+    <button class="btn btn-gold" onclick="changePassword()">Update Password</button>
+    <div class="auth-msg" id="cpMsg"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px">Contact Support</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.6">
+      <div>📍 1309 Coffeen Avenue STE 1200</div>
+      <div style="padding-left:22px">Sheridan, Wyoming 82801</div>
+      <div style="margin-top:6px">📧 info@nesaraqfslab.com</div>
+      <div style="margin-top:4px">📞 +1 (206) 251-7105</div>
+    </div>
+    <button class="btn btn-outline" style="margin-top:12px" onclick="navTo('tickets')">Open Support Ticket</button>
+  </div>
+</div>
+
+</div><!-- /mainContent -->
+
+<!-- INVEST MODAL -->
+<div class="modal-overlay" id="investModal">
+  <div class="modal-box" style="position:relative">
+    <div class="modal-close" onclick="closeModal('investModal')">✕</div>
+    <div class="modal-title" id="investModalTitle">Invest</div>
+    <div class="form-group">
+      <label class="form-label">Investment Amount (USD)</label>
+      <input type="number" class="form-input" id="investAmount" placeholder="Enter amount" style="font-size:16px"/>
+    </div>
+    <div id="investPlanInfo" style="font-size:13px;color:var(--text2);margin-bottom:12px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('investModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="confirmInvest()">Confirm</button>
+    </div>
+    <div class="auth-msg" id="investMsg"></div>
+  </div>
+</div>
+
+<script>
+const API = 'https://nesara-qfs-lab-production.up.railway.app';
+let token = null;
+let currentUser = null;
+let prices = {};
+let currentInvestPlan = {};
+
+// ── TOKEN STORAGE (sessionStorage only — no localStorage) ──
+const setToken = t => { token = t; sessionStorage.setItem('qfs_token', t); };
+const getToken = () => token || sessionStorage.getItem('qfs_token');
+const clearToken = () => { token = null; sessionStorage.removeItem('qfs_token'); };
+
+// ── API HELPERS ──
+async function api(method, path, body, isFormData) {
+  const opts = { method, headers: {} };
+  const t = getToken();
+  if (t) opts.headers['Authorization'] = 'Bearer ' + t;
+  if (body && !isFormData) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  } else if (body) {
+    opts.body = body;
+  }
+  const r = await fetch(API + path, opts);
+  if (!r.ok) {
+    let msg = 'Request failed';
+    try { const e = await r.json(); msg = e.error || e.message || msg; } catch(e){}
+    throw new Error(msg);
+  }
+  return r.json();
+}
+
+// ── TOAST ──
+function toast(msg, type = 'ok') {
+  const el = document.createElement('div');
+  el.className = `toast-msg toast-${type}`;
+  el.innerHTML = (type === 'ok' ? '✓ ' : '✗ ') + msg;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ── AUTH SWITCH ──
+function switchAuth(tab) {
+  document.getElementById('loginForm').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? '' : 'none';
+  document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register')));
+}
+
+// ── LOGIN ──
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPass').value;
+  const msg = document.getElementById('loginMsg');
+  msg.textContent = '';
+  if (!email || !password) { msg.className = 'auth-msg error'; msg.textContent = 'Please fill all fields.'; return; }
+  try {
+    const data = await api('POST', '/api/login', { email, password });
+    setToken(data.token);
+    initApp(data.user);
+  } catch(e) { msg.className = 'auth-msg error'; msg.textContent = e.message; }
+}
+
+// ── REGISTER ──
+async function doRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
+  const country = document.getElementById('regCountry').value.trim();
+  const password = document.getElementById('regPass').value;
+  const msg = document.getElementById('registerMsg');
+  msg.textContent = '';
+  if (!name || !email || !password) { msg.className = 'auth-msg error'; msg.textContent = 'Name, email, and password required.'; return; }
+  try {
+    const data = await api('POST', '/api/register', { name, email, phone, country, password });
+    setToken(data.token);
+    initApp(data.user);
+  } catch(e) { msg.className = 'auth-msg error'; msg.textContent = e.message; }
+}
+
+// ── LOGOUT ──
+async function doLogout() {
+  try { await api('POST', '/api/logout'); } catch(e) {}
+  clearToken();
+  currentUser = null;
+  document.getElementById('authOverlay').style.display = 'flex';
+  document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('topBar').style.display = 'none';
+  document.getElementById('bottomNav').style.display = 'none';
+}
+
+// ── INIT APP ──
+async function initApp(user) {
+  currentUser = user;
+  document.getElementById('authOverlay').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+  document.getElementById('topBar').style.display = 'flex';
+  document.getElementById('bottomNav').style.display = 'block';
+  document.getElementById('topUser').textContent = user.name || user.email;
+
+  // Set card holder name
+  document.getElementById('cardHolder').textContent = (user.name || 'QFS Member').toUpperCase();
+  // Generate virtual card number from user id
+  const cardNum = (user.id || '0000').toString().padStart(4,'0');
+  document.getElementById('cardNumber').textContent = `4532 ${cardNum} 8821 ${Math.floor(1000+Math.random()*9000)}`;
+
+  // Profile fields
+  document.getElementById('profileAvatar').textContent = (user.name || user.email || '?')[0].toUpperCase();
+  document.getElementById('profileName').textContent = user.name || '—';
+  document.getElementById('profileEmail').textContent = user.email || '—';
+  document.getElementById('updName').value = user.name || '';
+  document.getElementById('updPhone').value = user.phone || '';
+  document.getElementById('updCountry').value = user.country || '';
+
+  navTo('dashboard');
+  await loadBalances();
+  await loadTransactions();
+  loadKYCStatus();
+  loadPrices();
+}
+
+// ── NAV ──
+function navTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b => b.classList.remove('active'));
+  const pg = document.getElementById('page-' + page);
+  if (pg) pg.classList.add('active');
+  const bn = document.querySelector(`.bnav-item[data-page="${page}"]`);
+  if (bn) bn.classList.add('active');
+
+  // Lazy load page data
+  if (page === 'deposit') loadDepositProofs();
+  if (page === 'withdraw') { loadWithdrawals(); loadBalances(); }
+  if (page === 'tickets') loadTickets();
+  if (page === 'kyc') loadKYCStatus();
+}
+
+// ── BALANCES ──
+async function loadBalances() {
+  try {
+    const data = await api('GET', '/api/balances');
+    const b = data.balances || data;
+    document.getElementById('balUSD').textContent = '$' + fmt(b.USD || 0);
+    document.getElementById('balBTC').textContent = (b.BTC || 0).toFixed(6);
+    document.getElementById('balXLM').textContent = fmt(b.XLM || 0);
+    document.getElementById('balXRP').textContent = fmt(b.XRP || 0);
+    document.getElementById('topBar').querySelector('.topbar-bal') && (document.getElementById('topBar').querySelector('.topbar-bal').textContent = '$' + fmt(b.USD || 0));
+    // Withdrawal page
+    document.getElementById('wdBalUSD').textContent = '$' + fmt(b.USD || 0);
+    document.getElementById('wdBalBTC').textContent = (b.BTC || 0).toFixed(6);
+    document.getElementById('wdBalXLM').textContent = fmt(b.XLM || 0);
+    document.getElementById('wdBalXRP').textContent = fmt(b.XRP || 0);
+    // USD values using prices
+    if (prices.bitcoin) document.getElementById('btcUsd').textContent = '≈ $' + fmt((b.BTC||0)*prices.bitcoin);
+    if (prices.stellar) document.getElementById('xlmUsd').textContent = '≈ $' + fmt((b.XLM||0)*prices.stellar);
+    if (prices.ripple) document.getElementById('xrpUsd').textContent = '≈ $' + fmt((b.XRP||0)*prices.ripple);
+  } catch(e) { console.error('Balances:', e); }
+}
+
+// ── TRANSACTIONS ──
+async function loadTransactions() {
+  try {
+    const data = await api('GET', '/api/transactions');
+    const txs = data.transactions || data || [];
+    document.getElementById('txCount').textContent = txs.length;
+    if (!txs.length) {
+      document.getElementById('txList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">No transactions yet</div></div>';
+      return;
+    }
+    document.getElementById('txList').innerHTML = txs.slice(0, 10).map(tx => {
+      const isIn = tx.type === 'credit' || tx.type === 'deposit';
+      return `<div class="tx-item">
+        <div class="tx-icon ${isIn ? 'in' : 'out'}">${isIn ? '↓' : '↑'}</div>
+        <div class="tx-info">
+          <div class="tx-title">${tx.description || tx.type || 'Transaction'}</div>
+          <div class="tx-date">${fmtDate(tx.createdAt || tx.created_at)}</div>
+        </div>
+        <div class="tx-amount ${isIn ? 'credit' : 'debit'}">${isIn ? '+' : '-'}${tx.currency||'USD'} ${fmt(tx.amount)}</div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.error('TX:', e); }
+}
+
+// ── KYC ──
+async function loadKYCStatus() {
+  try {
+    const data = await api('GET', '/api/kyc/status');
+    const s = data.status || 'not_submitted';
+    const statusHtml = badgeHtml(s);
+    document.getElementById('kycStatusBadge').innerHTML = statusHtml;
+    document.getElementById('kycCurrentStatus').innerHTML = `<div style="display:flex;align-items:center;gap:10px">${statusHtml}<span style="font-size:13px;color:var(--text2)">${kycStatusText(s)}</span></div>`;
+    document.getElementById('profileKycBadge').innerHTML = statusHtml;
+    // Hide upload form if already submitted
+    if (s === 'verified' || s === 'pending') document.getElementById('kycUploadSection').style.display = 'none';
+  } catch(e) {
+    document.getElementById('kycCurrentStatus').innerHTML = '<span class="badge badge-pending">Not Submitted</span>';
+  }
+}
+
+function kycStatusText(s) {
+  return {verified:'Your identity has been verified.',pending:'Your documents are under review.',rejected:'Your documents were rejected. Please resubmit.',not_submitted:'Submit documents to verify your identity.'}[s] || 'Unknown status';
+}
+
+async function submitKYC() {
+  const docType = document.getElementById('kycDocType').value;
+  const fullName = document.getElementById('kycFullName').value.trim();
+  const dob = document.getElementById('kycDob').value;
+  const frontFile = document.getElementById('kycFront').files[0];
+  const selfieFile = document.getElementById('kycSelfie').files[0];
+  const msg = document.getElementById('kycMsg');
+  msg.textContent = '';
+  if (!fullName || !dob || !frontFile || !selfieFile) { msg.className='auth-msg error'; msg.textContent='All fields required.'; return; }
+  const fd = new FormData();
+  fd.append('docType', docType);
+  fd.append('fullName', fullName);
+  fd.append('dob', dob);
+  fd.append('front', frontFile);
+  fd.append('selfie', selfieFile);
+  try {
+    await api('POST', '/api/kyc/submit', fd, true);
+    msg.className = 'auth-msg success'; msg.textContent = 'KYC submitted! Pending review.';
+    toast('KYC submitted successfully');
+    loadKYCStatus();
+  } catch(e) { msg.className='auth-msg error'; msg.textContent=e.message; }
+}
+
+// ── DEPOSIT PROOF ──
+let proofFileData = null;
+function handleProofFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('proofFileName').style.display = 'block';
+  document.getElementById('proofFileName').textContent = '📎 ' + file.name;
+  document.getElementById('proofDrop').querySelector('.file-drop-text').textContent = file.name;
+  proofFileData = file;
+}
+
+async function submitDepositProof() {
+  const coin = document.getElementById('proofCoin').value;
+  const amount = document.getElementById('proofAmount').value;
+  const txHash = document.getElementById('proofTxHash').value.trim();
+  const msg = document.getElementById('proofMsg');
+  msg.textContent = '';
+  if (!amount || !txHash) { msg.className='auth-msg error'; msg.textContent='Please fill amount and transaction hash.'; return; }
+  const fd = new FormData();
+  fd.append('coin', coin);
+  fd.append('amount', amount);
+  fd.append('txHash', txHash);
+  if (proofFileData) fd.append('proof', proofFileData);
+  try {
+    await api('POST', '/api/deposit-proof', fd, true);
+    msg.className='auth-msg success'; msg.textContent='Proof submitted! Pending admin approval.';
+    toast('Deposit proof submitted');
+    document.getElementById('proofAmount').value = '';
+    document.getElementById('proofTxHash').value = '';
+    proofFileData = null;
+    document.getElementById('proofDrop').querySelector('.file-drop-text').textContent = 'Tap to upload screenshot';
+    document.getElementById('proofFileName').style.display = 'none';
+    loadDepositProofs();
+  } catch(e) { msg.className='auth-msg error'; msg.textContent=e.message; }
+}
+
+async function loadDepositProofs() {
+  try {
+    const data = await api('GET', '/api/deposit-proofs');
+    const proofs = data.proofs || data || [];
+    if (!proofs.length) { document.getElementById('proofsList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No deposit proofs yet</div></div>'; return; }
+    document.getElementById('proofsList').innerHTML = proofs.map(p => `
+      <div class="tx-item" style="margin-bottom:8px">
+        <div class="tx-icon in">💰</div>
+        <div class="tx-info">
+          <div class="tx-title">${p.coin} — ${fmt(p.amount)}</div>
+          <div class="tx-date">${fmtDate(p.createdAt||p.created_at)} · ${p.txHash ? p.txHash.slice(0,12)+'…' : ''}</div>
+        </div>
+        <div>${badgeHtml(p.status||'pending')}</div>
+      </div>`).join('');
+  } catch(e) { document.getElementById('proofsList').innerHTML = '<div class="auth-msg error">Could not load proofs.</div>'; }
+}
+
+// ── WITHDRAWAL ──
+async function submitWithdrawal() {
+  const coin = document.getElementById('wdCoin').value;
+  const amount = document.getElementById('wdAmount').value;
+  const address = document.getElementById('wdAddress').value.trim();
+  const network = document.getElementById('wdNetwork').value.trim();
+  const msg = document.getElementById('wdMsg');
+  msg.textContent = '';
+  if (!amount || !address) { msg.className='auth-msg error'; msg.textContent='Amount and address required.'; return; }
+  try {
+    await api('POST', '/api/withdrawal', { coin, amount: parseFloat(amount), address, network });
+    msg.className='auth-msg success'; msg.textContent='Withdrawal request submitted!';
+    toast('Withdrawal request submitted');
+    document.getElementById('wdAmount').value = '';
+    document.getElementById('wdAddress').value = '';
+    loadWithdrawals();
+    loadBalances();
+  } catch(e) { msg.className='auth-msg error'; msg.textContent=e.message; }
+}
+
+async function loadWithdrawals() {
+  try {
+    const data = await api('GET', '/api/withdrawals');
+    const wds = data.withdrawals || data || [];
+    if (!wds.length) { document.getElementById('withdrawalList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">💸</div><div class="empty-state-text">No withdrawals yet</div></div>'; return; }
+    document.getElementById('withdrawalList').innerHTML = wds.map(w => `
+      <div class="tx-item" style="margin-bottom:8px">
+        <div class="tx-icon out">↑</div>
+        <div class="tx-info">
+          <div class="tx-title">${w.coin||w.currency} — ${fmt(w.amount)}</div>
+          <div class="tx-date">${fmtDate(w.createdAt||w.created_at)}</div>
+        </div>
+        <div>${badgeHtml(w.status||'pending')}</div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+// ── TICKETS ──
+async function submitTicket() {
+  const category = document.getElementById('ticketCategory').value;
+  const subject = document.getElementById('ticketSubject').value.trim();
+  const message = document.getElementById('ticketMessage').value.trim();
+  const msg = document.getElementById('ticketMsg');
+  msg.textContent = '';
+  if (!subject || !message) { msg.className='auth-msg error'; msg.textContent='Subject and message required.'; return; }
+  try {
+    await api('POST', '/api/ticket', { category, subject, message });
+    msg.className='auth-msg success'; msg.textContent='Ticket submitted! Our team will respond shortly.';
+    toast('Support ticket created');
+    document.getElementById('ticketSubject').value = '';
+    document.getElementById('ticketMessage').value = '';
+    loadTickets();
+  } catch(e) { msg.className='auth-msg error'; msg.textContent=e.message; }
+}
+
+async function loadTickets() {
+  try {
+    const data = await api('GET', '/api/tickets');
+    const tickets = data.tickets || data || [];
+    if (!tickets.length) { document.getElementById('ticketList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎫</div><div class="empty-state-text">No tickets yet</div></div>'; return; }
+    document.getElementById('ticketList').innerHTML = tickets.map(t => `
+      <div class="ticket-item">
+        <div class="ticket-subject">${t.subject}</div>
+        <div class="ticket-preview">${t.message || ''}</div>
+        <div class="ticket-meta">
+          ${badgeHtml(t.status||'open')}
+          <span style="font-size:11px;color:var(--text2);margin-left:auto">${fmtDate(t.createdAt||t.created_at)}</span>
+        </div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+// ── PROFILE ──
+async function updateProfile() {
+  const name = document.getElementById('updName').value.trim();
+  const phone = document.getElementById('updPhone').value.trim();
+  const country = document.getElementById('updCountry').value.trim();
+  const msg = document.getElementById('profileMsg');
+  try {
+    await api('POST', '/api/update-profile', { name, phone, country });
+    msg.className='auth-msg success'; msg.textContent='Profile updated!';
+    toast('Profile saved');
+    document.getElementById('topUser').textContent = name || currentUser.email;
+    document.getElementById('profileName').textContent = name;
+    document.getElementById('profileAvatar').textContent = (name||'?')[0].toUpperCase();
+  } catch(e) { msg.className='auth-msg error'; msg.textContent=e.message; }
+}
+
+async function changePassword() {
+  const oldPass = document.getElementById('cpOld').value;
+  const newPass = document.getElementById('cpNew').value;
+  const confirmPass = document.getElementById('cpConfirm').value;
+  const msg = document.getElementById('cpMsg');
+  msg.textContent = '';
+  if (newPass !== confirmPass) { msg.className='auth-msg error'; msg.textContent='Passwords do not match.'; return; }
+  if (newPass.length < 8) { msg.className='auth-msg error'; msg.textContent='Password must be at least 8 characters.'; return; }
+  try {
+    await api('POST', '/api/change-password', { oldPassword: oldPass, newPassword: newPass });
+    msg.className='auth-msg success'; msg.textContent='Password changed!';
+    toast('Password updated');
+    document.getElementById('cpOld').value = '';
+    document.getElementById('cpNew').value = '';
+    document.getElementById('cpConfirm').value = '';
+  } catch(e) { msg.className='auth-msg error'; msg.textContent=e.message; }
+}
+
+// ── EXCHANGE ──
+function calcExchange() {
+  const from = document.getElementById('exchFrom').value;
+  const to = document.getElementById('exchTo').value;
+  const amount = parseFloat(document.getElementById('exchAmount').value) || 0;
+  if (!amount) { document.getElementById('exchRate').textContent = 'Enter an amount to see exchange rate'; document.getElementById('exchReceive').value = ''; return; }
+  const pMap = { BTC: prices.bitcoin||60000, XLM: prices.stellar||0.1, XRP: prices.ripple||0.5, USD: 1, USDC: 1 };
+  const fromP = pMap[from] || 1, toP = pMap[to] || 1;
+  const receive = (amount * fromP / toP).toFixed(6);
+  document.getElementById('exchRate').textContent = `1 ${from} ≈ ${(fromP/toP).toFixed(6)} ${to}`;
+  document.getElementById('exchReceive').value = receive + ' ' + to;
+}
+
+function swapExchange() {
+  const from = document.getElementById('exchFrom');
+  const to = document.getElementById('exchTo');
+  [from.value, to.value] = [to.value, from.value];
+  calcExchange();
+}
+
+async function submitExchange() {
+  const msg = document.getElementById('exchMsg');
+  msg.className='auth-msg success'; msg.textContent='Exchange feature coming soon. Please use withdrawal and deposit for now.';
+}
+
+// ── INVEST MODAL ──
+function openInvestModal(name, roi, range) {
+  currentInvestPlan = { name, roi, range };
+  document.getElementById('investModalTitle').textContent = name + ' — ' + roi + '/month';
+  document.getElementById('investPlanInfo').textContent = 'Range: ' + range;
+  document.getElementById('investModal').classList.add('open');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+async function confirmInvest() {
+  const amount = document.getElementById('investAmount').value;
+  const msg = document.getElementById('investMsg');
+  if (!amount) { msg.className='auth-msg error'; msg.textContent='Enter investment amount.'; return; }
+  try {
+    await api('POST', '/api/withdrawal', { coin:'USD', amount:parseFloat(amount), address:'Investment — '+currentInvestPlan.name, network:'internal' });
+    msg.className='auth-msg success'; msg.textContent='Investment submitted for processing!';
+    toast('Investment request submitted');
+    setTimeout(() => closeModal('investModal'), 1500);
+  } catch(e) { msg.className='auth-msg error'; msg.textContent=e.message; }
+}
+
+function requestCard() { toast('Card application submitted. Our team will contact you.'); }
+
+// ── PRICES ──
+async function loadPrices() {
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,stellar,ripple,usd-coin&vs_currencies=usd&include_24hr_change=true');
+    const d = await r.json();
+    prices = { bitcoin: d.bitcoin?.usd, stellar: d.stellar?.usd, ripple: d.ripple?.usd, 'usd-coin': d['usd-coin']?.usd };
+    const coins = [
+      { sym:'BTC', id:'bitcoin', price:d.bitcoin?.usd, change:d.bitcoin?.usd_24h_change },
+      { sym:'XLM', id:'stellar', price:d.stellar?.usd, change:d.stellar?.usd_24h_change },
+      { sym:'XRP', id:'ripple', price:d.ripple?.usd, change:d.ripple?.usd_24h_change },
+      { sym:'USDC', id:'usd-coin', price:d['usd-coin']?.usd, change:d['usd-coin']?.usd_24h_change },
+    ];
+    const html = [...coins,...coins].map(c => `
+      <div class="ticker-coin">
+        <span class="ticker-symbol">${c.sym}</span>
+        <span class="ticker-price">$${c.price?.toFixed(c.price>1?2:6)||'—'}</span>
+        <span class="ticker-change ${(c.change||0)>=0?'up':'down'}">${(c.change||0)>=0?'▲':'▼'}${Math.abs(c.change||0).toFixed(2)}%</span>
+      </div>`).join('');
+    document.getElementById('tickerInner').innerHTML = html;
+    loadBalances();
+  } catch(e) { console.warn('Price fetch failed'); }
+}
+
+// ── COPY ──
+function copyAddr(el, addr) {
+  navigator.clipboard.writeText(addr).then(() => { el.textContent = '✓ Copied!'; setTimeout(() => el.innerHTML = '📋 Copy Address', 2000); });
+}
+
+// ── HELPERS ──
+function fmt(n) { return parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtDate(d) { if(!d) return '—'; return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+function badgeHtml(status) {
+  const cls = { pending:'badge-pending', approved:'badge-approved', verified:'badge-approved', completed:'badge-approved', rejected:'badge-rejected', failed:'badge-rejected', processing:'badge-processing', open:'badge-pending', resolved:'badge-approved' };
+  return `<span class="badge ${cls[status]||'badge-pending'}">${status}</span>`;
+}
+
+// ── KEYBOARD SUPPORT ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (!document.getElementById('loginForm').style.display || document.getElementById('loginForm').style.display !== 'none') doLogin();
+  }
+});
+
+// ── BOOT ──
+window.addEventListener('load', async () => {
+  setTimeout(() => document.getElementById('loader').style.display = 'none', 1800);
+  const t = getToken();
+  if (t) {
+    token = t;
+    try {
+      const data = await api('GET', '/api/me');
+      initApp(data.user || data);
+    } catch(e) {
+      clearToken();
+    }
+  }
+});
+</script>
+</body>
+</html>
