@@ -321,6 +321,9 @@ function switchPanel(id, btn) {
   document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
   if (btn) btn.classList.add('active');
+  // Render from cache instantly (no waiting)
+  renderDashboard(); renderUsers(); renderKYC(); renderProofs(); renderWithdrawals(); renderTickets(); renderFundsControls(); renderBalancesTable();
+  // Then refresh from server in background
   refreshAll();
 }
 
@@ -425,6 +428,10 @@ function renderKYC() {
 }
 
 async function viewKYC(userId) {
+  // Show modal immediately with loading state
+  document.getElementById('user-detail-body').innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray2)"><div style="font-size:2rem;margin-bottom:10px">⏳</div><p>Loading document...</p></div>';
+  document.querySelector('#user-modal h3').textContent = 'KYC Verification';
+  document.getElementById('user-modal').classList.add('open');
   try {
     const d = await api('GET', '/api/admin/kyc-detail/' + userId);
     const fileHtml = d.kycFileData 
@@ -447,8 +454,9 @@ async function viewKYC(userId) {
       </div>` : ''}
     `;
     document.querySelector('#user-modal h3').textContent = 'KYC Verification — ' + d.name;
-    document.getElementById('user-modal').classList.add('open');
-  } catch(err) { toast(err.message, 'err'); }
+  } catch(err) { 
+    document.getElementById('user-detail-body').innerHTML = '<div style="text-align:center;padding:30px;color:var(--red)"><p>Failed to load: ' + esc(err.message) + '</p><button class="act-btn act-view" onclick="closeModal(\'user-modal\')">Close</button></div>';
+  }
 }
 
 async function approveKYC(id) {
@@ -480,6 +488,10 @@ function renderProofs() {
 }
 
 async function viewProof(userId, proofId) {
+  // Show modal immediately with loading state
+  document.getElementById('user-detail-body').innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray2)"><div style="font-size:2rem;margin-bottom:10px">⏳</div><p>Loading proof...</p></div>';
+  document.querySelector('#user-modal h3').textContent = 'Deposit Proof';
+  document.getElementById('user-modal').classList.add('open');
   try {
     const d = await api('GET', '/api/admin/proof-detail/' + userId + '/' + proofId);
     const p = d.proof;
@@ -504,8 +516,9 @@ async function viewProof(userId, proofId) {
       </div>` : ''}
     `;
     document.querySelector('#user-modal h3').textContent = 'Deposit Proof — ' + p.coin;
-    document.getElementById('user-modal').classList.add('open');
-  } catch(err) { toast(err.message, 'err'); }
+  } catch(err) { 
+    document.getElementById('user-detail-body').innerHTML = '<div style="text-align:center;padding:30px;color:var(--red)"><p>Failed to load: ' + esc(err.message) + '</p><button class="act-btn act-view" onclick="closeModal(\'user-modal\')">Close</button></div>';
+  }
 }
 
 async function approveProof(userId, proofId, btn) {
@@ -661,12 +674,12 @@ function ticketBadge(s) { const map={open:'b-open',resolved:'b-resolved'}; retur
 
 window.addEventListener('load', () => { if (getToken()) showAdmin(); });
 
-// Auto-refresh every 30 seconds, but skip when a modal is open (so user isn't interrupted)
+// Auto-refresh every 8 seconds, but skip when a modal is open
 setInterval(() => { 
   if (getToken() 
     && document.getElementById('admin-app').style.display !== 'none' 
     && !document.querySelector('.modal-bg.open')) refreshAll(); 
-}, 30000);
+}, 8000);
 </script>
 </body>
 </html>

@@ -177,6 +177,9 @@
     /* ── FLOAT BTN ── */
     .float-btn{position:fixed;bottom:28px;right:28px;z-index:500;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:var(--navy);width:54px;height:54px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 6px 28px rgba(200,169,110,0.4);transition:all 0.3s}
     .float-btn:hover{transform:translateY(-3px) scale(1.08)}
+    /* Hide floating ticket button when dashboard is open OR on mobile */
+    body:has(.dash.active) .float-btn,
+    body.dash-open .float-btn{display:none!important}
 
     /* ── MODAL ── */
     .modal{position:fixed;inset:0;background:rgba(6,10,20,0.88);backdrop-filter:blur(8px);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
@@ -365,7 +368,7 @@
     }
 
     /* ── MOBILE BOTTOM NAV ── */
-    .mobile-dash-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy2);border-top:1px solid var(--border2);z-index:200;padding:10px 0 16px;box-shadow:0 -4px 20px rgba(0,0,0,0.3)}
+    .mobile-dash-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy2);border-top:1px solid var(--border2);z-index:200;padding:10px 0 max(16px, env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(0,0,0,0.3)}
     .mobile-dash-nav-inner{display:flex;justify-content:space-around;align-items:center;max-width:500px;margin:0 auto}
     .mob-nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;color:var(--gray2);cursor:pointer;padding:4px 8px;border-radius:8px;transition:all 0.2s;flex:1}
     .mob-nav-btn.active{color:var(--gold)}
@@ -374,7 +377,7 @@
     .mob-nav-btn .lbl{font-size:0.58rem;font-family:'Space Mono',monospace;letter-spacing:0.04em;text-transform:uppercase}
     @media(max-width:900px){
       .mobile-dash-nav{display:block}
-      .dash.active{padding-bottom:80px}
+      .dash.active{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
       .dash-main{padding:16px 14px 20px}
       .dash-sidebar{display:none!important;width:0!important;overflow:hidden!important}
       .dash-welcome h2{font-size:1.1rem}
@@ -1371,6 +1374,8 @@ try {
     // Show dashboard immediately on refresh if logged in
     document.getElementById('site-main').classList.add('hidden');
     document.getElementById('dashboard').classList.add('active');
+    document.body.classList.add('dash-open');
+    const fb = document.querySelector('.float-btn'); if(fb) fb.style.display = 'none';
     // Sync from server in background
     setTimeout(syncUserData, 100);
   } 
@@ -1590,12 +1595,16 @@ function updateUIState() {
 function showDash() {
   document.getElementById('site-main').classList.add('hidden');
   document.getElementById('dashboard').classList.add('active');
+  document.body.classList.add('dash-open');
+  const fb = document.querySelector('.float-btn'); if(fb) fb.style.display = 'none';
   refreshDash();
 }
 
 function hideDash() {
   document.getElementById('site-main').classList.remove('hidden');
   document.getElementById('dashboard').classList.remove('active');
+  document.body.classList.remove('dash-open');
+  const fb = document.querySelector('.float-btn'); if(fb) fb.style.display = '';
 }
 
 function goToSite() { hideDash(); }
@@ -1690,20 +1699,54 @@ function setKycDoc(btn, type) {
   setText('kyc-doc-type-lbl', labels[type]);
 }
 
-function handleKycFile(input) {
+// Compress image to max 1200px wide JPEG, keeps quality but makes upload 10x faster
+async function compressImage(file, maxWidth = 1200, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith('image/')) {
+      // Non-image files (PDF etc) — keep as-is base64
+      const r = new FileReader();
+      r.onload = e => resolve(e.target.result);
+      r.onerror = reject;
+      r.readAsDataURL(file);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      const ratio = Math.min(maxWidth / img.width, 1);
+      const w = img.width * ratio;
+      const h = img.height * ratio;
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = reject;
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleKycFile(input) {
   const file = input.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    kycFileData = e.target.result;
-    const fn = document.getElementById('kyc-fname');
-    fn.textContent = '✅ File selected: ' + file.name; fn.style.display = 'block';
+  const fn = document.getElementById('kyc-fname');
+  fn.textContent = '⏳ Processing...'; fn.style.display = 'block';
+  try {
+    kycFileData = await compressImage(file);
+    fn.textContent = '✅ File selected: ' + file.name;
     document.getElementById('kyc-upload-box').style.borderColor = 'var(--green)';
     if(file.type.startsWith('image/')) {
       document.getElementById('kyc-preview-img').src = kycFileData;
       document.getElementById('kyc-preview-wrap').style.display = 'block';
     }
-  };
-  reader.readAsDataURL(file);
+  } catch(err) {
+    fn.textContent = '❌ Failed to process file';
+    toast('Could not process the file. Try a different one.', 'error');
+  }
 }
 
 async function submitKYC() {
@@ -1750,16 +1793,18 @@ function refreshKycPanel() {
 }
 
 // ═══ DEPOSIT PROOF ═══
-function handleProofFile(input) {
+async function handleProofFile(input) {
   const file = input.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    proofFileData = e.target.result;
-    const fn = document.getElementById('proof-fname');
-    fn.textContent = '✅ File: ' + file.name; fn.style.display = 'block';
+  const fn = document.getElementById('proof-fname');
+  fn.textContent = '⏳ Processing...'; fn.style.display = 'block';
+  try {
+    proofFileData = await compressImage(file);
+    fn.textContent = '✅ File: ' + file.name;
     document.getElementById('proof-upload-box').style.borderColor = 'var(--green)';
-  };
-  reader.readAsDataURL(file);
+  } catch(err) {
+    fn.textContent = '❌ Failed';
+    toast('Could not process the file. Try a different one.', 'error');
+  }
 }
 
 async function submitProof(e) {
